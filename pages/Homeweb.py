@@ -1,5 +1,5 @@
-from selenium.webdriver.common.by import By
-
+from pages.Header import Header
+from pages.Authenticated import Authenticated
 from pages.Landing import LandingPage
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
@@ -19,9 +19,12 @@ class Homeweb:
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
         self.lang = lang
-        self.landing = LandingPage.EN if lang == "EN" else LandingPage.FR
-        self.authenticated = False
-        self.on_landing = False
+        self.landing = LandingPage.EN if self.lang == "EN" else LandingPage.FR
+        self._is_authenticated = False
+        self._is_landing = False
+        self.authenticated = Authenticated.EN if lang == "EN" else Authenticated.FR
+        self.header_type = "ANON"
+        self.header = Header(self.driver, self.lang, self.header_type)
 
     # Methods
     def navigate_landing(self):
@@ -44,26 +47,33 @@ class Homeweb:
         )
         self.driver.execute_script("window.scrollBy(0, 0);")
 
+    def set_landing(self, value):
+        self._is_landing = value
+
+    def set_authenticated(self, value):
+        self._is_authenticated = value
+        self.header_type = "AUTH"
+        self.header = Header(self.driver, self.lang, self.header_type)
+
+    def is_authenticated(self):
+        return self._is_authenticated
+
+    def is_landing(self):
+        return self._is_landing
+
     def wait_for_dashboard(self):
-        self.wait.until(
+        return self.wait.until(
             lambda d: "homeweb" in d.current_url.lower() and "/app/en/homeweb/dashboard" in d.current_url.lower()
         )
 
-    def set_authenticated(self, value):
-        self.authenticated = value
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def set_landing(self, value):
-        self.on_landing = value
-
-    def is_landing(self):
-        return self.on_landing
-
-    def wait_for_resource_content(self, timeout=10):
+    def wait_for_resource_content(self):
         return self.wait.until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "#container-manager"))
+            expected_conditions.visibility_of_element_located(("css selector", "#container-manager"))
+        )
+
+    def wait_for_sentio_transfer(self):
+        return self.wait.until(
+            lambda d: "sentioapp" in d.current_url.lower() and "/sso/token" in d.current_url.lower()
         )
 
 
