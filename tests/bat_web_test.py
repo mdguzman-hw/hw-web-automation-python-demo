@@ -106,7 +106,6 @@ def test_bat_web_005(homeweb):
 def test_bat_web_006(homeweb):
     assert homeweb.is_authenticated
 
-    # header = Header(homeweb.driver, homeweb.lang, "AUTH")
     header = homeweb.header
     header_buttons = header.elements["buttons"]
     header.click_element("class name", header_buttons["menu"])
@@ -115,9 +114,34 @@ def test_bat_web_006(homeweb):
     header.click_element("css selector", header_buttons["sign_out"])
     assert "https://homeweb.ca/" in homeweb.current_url.lower()
     assert homeweb.is_landing()
+    homeweb.set_authenticated(False)
 
+def test_bat_web_007(homeweb, quantum):
+    assert homeweb.is_landing()
 
-# TODO: BAT-WEB-007
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+    paths = header.paths["buttons"]
+    inputs = quantum.login["elements"]["inputs"]
+
+    # 2: Test - Sign In
+    header.click_element("class name", header_buttons["sign_in"])
+    assert paths["sign_in"] in quantum.current_url.lower()
+
+    # 3: Test - Email field
+    quantum.input(inputs["email_address"], CREDENTIALS["demo"]["email"])
+    quantum.submit()
+    password_input = quantum.wait_for_password()
+    assert password_input.is_displayed()
+
+    # 4: Test - Password field
+    quantum.input(inputs["password"], CREDENTIALS["demo"]["password"])
+    quantum.submit()
+
+    # 5: Test - Login
+    assert homeweb.wait_for_dashboard()
+    homeweb.set_authenticated(True)
+
 # TODO: BAT-WEB-008
 # TODO: BAT-WEB-009
 # TODO: BAT-WEB-010
