@@ -7,6 +7,10 @@ from pages.Login import LoginPage
 class QuantumAPI:
     URL = "https://api.homewoodhealth.io/en/login"
 
+    @property
+    def current_url(self):
+        return self.driver.current_url
+
     def __init__(self, driver, lang="EN"):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
@@ -21,25 +25,16 @@ class QuantumAPI:
         )
         email_input.clear()
         email_input.send_keys(input_value)
+
+    def submit(self):
         next_button = self.wait.until(
             expected_conditions.visibility_of_element_located((By.XPATH, self.login["elements"]["buttons"]["next"]))
         )
         next_button.click()
 
-    def enter_password(self, password: str):
-        password_input = self.wait.until(
-            expected_conditions.visibility_of_element_located((By.XPATH, self.login["elements"]["inputs"]["password"]))
-        )
-        password_input.clear()
-        password_input.send_keys(password)
-        submit_button = self.wait.until(
-            expected_conditions.visibility_of_element_located((By.XPATH, self.login["elements"]["buttons"]["next"]))
-        )
-        submit_button.click()
+    def wait_for_password(self):
+        xpath = self.login["elements"]["inputs"]["password"]
+        return self.wait.until(expected_conditions.visibility_of_element_located((By.XPATH, xpath)))
 
-
-    def is_logged_in(self):
-        # Adjust this to check what indicates a successful login, e.g., URL or element
-        return "dashboard" in self.driver.current_url.lower()
 
 
