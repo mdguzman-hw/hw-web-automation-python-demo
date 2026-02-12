@@ -10,6 +10,7 @@ class Header:
         self.wait = WebDriverWait(driver, 10)
         self.type = HeaderAuth if user == "AUTH" else HeaderAnon
         self.elements = self.type.EN["elements"] if lang == "EN" else self.type.FR["elements"]
+        self.paths = self.type.EN["paths"] if lang == "EN" else self.type.FR["paths"]
 
     def click_element(self, by, locator):
         # 1: Find element
@@ -29,12 +30,12 @@ class HeaderAnon:
     EN = {
         "elements": {
             "buttons": {
-                "access_sentio": "//a[@class='btn btn-primary d-inline-block']"
+                "sign_in": "btn-login"
             }
         },
         "paths": {
             "buttons": {
-                "access_sentio": "/app/en/transfer/62c5a1e929ed9c1608d0434b"
+                "sign_in": "/en/login"
             }
         }
     }
@@ -42,12 +43,12 @@ class HeaderAnon:
     FR = {
         "elements": {
             "buttons": {
-                "access_sentio": "//a[@class='btn btn-primary d-inline-block']"
+                "sign_in": "btn-login"
             }
         },
         "paths": {
             "buttons": {
-                "access_sentio": "/app/en/transfer/62c5a1e929ed9c1608d0434b"
+                "sign_in": "/fr/login"
             }
         }
     }
@@ -68,7 +69,7 @@ class HeaderAuth:
         "elements": {
             "buttons": {
                 "menu": "nav-account-toggle",
-                "sign_out": "[aria-label=\"Sign out\"]"
+                "sign_out": ""
             }
         },
         "paths": {
