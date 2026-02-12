@@ -1,3 +1,5 @@
+from selenium.webdriver.common.by import By
+
 from pages.Landing import LandingPage
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,8 +17,11 @@ class Homeweb:
 
     def __init__(self, driver, lang="EN"):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
         self.lang = lang
         self.landing = LandingPage.EN if lang == "EN" else LandingPage.FR
+        self.authenticated = False
+        self.on_landing = False
 
     # Methods
     def navigate_landing(self):
@@ -34,8 +39,31 @@ class Homeweb:
 
     def go_back(self):
         self.driver.back()
-        WebDriverWait(self.driver, 5).until(
+        self.wait.until(
             lambda d: "homeweb.ca" in d.current_url
         )
         self.driver.execute_script("window.scrollBy(0, 0);")
+
+    def wait_for_dashboard(self):
+        self.wait.until(
+            lambda d: "homeweb" in d.current_url.lower() and "/app/en/homeweb/dashboard" in d.current_url.lower()
+        )
+
+    def set_authenticated(self, value):
+        self.authenticated = value
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def set_landing(self, value):
+        self.on_landing = value
+
+    def is_landing(self):
+        return self.on_landing
+
+    def wait_for_resource_content(self, timeout=10):
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "#container-manager"))
+        )
+
 

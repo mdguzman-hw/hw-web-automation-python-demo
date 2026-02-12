@@ -24,7 +24,7 @@ def driver():
     # 4: Close Browser
     driver_instance.quit()
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def homeweb(driver):
     homeweb = Homeweb(driver)
     return homeweb
