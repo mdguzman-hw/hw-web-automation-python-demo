@@ -13,6 +13,7 @@ def driver():
     # 1: Configure Chrome options
     chrome_options = Options()
     # chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--incognito")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
     # 2: Launch Browser
@@ -29,7 +30,7 @@ def homeweb(driver):
     homeweb = Homeweb(driver)
     return homeweb
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def quantum(driver):
     quantum = QuantumAPI(driver)
     return quantum
