@@ -88,5 +88,13 @@ class Homeweb:
             lambda d: "healthycommunity" in d.current_url.lower()
         )
 
+    def wait_for_modal(self):
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located(("class name", "modal-content"))
+        )
 
+    def wait_for_course_content(self):
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located(("class name", "iframeWrapper"))
+        )
 

@@ -149,22 +149,34 @@ def test_bat_web_008(homeweb):
     assert homeweb.wait_for_resource_content()
     homeweb.click_element("class name", "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
-    homeweb.go_back()
 
     # 2: Test - ElderCare - Lifestage transfer kickout
     homeweb.driver.get(eldercare_resource_target)
     assert homeweb.wait_for_resource_content()
     homeweb.click_element("class name", "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
-    homeweb.go_back()
 
     # 3: Test - HRA - LifeStyles transfer kickout
     homeweb.driver.get(hra_resource_target)
     assert homeweb.wait_for_resource_content()
     homeweb.click_element("class name", "btn-primary")
     assert homeweb.wait_for_lifestyle_transfer()
-    homeweb.go_back()
 
 # TODO: BAT-WEB-009
+def test_bat_web_009(homeweb):
+    assert homeweb.is_authenticated()
+
+    # 1: Navigate to course
+    course_target = "https://homeweb.ca/app/en/resources/564a36083392100756dd3e32"
+    homeweb.driver.get(course_target)
+    assert homeweb.wait_for_resource_content()
+
+    homeweb.click_element("css selector", "[data-bs-toggle=\"modal\"]")
+    assert homeweb.wait_for_modal()
+
+    homeweb.click_element("css selector", "[data-bs-dismiss=\"modal\"]")
+    assert homeweb.wait_for_course_content()
+    input("TEST PAUSE - Press Enter to continue...")
+
 # TODO: BAT-WEB-010
 # TODO: BAT-WEB-011
