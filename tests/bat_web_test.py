@@ -86,7 +86,7 @@ def test_bat_web_004(homeweb):
     assert homeweb.wait_for_resource_content()
 
 def test_bat_web_005(homeweb):
-    assert homeweb.is_authenticated
+    assert homeweb.is_authenticated()
 
     # 1: Navigate to sentio resource
     sentio_resource_target = "https://homeweb.ca/app/en/resources/62c5a1e929ed9c1608d0434b"
@@ -162,21 +162,44 @@ def test_bat_web_008(homeweb):
     homeweb.click_element("class name", "btn-primary")
     assert homeweb.wait_for_lifestyle_transfer()
 
-# TODO: BAT-WEB-009
 def test_bat_web_009(homeweb):
     assert homeweb.is_authenticated()
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
 
     # 1: Navigate to course
     course_target = "https://homeweb.ca/app/en/resources/564a36083392100756dd3e32"
     homeweb.driver.get(course_target)
     assert homeweb.wait_for_resource_content()
 
+    # 2: Test - Open modal
     homeweb.click_element("css selector", "[data-bs-toggle=\"modal\"]")
     assert homeweb.wait_for_modal()
 
+    # 3: Test - Dismiss modal, display course content
     homeweb.click_element("css selector", "[data-bs-dismiss=\"modal\"]")
     assert homeweb.wait_for_course_content()
-    input("TEST PAUSE - Press Enter to continue...")
+
+    # 4: Test - Menu dropdown
+    header.click_element("class name", header_buttons["menu"])
+    assert header.wait_for_dropdown()
+
+    # 5: Test - Logout
+    header.click_element("css selector", header_buttons["sign_out"])
+    assert "https://homeweb.ca/" in homeweb.current_url.lower()
+    assert homeweb.is_landing()
+    homeweb.set_authenticated(False)
+
+    # input("Press enter to continue...")
 
 # TODO: BAT-WEB-010
+# def test_bat_web_010(homeweb):
+#     resource_1_target = "https://homeweb.ca/summertime-and-your-health?embedded"
+#     # resource_2_target = "https://homeweb.ca/mental-health-benefits-of-exercise?embedded"
+#     # resource_3_target = "https://homeweb.ca/summer-beauty-from-the-inside-out?embedded"
+#
+#     # portal_target = "https://portal.homewoodhealth.com"
+#     homeweb.driver.get(resource_1_target)
+#     assert homeweb.wait_for_resource_content()
+
 # TODO: BAT-WEB-011
