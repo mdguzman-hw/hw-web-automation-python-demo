@@ -1,8 +1,9 @@
 from pages.Header import Header
 from pages.Landing import LandingPage
-from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
+import time
+
 
 class Homeweb:
     # Properties
@@ -36,12 +37,23 @@ class Homeweb:
 
     def click_element(self, by, locator):
         # 1: Find element
-        element = WebDriverWait(self.driver, 5).until(
-            expected_conditions.visibility_of_element_located((by, locator))
+        element = self.wait.until(
+            expected_conditions.element_to_be_clickable((by, locator))
         )
 
-        # 2: Scroll element into view and click
-        ActionChains(self.driver).move_to_element(element).click().perform()
+        # 2: Scroll element into view
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+
+        # 3: Wait for layout to stabilize
+        self.wait.until(
+            lambda d: element.is_displayed() and element.is_enabled()
+        )
+
+        # 4: Small pause to allow any final reflows
+        time.sleep(0.5)
+
+        # 5: Click
+        element.click()
 
     def go_back(self):
         self.driver.back()
