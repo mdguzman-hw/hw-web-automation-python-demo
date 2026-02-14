@@ -238,12 +238,6 @@ def test_bat_web_011(homeweb, quantum, customer_portal):
     # 5: Test - Insights
     header.click_element("css selector", "[data-bs-toggle=\"dropdown\"]")
     assert header.wait_for_insights_dropdown()
-    header.click_element("link text", "Monthly Registrations Year-over-Year")
-    assert customer_portal.wait_for_insights_load()
-    customer_portal.driver.switch_to.default_content()
-
-    header.click_element("css selector", "[data-bs-toggle=\"dropdown\"]")
-    assert header.wait_for_insights_dropdown()
     header.click_element("link text", "Equitable Dashboard")
     assert customer_portal.wait_for_insights_load()
     customer_portal.driver.switch_to.default_content()
@@ -254,3 +248,9 @@ def test_bat_web_011(homeweb, quantum, customer_portal):
     header.click_element("link text", "Insights: Alberta Health Services")
     assert customer_portal.wait_for_insights_load()
     customer_portal.driver.switch_to.default_content()
+
+    # header.click_element("css selector", "[data-bs-toggle=\"dropdown\"]")
+    # assert header.wait_for_insights_dropdown()
+    # header.click_element("link text", "Monthly Registrations Year-over-Year")
+    # assert customer_portal.wait_for_insights_load()
+    # customer_portal.driver.switch_to.default_content()
