@@ -106,7 +106,19 @@ class Homeweb:
         )
 
     def wait_for_course_content(self):
-        return self.wait.until(
+        # 1: Locate embed container
+        self.wait.until(
             expected_conditions.visibility_of_element_located(("class name", "iframeWrapper"))
+        )
+
+        # 2: Locate and switch to iframe content
+        iframe = self.wait.until(
+            expected_conditions.presence_of_element_located(("tag name", "iframe"))
+        )
+        self.driver.switch_to.frame(iframe)
+
+        # 3: Wait for content slides to load
+        return self.wait.until(
+            expected_conditions.presence_of_element_located(("id", "div_Slide"))
         )
 
