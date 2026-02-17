@@ -45,14 +45,13 @@ class CustomerPortal:
             expected_conditions.presence_of_element_located(("id", "embedContainer"))
         )
 
-        # 2: Locate and switch to Power BI iframe
+        # 2: Locate and switch to iframe content
         iframe = self.wait.until(
             expected_conditions.presence_of_element_located(("tag name", "iframe"))
         )
         self.driver.switch_to.frame(iframe)
 
-        # time.sleep(2)
-        # 3: Wait for visual-style element to load (actual visual content)
+        # 3: Wait for visual-style element to load
         self.wait.until(
             expected_conditions.presence_of_element_located(("css selector", "[data-testid=\"visual-style\"]"))
         )
@@ -71,16 +70,18 @@ class CustomerPortal:
             expected_conditions.presence_of_element_located(("id", "embedContainer"))
         )
 
-        # 2: Locate and switch to Power BI iframe
+        # 2: Locate and switch to iframe content
         iframe = self.wait.until(
             expected_conditions.presence_of_element_located(("tag name", "iframe"))
         )
         self.driver.switch_to.frame(iframe)
 
+        # 3: Wait for tab zone elements to load
         self.wait.until(
             expected_conditions.presence_of_element_located(("css selector", ".tab-zone"))
         )
 
+        # 4: Wait for tab loaders to complete
         return self.wait.until(
             expected_conditions.invisibility_of_element_located(("css selector", ".tab-loader"))
         )
