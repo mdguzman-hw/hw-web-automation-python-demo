@@ -39,7 +39,7 @@ class CustomerPortal:
             lambda d: "portal.homewoodhealth" in d.current_url.lower() and "/app/en" in d.current_url.lower()
         )
 
-    def wait_for_insights_load(self):
+    def wait_for_power_bi_report(self):
         # 1: Locate embed container
         self.wait.until(
             expected_conditions.presence_of_element_located(("id", "embedContainer"))
@@ -63,4 +63,24 @@ class CustomerPortal:
                 "css selector",
                 "[data-testid=\"visual-style\"] svg, [data-testid=\"visual-style\"] [data-testid=\"visual-content-desc\"]",
             ))
+        )
+
+    def wait_for_tableau_report(self):
+        # 1: Locate embed container
+        self.wait.until(
+            expected_conditions.presence_of_element_located(("id", "embedContainer"))
+        )
+
+        # 2: Locate and switch to Power BI iframe
+        iframe = self.wait.until(
+            expected_conditions.presence_of_element_located(("tag name", "iframe"))
+        )
+        self.driver.switch_to.frame(iframe)
+
+        self.wait.until(
+            expected_conditions.presence_of_element_located(("css selector", ".tab-zone"))
+        )
+
+        return self.wait.until(
+            expected_conditions.invisibility_of_element_located(("css selector", ".tab-loader"))
         )
