@@ -89,8 +89,8 @@ class Header(BasePage):
 
         domain_class = self.DOMAIN_MAP[self.domain][self.user]
 
-        self.elements = domain_class.EN["elements"] if language == "EN" else domain_class.FR["elements"]
-        self.paths = domain_class.EN.get("paths", {}) if language == "EN" else domain_class.FR.get("paths", {})
+        self.elements = domain_class.EN["elements"] if language == "en" else domain_class.FR["elements"]
+        self.paths = domain_class.EN.get("paths", {}) if language == "en" else domain_class.FR.get("paths", {})
 
     def wait_for_account_menu(self):
         return self.wait.until(

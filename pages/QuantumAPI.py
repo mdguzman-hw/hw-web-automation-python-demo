@@ -8,8 +8,6 @@ from pages.Login import LoginPage
 
 
 class QuantumAPI(BasePage):
-    URL = "https://api.homewoodhealth.io/en/login"
-
     @property
     def current_url(self):
         return self.driver.current_url
@@ -18,7 +16,7 @@ class QuantumAPI(BasePage):
         super().__init__(driver, language)
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
-        self.elements = LoginPage.EN if language == "EN" else LoginPage.FR
+        self.elements = LoginPage.EN if language == "en" else LoginPage.FR
         self._is_authenticated = False
         self.header = None
         self.update_header()
@@ -47,9 +45,6 @@ class QuantumAPI(BasePage):
 
     def is_authenticated(self):
         return self._is_authenticated
-
-    def open(self):
-        self.driver.get(self.URL)
 
     def input(self, input_identifier, input_value):
         email_input = self.wait.until(

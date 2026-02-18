@@ -1,5 +1,5 @@
 from pages.BasePage import BasePage
-from pages.Constants import HOMEWEB_BASE_URL
+from pages.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN
 from pages.Header import Header
 from pages.Landing import LandingPage
 from selenium.webdriver.support import expected_conditions
@@ -13,7 +13,7 @@ class Homeweb(BasePage):
 
     def __init__(self, driver, language):
         super().__init__(driver, language)
-        self.landing = LandingPage.EN if language == "EN" else LandingPage.FR
+        self.landing = LandingPage.EN if language == "en" else LandingPage.FR
         self._is_authenticated = False
         self._is_landing = False
         self.header = None
@@ -48,8 +48,10 @@ class Homeweb(BasePage):
         return self._is_landing
 
     def wait_for_dashboard(self):
+        expected_path = f"/app/{self.language}/homeweb/dashboard"
+
         return self.wait.until(
-            lambda d: "homeweb" in d.current_url.lower() and "/app/en/homeweb/dashboard" in d.current_url.lower()
+            lambda d: HOMEWEB_DOMAIN in d.current_url.lower() and expected_path in d.current_url.lower()
         )
 
     def wait_for_resource_content(self):

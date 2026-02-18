@@ -22,11 +22,10 @@ class LoginPage:
         "elements": {
             "inputs": {
                 "email_address": "//input[@id='emailAddress']",
-                "password": "",
+                "password": "//input[@id='password']",
             },
             "buttons": {
                 "next": "//button[@type='submit']",
-                "sign_in": ""
             }
         },
         "paths": {
