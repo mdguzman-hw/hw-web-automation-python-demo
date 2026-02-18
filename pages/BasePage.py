@@ -2,10 +2,11 @@ import time
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+
 class BasePage:
     def __init__(self, driver, language):
         self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+        self.wait = WebDriverWait(driver, 20)
         self.language = language
 
     def click_element(self, by, locator):
@@ -30,19 +31,3 @@ class BasePage:
 
         # 5: Click element
         clickable_element.click()
-
-    def wait_for_layout_idle(self):
-        self.wait.until(lambda d: d.execute_script("""
-            let last = window.pageYOffset;
-            return new Promise(resolve => {
-                setTimeout(() => resolve(last === window.pageYOffset), 200);
-            });
-        """))
-
-    def wait_for_no_backdrop(self):
-        self.wait.until(
-            expected_conditions.invisibility_of_element_located(
-                ("css selector", ".modal-backdrop")
-            )
-        )
-

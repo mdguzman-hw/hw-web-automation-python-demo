@@ -4,4 +4,3 @@ class Authenticated:
 
     FR = {
     }
-

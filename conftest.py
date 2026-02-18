@@ -12,6 +12,7 @@ from pages.CustomerPortal import CustomerPortal
 from pages.Homeweb import Homeweb
 from pages.QuantumAPI import QuantumAPI
 
+
 @pytest.fixture(scope="session")
 def driver():
     # 1: Configure Chrome options
@@ -31,6 +32,8 @@ def driver():
 
 
 load_dotenv()
+
+
 @pytest.fixture(scope="session")
 def credentials():
     return {
@@ -44,22 +47,25 @@ def credentials():
         },
     }
 
+
 @pytest.fixture(scope="session")
 def language():
     return os.getenv("LANGUAGE", "en")
+
 
 @pytest.fixture(scope="session")
 def homeweb(driver, language):
     homeweb = Homeweb(driver, language)
     return homeweb
 
+
 @pytest.fixture(scope="session")
 def quantum(driver, language):
     quantum = QuantumAPI(driver, language)
     return quantum
 
+
 @pytest.fixture(scope="session")
 def customer_portal(driver, language):
     portal = CustomerPortal(driver, language)
     return portal
-

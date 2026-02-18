@@ -1,6 +1,7 @@
 from selenium.webdriver.support import expected_conditions
 from pages.BasePage import BasePage
 
+
 class HeaderAnon:
     EN = {
         "elements": {
@@ -28,6 +29,7 @@ class HeaderAnon:
         }
     }
 
+
 class HeaderAuth:
     EN = {
         "elements": {
@@ -50,6 +52,7 @@ class HeaderAuth:
         "paths": {
         }
     }
+
 
 class HeaderCustomerPortal:
     EN = {
@@ -74,6 +77,7 @@ class HeaderCustomerPortal:
         }
     }
 
+
 class Header(BasePage):
     DOMAIN_MAP = {
         "homeweb": {"AUTH": HeaderAuth, "ANON": HeaderAnon},
@@ -81,7 +85,7 @@ class Header(BasePage):
         "quantum_api": {"AUTH": HeaderAuth, "ANON": HeaderAnon},  # adjust if needed
     }
 
-    def __init__(self,  driver, language, domain="homeweb", user="ANON"):
+    def __init__(self, driver, language, domain="homeweb", user="ANON"):
         super().__init__(driver, language)
         self.type = HeaderAuth if user == "AUTH" else HeaderAnon
         self.domain = domain.lower()

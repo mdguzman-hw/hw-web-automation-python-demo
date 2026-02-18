@@ -61,6 +61,3 @@ class QuantumAPI(BasePage):
     def wait_for_password(self):
         xpath = self.elements["elements"]["inputs"]["password"]
         return self.wait.until(expected_conditions.visibility_of_element_located((By.XPATH, xpath)))
-
-
-
