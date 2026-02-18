@@ -49,44 +49,45 @@ def test_bat_web_003(homeweb, quantum, credentials):
     # 2: Test - Login - Homeweb - Personal
     quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
     assert homeweb.wait_for_dashboard()
+    homeweb.set_landing(False)
     homeweb.set_authenticated(True)
 
-# def test_bat_web_004(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Navigate to resource
-#     resource_target = HOMEWEB_BASE_URL + "/en/user/articles/56252b81e40e6f50062aa714"
-#     homeweb.driver.get(resource_target)
-#     assert homeweb.wait_for_resource_content()
-#
-# def test_bat_web_005(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Navigate to sentio resource
-#     sentio_resource_target = HOMEWEB_BASE_URL + "/app/en/resources/62c5a1e929ed9c1608d0434b"
-#     homeweb.driver.get(sentio_resource_target)
-#     assert homeweb.wait_for_resource_content()
-#
-#     # 2: Test - Sentio transfer kickout
-#     homeweb.click_element("class name", "btn-primary")
-#     assert homeweb.wait_for_sentio_transfer()
-#     homeweb.go_back()
-#
-# def test_bat_web_006(homeweb):
-#     assert homeweb.is_authenticated()
-#     header = homeweb.header
-#     header_buttons = header.elements["buttons"]
-#
-#     # 1: Test - Menu dropdown
-#     header.click_element("class name", header_buttons["menu"])
-#     assert header.wait_for_account_menu()
-#
-#     # 2: Test - Logout
-#     header.click_element("css selector", header_buttons["sign_out"])
-#     assert "https://homeweb.ca/" in homeweb.current_url.lower()
-#     assert homeweb.is_landing()
-#     homeweb.set_authenticated(False)
-#
+def test_bat_web_004(homeweb):
+    assert homeweb.is_authenticated()
+
+    # 1: Test - Navigate to resource
+    resource_target = homeweb.base_url + "/" + homeweb.language + "/user/articles/56252b81e40e6f50062aa714"
+    homeweb.driver.get(resource_target)
+    assert homeweb.wait_for_resource_content()
+
+def test_bat_web_005(homeweb):
+    assert homeweb.is_authenticated()
+
+    # 1: Navigate to sentio resource
+    sentio_resource_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/62c5a1e929ed9c1608d0434b"
+    homeweb.driver.get(sentio_resource_target)
+    assert homeweb.wait_for_resource_content()
+
+    # 2: Test - Sentio transfer kickout
+    homeweb.click_element("class name", "btn-primary")
+    assert homeweb.wait_for_sentio_transfer()
+    homeweb.go_back()
+
+def test_bat_web_006(homeweb):
+    assert homeweb.is_authenticated()
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+
+    # 1: Test - Menu dropdown
+    header.click_element("class name", header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    # 2: Test - Logout
+    header.click_element("css selector", header_buttons["sign_out"])
+    homeweb.set_landing(True)
+    assert homeweb.is_landing()
+    homeweb.set_authenticated(False)
+
 # def test_bat_web_007(homeweb, quantum, credentials):
 #     assert homeweb.is_landing()
 #     header = homeweb.header

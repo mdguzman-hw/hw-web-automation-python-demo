@@ -1,5 +1,6 @@
+from pages.Authenticated import Authenticated
 from pages.BasePage import BasePage
-from pages.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN
+from pages.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN, SENTIO_DOMAIN, LIFESTAGE_DOMAIN, LIFESTYLE_DOMAIN
 from pages.Header import Header
 from pages.Landing import LandingPage
 from selenium.webdriver.support import expected_conditions
@@ -13,10 +14,12 @@ class Homeweb(BasePage):
 
     def __init__(self, driver, language):
         super().__init__(driver, language)
+        self.base_url = HOMEWEB_BASE_URL
         self.landing = LandingPage.EN if language == "en" else LandingPage.FR
         self._is_authenticated = False
         self._is_landing = False
         self.header = None
+        self.authenticated = None
         self.update_header()
 
     # Methods
@@ -25,7 +28,7 @@ class Homeweb(BasePage):
         self.header = Header(self.driver, domain="homeweb", language=self.language, user=user_type)
 
     def navigate_landing(self):
-        self.driver.get(f"{HOMEWEB_BASE_URL}/{self.language}")
+        self.driver.get(f"{self.base_url}/{self.language}")
 
     def go_back(self):
         self.driver.back()
@@ -40,6 +43,7 @@ class Homeweb(BasePage):
     def set_authenticated(self, value):
         self._is_authenticated = value
         self.update_header()
+        self.authenticated = Authenticated.EN if self.language == "en" else Authenticated.FR
 
     def is_authenticated(self):
         return self._is_authenticated
@@ -61,17 +65,17 @@ class Homeweb(BasePage):
 
     def wait_for_sentio_transfer(self):
         return self.wait.until(
-            lambda d: "sentioapp" in d.current_url.lower() and "/sso/token" in d.current_url.lower()
+            lambda d: SENTIO_DOMAIN in d.current_url.lower() and "/sso/token" in d.current_url.lower()
         )
 
     def wait_for_lifestage_transfer(self):
         return self.wait.until(
-            lambda d: "lifestagecare" in d.current_url.lower()
+            lambda d: LIFESTAGE_DOMAIN in d.current_url.lower()
         )
 
     def wait_for_lifestyle_transfer(self):
         return self.wait.until(
-            lambda d: "healthycommunity" in d.current_url.lower()
+            lambda d: LIFESTYLE_DOMAIN in d.current_url.lower()
         )
 
     def wait_for_modal(self):
