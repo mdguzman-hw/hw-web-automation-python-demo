@@ -11,10 +11,9 @@ class Homeweb(BasePage):
     def current_url(self):
         return self.driver.current_url
 
-    def __init__(self, driver, lang="EN"):
-        super().__init__(driver)
-        self.lang = lang
-        self.landing = LandingPage.EN if self.lang == "EN" else LandingPage.FR
+    def __init__(self, driver, language):
+        super().__init__(driver, language)
+        self.landing = LandingPage.EN if language == "EN" else LandingPage.FR
         self._is_authenticated = False
         self._is_landing = False
         self.header = None
@@ -23,10 +22,10 @@ class Homeweb(BasePage):
     # Methods
     def update_header(self):
         user_type = "AUTH" if self._is_authenticated else "ANON"
-        self.header = Header(self.driver, domain="homeweb", lang=self.lang, user=user_type)
+        self.header = Header(self.driver, domain="homeweb", language=self.language, user=user_type)
 
     def navigate_landing(self):
-        self.driver.get(HOMEWEB_BASE_URL)
+        self.driver.get(f"{HOMEWEB_BASE_URL}/{self.language}")
 
     def go_back(self):
         self.driver.back()

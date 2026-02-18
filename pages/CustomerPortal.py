@@ -10,18 +10,17 @@ class CustomerPortal(BasePage):
     def current_url(self):
         return self.driver.current_url
 
-    def __init__(self, driver, lang="EN"):
-        super().__init__(driver)
+    def __init__(self, driver, language):
+        super().__init__(driver, language)
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
-        self.lang = lang
         self._is_authenticated = False
         self.header = None
         self.update_header()
 
     def update_header(self):
         user_type = "AUTH" if self._is_authenticated else "ANON"
-        self.header = Header(self.driver, domain="customer_portal", lang=self.lang, user=user_type)
+        self.header = Header(self.driver, domain="customer_portal", language=self.language, user=user_type)
 
     def set_authenticated(self, value):
         self._is_authenticated = value

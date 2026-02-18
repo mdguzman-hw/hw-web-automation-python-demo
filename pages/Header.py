@@ -1,7 +1,5 @@
 from selenium.webdriver.support import expected_conditions
-
 from pages.BasePage import BasePage
-
 
 class HeaderAnon:
     EN = {
@@ -83,17 +81,16 @@ class Header(BasePage):
         "quantum_api": {"AUTH": HeaderAuth, "ANON": HeaderAnon},  # adjust if needed
     }
 
-    def __init__(self,  driver, domain="homeweb", lang="EN", user="ANON"):
-        super().__init__(driver)
-        self.lang = lang
+    def __init__(self,  driver, language, domain="homeweb", user="ANON"):
+        super().__init__(driver, language)
         self.type = HeaderAuth if user == "AUTH" else HeaderAnon
         self.domain = domain.lower()
         self.user = user.upper()
 
         domain_class = self.DOMAIN_MAP[self.domain][self.user]
 
-        self.elements = domain_class.EN["elements"] if lang == "EN" else domain_class.FR["elements"]
-        self.paths = domain_class.EN.get("paths", {}) if lang == "EN" else domain_class.FR.get("paths", {})
+        self.elements = domain_class.EN["elements"] if language == "EN" else domain_class.FR["elements"]
+        self.paths = domain_class.EN.get("paths", {}) if language == "EN" else domain_class.FR.get("paths", {})
 
     def wait_for_account_menu(self):
         return self.wait.until(
