@@ -45,17 +45,21 @@ def credentials():
     }
 
 @pytest.fixture(scope="session")
-def homeweb(driver):
-    homeweb = Homeweb(driver)
+def language():
+    return os.getenv("LANGUAGE", "en")
+
+@pytest.fixture(scope="session")
+def homeweb(driver, language):
+    homeweb = Homeweb(driver, language)
     return homeweb
 
 @pytest.fixture(scope="session")
-def quantum(driver):
-    quantum = QuantumAPI(driver)
+def quantum(driver, language):
+    quantum = QuantumAPI(driver, language)
     return quantum
 
 @pytest.fixture(scope="session")
-def customer_portal(driver):
-    portal = CustomerPortal(driver)
+def customer_portal(driver, language):
+    portal = CustomerPortal(driver, language)
     return portal
 
