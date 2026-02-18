@@ -2,11 +2,11 @@ import time
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-
 class BasePage:
-    def __init__(self, driver):
+    def __init__(self, driver, language):
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
+        self.language = language
 
     def click_element(self, by, locator):
         # 1: Find element
