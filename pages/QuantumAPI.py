@@ -15,7 +15,6 @@ class QuantumAPI(BasePage):
     def __init__(self, driver, language):
         super().__init__(driver, language)
         self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
         self.elements = LoginPage.EN if language == "en" else LoginPage.FR
         self._is_authenticated = False
         self.header = None

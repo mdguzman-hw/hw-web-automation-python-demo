@@ -44,7 +44,7 @@ class HeaderAuth:
         "elements": {
             "buttons": {
                 "menu": "nav-account-toggle",
-                "sign_out": "[aria-label=\"Basculer le menu du compte\"]"
+                "sign_out": "[aria-label=\"Se déconnecter\"]"
             }
         },
         "paths": {

@@ -1,4 +1,4 @@
-HOMEWEB_BASE_URL = "https://www.homeweb.ca"
+HOMEWEB_BASE_URL = "https://homeweb.ca"
 CUSTOMER_PORTAL_BASE_URL = "https://portal.homewoodhealth.com"
 QUANTUM_API_BASE_URL = "https://api.homewoodhealth.io"
 
