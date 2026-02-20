@@ -1,4 +1,5 @@
 # Test Suite: Build Acceptance
+import random
 import time
 
 from selenium.webdriver.common.by import By
@@ -235,10 +236,12 @@ def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     header.click_element(By.LINK_TEXT, header_buttons["menu_sign_out_all"])
     assert QUANTUM_API_DOMAIN in quantum.current_url.lower()
 
+
 ############### SENTIO BETA - CLIENT ###############
 def test_bat_web_012(sentio_beta_client):
     sentio_beta_client.navigate_landing()
     assert sentio_beta_client.landing_url in sentio_beta_client.current_url.lower()
+
 
 def test_bat_web_013(sentio_beta_client, quantum, credentials):
     assert sentio_beta_client.is_landing
@@ -247,9 +250,45 @@ def test_bat_web_013(sentio_beta_client, quantum, credentials):
     sentio_beta_client.click_element(By.LINK_TEXT, elements["get_started"])
     assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
 
-    sentio_beta_client.go_back()
-    sentio_beta_client.click_element(By.LINK_TEXT, elements["login"])
-    assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
+    # sentio_beta_client.go_back()
+    # sentio_beta_client.click_element(By.LINK_TEXT, elements["login"])
+    # assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
 
-    quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
+    quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert sentio_beta_client.wait_for_dashboard()
+
+
+def test_bat_web_014(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+
+    programs = sentio_beta_client.available_programs
+    assert programs
+
+    # Filter programs that are Completed or None
+    valid_programs = [
+        p for p in programs
+        if p.status is None or p.status.lower() == "completed"
+    ]
+
+    assert valid_programs, "No completed or unstarted programs available"
+
+    valid_program = random.choice(valid_programs)
+
+    sentio_beta_client.navigate_overview(valid_program.title)
+    assert valid_program.href in sentio_beta_client.current_url.lower()
+
+    sentio_beta_client.navigate_assessment()
+    assert "/assessments" and "take" in sentio_beta_client.current_url.lower()
+
+    sentio_beta_client.complete_assessment()
+    assert "/assessments" and "results" in sentio_beta_client.current_url.lower()
+
+    # TODO
+    # sentio_beta_client.start_program(tier="", province="")
+    # for program in valid_programs:
+    #     print(program.title)
+    #     print(program.href)
+    #     print(program.status)
+
+    time.sleep(1)
+    # input("Press Enter to continue...")

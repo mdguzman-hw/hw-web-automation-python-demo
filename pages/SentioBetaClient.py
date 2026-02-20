@@ -1,3 +1,10 @@
+import random
+import time
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.select import Select
+
 from pages.BasePage import BasePage
 from pages.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_DOMAIN
 from pages.Header import Header
@@ -33,11 +40,24 @@ class SentioBetaClient(BasePage):
     def landing_elements(self):
         return SentioLanding.EN["elements"] if self.language == "en" else SentioLanding.FR["elements"]
 
+    @property
+    def dashboard_elements(self):
+        return SentioDashboard.EN["elements"] if self.language == "en" else SentioDashboard.FR["elements"]
+
+    @property
+    def available_programs(self):
+        program_cards = self.driver.find_elements(By.CSS_SELECTOR, "div.card-container")
+        programs = []
+        for program in program_cards:
+            title = program.find_element(By.CSS_SELECTOR, "p.h4").text
+            href = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
+            status_elements = program.find_elements(By.CSS_SELECTOR, ".overlay-content")
+            status = status_elements[0].text.strip() if status_elements else None
+            programs.append(ProgramCard(title, href, status))
+        return programs
+
     def __init__(self, driver, language):
         super().__init__(driver, language)
-        # self.domain = SENTIO_BETA_DOMAIN
-        # self.base_url = SENTIO_BETA_CLIENT_BASE_URL
-        # self.landing_url = self.base_url + "/" + self.language
         self._is_authenticated = False
         self._is_landing = False
         self.header = None
@@ -54,6 +74,7 @@ class SentioBetaClient(BasePage):
     def navigate_landing(self):
         self.driver.get(self.landing_url)
         self._is_landing = True
+
     def go_back(self):
         self.driver.back()
         self.wait.until(
@@ -62,7 +83,6 @@ class SentioBetaClient(BasePage):
         self.driver.execute_script("window.scrollBy(0, 0);")
 
     def wait_for_dashboard(self):
-
         self._is_landing = False
 
         self.set_authenticated(True)
@@ -70,6 +90,58 @@ class SentioBetaClient(BasePage):
         return self.wait.until(
             lambda d: self.dashboard_endpoint in d.current_url.lower()
         )
+
+    def navigate_overview(self, title):
+        # 1: Find program card
+        program_card = self.wait.until(
+            expected_conditions.presence_of_element_located((By.XPATH, f"//div[contains(@class,'card-container')]//p[@class='h4' and normalize-space(text())='{title}']/ancestor::div[contains(@class,'card-container')]"))
+        )
+
+        # 2. Scroll the program card into view
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", program_card
+        )
+        self.wait.until(lambda d: program_card.is_displayed() and program_card.is_enabled())
+        time.sleep(0.5)
+
+        # 3: Find button within program card
+        button = program_card.find_element(By.CSS_SELECTOR, "a.btn.btn-primary")
+        self.wait.until(lambda d: button.is_displayed() and button.is_enabled())
+
+        # 4: Click button
+        button.click()
+
+    def navigate_assessment(self):
+        button = self.wait.until(
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "a.btn.btn-primary"))
+        )
+
+        button.click()
+
+    def complete_assessment(self):
+        while "/results" not in self.current_url:
+            # 1. Get currently visible question
+            current_question = self.wait.until(
+                expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "div.item-question-assessment:not([style*='display: none'])"))
+            )
+
+            # 2. Pick a random answer
+            buttons = current_question.find_elements(By.CSS_SELECTOR, "button.btn-answer")
+            choice = random.choice(buttons)
+
+            # 3. Scroll into view & click
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", choice)
+            self.wait.until(lambda d: choice.is_displayed() and choice.is_enabled())
+            choice.click()
+
+            # 4. Wait until next question appears or results page
+            self.wait.until(
+                lambda d: "/results" in d.current_url or
+                          d.find_element(By.CSS_SELECTOR, "div.item-question-assessment:not([style*='display: none'])") != current_question
+            )
+
+    # def start_program(self, tier, province):
+
 
 class SentioLanding:
     EN = {
@@ -87,7 +159,8 @@ class SentioLanding:
     }
 
 
-
-
-
-
+class ProgramCard:
+    def __init__(self, title, href, status):
+        self.title = title
+        self.href = href
+        self.status = status

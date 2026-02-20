@@ -46,6 +46,10 @@ def credentials():
             "email": os.getenv("DEMO_EMAIL"),
             "password": os.getenv("DEMO_PASSWORD")
         },
+        "sentio": {
+            "email": os.getenv("SENTIO_EMAIL"),
+            "password": os.getenv("SENTIO_PASSWORD")
+        }
     }
 
 
@@ -70,6 +74,7 @@ def quantum(driver, language):
 def customer_portal(driver, language):
     portal = CustomerPortal(driver, language)
     return portal
+
 
 @pytest.fixture(scope="session")
 def sentio_beta_client(driver, language):
