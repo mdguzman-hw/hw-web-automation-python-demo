@@ -1,10 +1,12 @@
 HOMEWEB_BASE_URL = "https://homeweb.ca"
 CUSTOMER_PORTAL_BASE_URL = "https://portal.homewoodhealth.com"
 QUANTUM_API_BASE_URL = "https://api.homewoodhealth.io"
+SENTIO_BETA_CLIENT_BASE_URL = "https://beta.sentioapp.com"
 
 HOMEWEB_DOMAIN = "homeweb"
 CUSTOMER_PORTAL_DOMAIN = "portal.homewoodhealth"
 QUANTUM_API_DOMAIN = "api.homewoodhealth"
 SENTIO_DOMAIN = "sentioapp"
+SENTIO_BETA_DOMAIN = "beta.sentioapp"
 LIFESTAGE_DOMAIN = "lifestage"
 LIFESTYLE_DOMAIN = "healthycommunity"

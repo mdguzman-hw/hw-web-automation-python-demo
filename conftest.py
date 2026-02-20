@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from pages.CustomerPortal import CustomerPortal
 from pages.Homeweb import Homeweb
 from pages.QuantumAPI import QuantumAPI
+from pages.SentioBetaClient import SentioBetaClient
 
 
 @pytest.fixture(scope="session")
@@ -69,3 +70,8 @@ def quantum(driver, language):
 def customer_portal(driver, language):
     portal = CustomerPortal(driver, language)
     return portal
+
+@pytest.fixture(scope="session")
+def sentio_beta_client(driver, language):
+    sentio_client = SentioBetaClient(driver, language)
+    return sentio_client

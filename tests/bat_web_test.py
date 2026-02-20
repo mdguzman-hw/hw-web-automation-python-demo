@@ -1,14 +1,17 @@
 # Test Suite: Build Acceptance
 import time
 
+from selenium.webdriver.common.by import By
+
 from pages.Constants import HOMEWEB_DOMAIN, QUANTUM_API_DOMAIN
 
 
+###################### HOMEWEB #####################
 def test_bat_web_001(homeweb):
     # 1: Test - Navigate to Homeweb landing
     homeweb.navigate_landing()
     assert HOMEWEB_DOMAIN in homeweb.current_url.lower()
-    f'Expected homeweb in URL, got: {homeweb.current_url}'
+    homeweb.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
 
 def test_bat_web_002(homeweb):
@@ -188,6 +191,7 @@ def test_bat_web_010(homeweb):
     homeweb.go_back()
 
 
+################## CUSTOMER PORTAL #################
 def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     assert homeweb.is_landing()
 
@@ -221,4 +225,31 @@ def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     header.click_element("link text", header_dropdown["dropdown_ahs"])
     assert customer_portal.wait_for_power_bi_report()
 
-    time.sleep(1)
+    # 4: Test - Logout
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
+    assert header.wait_for_sign_out_group()
+
+    header.click_element(By.LINK_TEXT, header_buttons["menu_sign_out_all"])
+    assert QUANTUM_API_DOMAIN in quantum.current_url.lower()
+
+############### SENTIO BETA - CLIENT ###############
+def test_bat_web_012(sentio_beta_client):
+    sentio_beta_client.navigate_landing()
+    assert sentio_beta_client.landing_url in sentio_beta_client.current_url.lower()
+
+def test_bat_web_013(sentio_beta_client, quantum, credentials):
+    assert sentio_beta_client.is_landing
+    elements = sentio_beta_client.landing_elements
+
+    sentio_beta_client.click_element(By.LINK_TEXT, elements["get_started"])
+    assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
+
+    sentio_beta_client.go_back()
+    sentio_beta_client.click_element(By.LINK_TEXT, elements["login"])
+    assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
+
+    quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
+    assert sentio_beta_client.wait_for_dashboard()

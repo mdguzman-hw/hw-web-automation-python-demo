@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from pages.BasePage import BasePage
 
@@ -29,8 +30,16 @@ class HeaderAnon:
         }
     }
 
+class HeaderAnonApi:
+    EN = {
+        "elements": {}
+    }
+    FR = {
+        "elements": {}
+    }
 
-class HeaderAuth:
+
+class HeaderHomeweb:
     EN = {
         "elements": {
             "buttons": {
@@ -60,6 +69,9 @@ class HeaderCustomerPortal:
             "buttons": {
                 "menu": "nav-account-toggle",
                 "menu_sign_out": "[aria-label=\"Sign out\"]",
+                "menu_sign_out_group": ".dropdown-group.dropdown-group-sign-out",
+                "menu_sign_out_single": "Sign out",
+                "menu_sign_out_all": "Sign out everywhere",
                 "menu_language": "[aria-label=\"Change language to  FR\"]",
                 "toggle_language": "[aria-label=\"Toggle language to  FR\"]",
             },
@@ -79,6 +91,9 @@ class HeaderCustomerPortal:
             "buttons": {
                 "menu": "nav-account-toggle",
                 "menu_sign_out": "[aria-label=\"Se déconnecter\"]",
+                "menu_sign_out_group": ".dropdown-group.dropdown-group-sign-out",
+                "menu_sign_out_single": "Se déconnecter",
+                "menu_sign_out_all": "Se déconnecter partou",
                 "menu_language": "[aria-label=\"Changer la langue en  EN\"]",
                 "toggle_language": "[aria-label=\"Basculer la langue en EN\"]",
             },
@@ -93,17 +108,35 @@ class HeaderCustomerPortal:
         }
     }
 
+class HeaderQuantumApi:
+    EN = {
+        "elements": {}
+    }
+
+    FR = {
+        "elements": {}
+    }
+
+class HeaderSentioBetaClient:
+    EN = {
+        "elements": {}
+    }
+    FR = {
+        "elements": {}
+    }
+
 
 class Header(BasePage):
     DOMAIN_MAP = {
-        "homeweb": {"AUTH": HeaderAuth, "ANON": HeaderAnon},
+        "homeweb": {"AUTH": HeaderHomeweb, "ANON": HeaderAnon},
         "customer_portal": {"AUTH": HeaderCustomerPortal, "ANON": HeaderAnon},
-        "quantum_api": {"AUTH": HeaderAuth, "ANON": HeaderAnon},  # adjust if needed
+        "quantum_api": {"AUTH": HeaderQuantumApi, "ANON": HeaderAnonApi},
+        "sentio_beta_client": {"AUTH": HeaderSentioBetaClient, "ANON": HeaderAnon},
     }
 
     def __init__(self, driver, language, domain="homeweb", user="ANON"):
         super().__init__(driver, language)
-        self.type = HeaderAuth if user == "AUTH" else HeaderAnon
+        # self.type = HeaderHomeweb if user == "AUTH" else HeaderAnon
         self.domain = domain.lower()
         self.user = user.upper()
 
@@ -115,13 +148,20 @@ class Header(BasePage):
     def wait_for_account_menu(self):
         return self.wait.until(
             expected_conditions.visibility_of_element_located(
-                ("css selector", "div.dropdown-menu.dropdown-account.show")
+                (By.CSS_SELECTOR, "div.dropdown-menu.dropdown-account.show")
             )
         )
 
     def wait_for_insights_dropdown(self):
         return self.wait.until(
             expected_conditions.visibility_of_element_located(
-                ("css selector", self.elements["dropdown"]["dropdown_insights"])
+                (By.CSS_SELECTOR, self.elements["dropdown"]["dropdown_insights"])
+            )
+        )
+
+    def wait_for_sign_out_group(self):
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, self.elements["buttons"]["menu_sign_out_group"])
             )
         )
