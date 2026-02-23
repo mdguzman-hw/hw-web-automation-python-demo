@@ -3,6 +3,7 @@ import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.select import Select
 
 from pages.BasePage import BasePage
 from pages.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_CLIENT_DOMAIN
@@ -62,6 +63,40 @@ class SentioBetaClient(BasePage):
             in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw))
 
         return in_progress_programs
+
+    @property
+    def available_tiers(self):
+        tier_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.item-tier")
+        tiers = []
+
+        for tier in tier_elements:
+            input_elem = tier.find_element(By.CSS_SELECTOR, "input.btn-check")
+            label = tier.find_element(
+                By.CSS_SELECTOR, "div.item-content b"
+            ).text.strip()
+            value = input_elem.get_attribute("value")
+            clickable_element = tier.find_element(By.CSS_SELECTOR, "label.btn")
+
+            tiers.append(ProgramTier(label, value, clickable_element))
+
+        return tiers
+
+    @property
+    def available_provinces(self):
+        select_element = Select(self.driver.find_element(By.ID, "jurisdictionSelect"))
+
+        provinces = []
+
+        for option in select_element.options:
+            value = option.get_attribute("value")
+
+            # Skip placeholder
+            if not value:
+                continue
+
+            provinces.append(Province(value))
+
+        return provinces
 
     def __init__(self, driver, language):
         super().__init__(driver, language)
@@ -155,7 +190,32 @@ class SentioBetaClient(BasePage):
                           d.find_element(By.CSS_SELECTOR, "div.item-question-assessment:not([style*='display: none'])") != current_question
             )
 
-    # def start_program(self, tier, province):
+    def start_program(self, tier, province):
+        print("Tier->", tier.label, tier.value)
+        print("Province->", province.value)
+
+        # 1: Ensure form is visible
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.ID, "startProgramForm"))
+        )
+
+        # 2: Select Tier (radio by value)
+        tier.select()
+
+        # 3: Select Province
+        province_select = Select(self.wait.until(
+            expected_conditions.presence_of_element_located((By.ID, "jurisdictionSelect"))
+        ))
+        province_select.select_by_value(province.value)
+
+        # 4: Wait for Start button to become enabled
+        submit_btn = self.wait.until(
+            expected_conditions.element_to_be_clickable((By.ID, "submitBtn"))
+        )
+
+        # 5: Click Start
+        submit_btn.click()
+
     def continue_program(self, title):
         # 1: Find program tile by title
         program_tile = self.wait.until(
@@ -206,3 +266,18 @@ class ProgramTile:
         self.href_toc = href_toc
         self.href_next_activity = href_next_activity
         self.href_withdraw = href_withdraw
+
+
+class ProgramTier:
+    def __init__(self, label, value, clickable_element):
+        self.label = label
+        self.value = value
+        self._clickable = clickable_element
+
+    def select(self):
+        self._clickable.click()
+
+class Province:
+    def __init__(self, value):
+        self.value = value
+

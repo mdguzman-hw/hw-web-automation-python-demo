@@ -269,10 +269,11 @@ def test_bat_web_014(sentio_beta_client):
 
     assert valid_programs, "No completed or unstarted programs available"
 
-    valid_program = random.choice(valid_programs)
+    # Can modify this to be a specific program, if required
+    test_program = random.choice(valid_programs)
 
-    sentio_beta_client.navigate_overview(valid_program.title)
-    assert valid_program.href in sentio_beta_client.current_url.lower()
+    sentio_beta_client.navigate_overview(test_program.title)
+    assert test_program.href in sentio_beta_client.current_url.lower()
 
     sentio_beta_client.navigate_assessment()
     assert "/assessments" and "take" in sentio_beta_client.current_url.lower()
@@ -280,20 +281,24 @@ def test_bat_web_014(sentio_beta_client):
     sentio_beta_client.complete_assessment()
     assert "/assessments" and "results" in sentio_beta_client.current_url.lower()
 
+    tiers = sentio_beta_client.available_tiers
+    provinces = sentio_beta_client.available_provinces
+    assert tiers
+    assert provinces
 
-#     # TODO: Finish wiring to start program
-#     sentio_beta_client.start_program(tier="", province="")
-#     for program in valid_programs:
-#         print(program.title)
-#         print(program.href)
-#         print(program.status)
+    # Can modify to be a specific tier and province, if required
+    test_tier = random.choice(tiers)
+    test_province = random.choice(provinces)
+    sentio_beta_client.start_program(test_tier, test_province)
+
 
 def test_bat_web_015(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
     sentio_beta_client.navigate_dashboard()
     in_progress_programs = sentio_beta_client.in_progress_programs
-    assert in_progress_programs
+    assert in_progress_programs, "No in_progress programs available"
 
+    # Can modify to be a specific program, if required
     valid_program = random.choice(in_progress_programs)
 
     sentio_beta_client.continue_program(valid_program.title)
@@ -312,7 +317,6 @@ def test_bat_web_024(sentio_beta_client):
     # 5: Test - Logout
     header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
     assert sentio_beta_client.base_url in sentio_beta_client.current_url.lower()
-
 
 ############### SENTIO BETA - PROVIDER ###############
 def test_bat_web_025(sentio_beta_provider, quantum):
