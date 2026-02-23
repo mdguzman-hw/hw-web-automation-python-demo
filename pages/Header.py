@@ -30,6 +30,7 @@ class HeaderAnon:
         }
     }
 
+
 class HeaderAnonApi:
     EN = {
         "elements": {}
@@ -108,6 +109,7 @@ class HeaderCustomerPortal:
         }
     }
 
+
 class HeaderQuantumApi:
     EN = {
         "elements": {}
@@ -117,12 +119,47 @@ class HeaderQuantumApi:
         "elements": {}
     }
 
+
 class HeaderSentioBetaClient:
     EN = {
-        "elements": {}
+        "elements": {
+            "buttons": {
+                "menu": "nav-account-toggle",
+                "menu_sign_out": "[aria-label=\"Sign out\"]",
+            }
+        }
     }
     FR = {
-        "elements": {}
+        "elements": {
+            "buttons": {
+                "menu": "nav-account-toggle",
+                "menu_sign_out": "[aria-label=\"Se déconnecter\"]",
+            }
+        }
+    }
+
+
+class HeaderSentioBetaProvider:
+    EN = {
+        "elements": {
+            "classic": "[aria-label=\"Classic Dashboard\"]",
+            "new": "[aria-label=\"New Dashboard\"]",
+            "buttons": {
+                "menu": "nav-account-toggle",
+                "menu_sign_out": "[aria-label=\"Sign out\"]",
+            }
+        }
+    }
+    FR = {
+        "elements": {
+            "classic": "[aria-label=\"Tableau de bord classique\"]",
+            "new": "[aria-label=\"Nouveau tableau de bord\"]",
+            "buttons": {
+                "menu": "nav-account-toggle",
+                "menu_sign_out": "[aria-label=\"Se déconnecter\"]",
+            }
+
+        }
     }
 
 
@@ -132,6 +169,7 @@ class Header(BasePage):
         "customer_portal": {"AUTH": HeaderCustomerPortal, "ANON": HeaderAnon},
         "quantum_api": {"AUTH": HeaderQuantumApi, "ANON": HeaderAnonApi},
         "sentio_beta_client": {"AUTH": HeaderSentioBetaClient, "ANON": HeaderAnon},
+        "sentio_beta_provider": {"AUTH": HeaderSentioBetaProvider, "ANON": HeaderAnon},
     }
 
     def __init__(self, driver, language, domain="homeweb", user="ANON"):

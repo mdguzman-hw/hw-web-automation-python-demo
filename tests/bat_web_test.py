@@ -1,17 +1,14 @@
 # Test Suite: Build Acceptance
 import random
-import time
 
 from selenium.webdriver.common.by import By
-
-from pages.Constants import HOMEWEB_DOMAIN, QUANTUM_API_DOMAIN
 
 
 ###################### HOMEWEB #####################
 def test_bat_web_001(homeweb):
     # 1: Test - Navigate to Homeweb landing
     homeweb.navigate_landing()
-    assert HOMEWEB_DOMAIN in homeweb.current_url.lower()
+    assert homeweb.domain in homeweb.current_url.lower()
     homeweb.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
 
@@ -21,25 +18,25 @@ def test_bat_web_002(homeweb):
     paths = homeweb.public["paths"]["resources"]
 
     # 1: Test - Resource 1
-    homeweb.click_element("xpath", resources["emotional_intelligence"])
+    homeweb.click_element(By.XPATH, resources["emotional_intelligence"])
     assert paths["emotional_intelligence"] in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.go_back()
 
     # 2: Test - Resource 2
-    homeweb.click_element("xpath", resources["anxiety"])
+    homeweb.click_element(By.XPATH, resources["anxiety"])
     assert paths["anxiety"] in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.go_back()
 
     # 3: Test - Resource 3
-    homeweb.click_element("xpath", resources["letting_go"])
+    homeweb.click_element(By.XPATH, resources["letting_go"])
     assert paths["letting_go"] in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.go_back()
 
     # 4: Test - Resource 4
-    homeweb.click_element("link text", resources["toolkit"])
+    homeweb.click_element(By.LINK_TEXT, resources["toolkit"])
     assert paths["toolkit"] in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.go_back()
@@ -50,8 +47,8 @@ def test_bat_web_003(homeweb, quantum, credentials):
     buttons = homeweb.public["elements"]["buttons"]
 
     # 1: Test - Sign In - Button
-    homeweb.click_element("xpath", buttons["sign_in"])
-    assert QUANTUM_API_DOMAIN in quantum.current_url.lower()
+    homeweb.click_element(By.XPATH, buttons["sign_in"])
+    assert quantum.domain in quantum.current_url.lower()
 
     # 2: Test - Login - Homeweb - Personal
     quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
@@ -76,7 +73,7 @@ def test_bat_web_005(homeweb):
     assert homeweb.wait_for_resource_content()
 
     # 2: Test - Sentio transfer kickout
-    homeweb.click_element("class name", "btn-primary")
+    homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_sentio_transfer()
     homeweb.go_back()
 
@@ -87,11 +84,11 @@ def test_bat_web_006(homeweb):
     header_buttons = header.elements["buttons"]
 
     # 1: Test - Menu dropdown
-    header.click_element("class name", header_buttons["menu"])
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
     assert header.wait_for_account_menu(), "Menu not found"
 
     # 2: Test - Logout
-    header.click_element("css selector", header_buttons["sign_out"])
+    header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
     assert homeweb.wait_for_logout()
 
     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
@@ -105,7 +102,7 @@ def test_bat_web_007(homeweb, quantum, credentials):
     paths = header.paths["buttons"]
 
     # 1: Test - Sign In - Header
-    header.click_element("class name", header_buttons["sign_in"])
+    header.click_element(By.CLASS_NAME, header_buttons["sign_in"])
     assert paths["sign_in"] in quantum.current_url.lower()
 
     # 2: Test - Login - Homeweb - Demo
@@ -122,19 +119,19 @@ def test_bat_web_008(homeweb):
     # 1: Test - ChildCare - Lifestage transfer kickout
     homeweb.driver.get(childcare_resource_target)
     assert homeweb.wait_for_resource_content()
-    homeweb.click_element("class name", "btn-primary")
+    homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
 
     # 2: Test - ElderCare - Lifestage transfer kickout
     homeweb.driver.get(eldercare_resource_target)
     assert homeweb.wait_for_resource_content()
-    homeweb.click_element("class name", "btn-primary")
+    homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
 
     # 3: Test - HRA - LifeStyles transfer kickout
     homeweb.driver.get(hra_resource_target)
     assert homeweb.wait_for_resource_content()
-    homeweb.click_element("class name", "btn-primary")
+    homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestyle_transfer()
 
 
@@ -149,20 +146,20 @@ def test_bat_web_009(homeweb):
     assert homeweb.wait_for_resource_content()
 
     # 2: Test - Open modal
-    homeweb.click_element("css selector", "[data-bs-toggle=\"modal\"]")
+    homeweb.click_element(By.CSS_SELECTOR, "[data-bs-toggle=\"modal\"]")
     assert homeweb.wait_for_modal()
 
     # 3: Test - Dismiss modal, display course content
-    homeweb.click_element("css selector", "[data-bs-dismiss=\"modal\"]")
+    homeweb.click_element(By.CSS_SELECTOR, "[data-bs-dismiss=\"modal\"]")
     # assert homeweb.wait_for_course_content()
     assert homeweb.wait_for_course_content(), "iframe content issue"
 
     # 4: Test - Menu dropdown
-    header.click_element("class name", header_buttons["menu"])
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
     assert header.wait_for_account_menu(), "Menu not found"
 
     # 5: Test - Logout
-    header.click_element("css selector", header_buttons["sign_out"])
+    header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
     assert homeweb.wait_for_logout()
 
     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
@@ -216,14 +213,14 @@ def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     # 3: Test - Insights
     assert customer_portal.wait_for_tableau_report()
 
-    header.click_element("css selector", "[data-bs-toggle=\"dropdown\"]")
+    header.click_element(By.CSS_SELECTOR, "[data-bs-toggle=\"dropdown\"]")
     assert header.wait_for_insights_dropdown()
-    header.click_element("link text", header_dropdown["dropdown_eq"])
+    header.click_element(By.LINK_TEXT, header_dropdown["dropdown_eq"])
     assert customer_portal.wait_for_power_bi_report()
 
-    header.click_element("css selector", "[data-bs-toggle=\"dropdown\"]")
+    header.click_element(By.CSS_SELECTOR, "[data-bs-toggle=\"dropdown\"]")
     assert header.wait_for_insights_dropdown()
-    header.click_element("link text", header_dropdown["dropdown_ahs"])
+    header.click_element(By.LINK_TEXT, header_dropdown["dropdown_ahs"])
     assert customer_portal.wait_for_power_bi_report()
 
     # 4: Test - Logout
@@ -234,7 +231,7 @@ def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     assert header.wait_for_sign_out_group()
 
     header.click_element(By.LINK_TEXT, header_buttons["menu_sign_out_all"])
-    assert QUANTUM_API_DOMAIN in quantum.current_url.lower()
+    assert quantum.domain in quantum.current_url.lower()
 
 
 ############### SENTIO BETA - CLIENT ###############
@@ -250,9 +247,9 @@ def test_bat_web_013(sentio_beta_client, quantum, credentials):
     sentio_beta_client.click_element(By.LINK_TEXT, elements["get_started"])
     assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
 
-    # sentio_beta_client.go_back()
-    # sentio_beta_client.click_element(By.LINK_TEXT, elements["login"])
-    # assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
+    sentio_beta_client.go_back()
+    sentio_beta_client.click_element(By.LINK_TEXT, elements["login"])
+    assert quantum.base_url + "/" + sentio_beta_client.language + "/login" in sentio_beta_client.current_url.lower()
 
     quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert sentio_beta_client.wait_for_dashboard()
@@ -290,5 +287,51 @@ def test_bat_web_014(sentio_beta_client):
     #     print(program.href)
     #     print(program.status)
 
-    time.sleep(1)
-    # input("Press Enter to continue...")
+    header = sentio_beta_client.header
+    header_buttons = header.elements["buttons"]
+    # 4: Test - Menu dropdown
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    # 5: Test - Logout
+    header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
+    assert sentio_beta_client.base_url in sentio_beta_client.current_url.lower()
+
+
+############### SENTIO BETA - PROVIDER ###############
+def test_bat_web_025(sentio_beta_provider, quantum):
+    sentio_beta_provider.driver.get(sentio_beta_provider.base_url)
+    assert quantum.base_url in sentio_beta_provider.current_url.lower()
+
+
+def test_bat_web_026(sentio_beta_provider, quantum, credentials):
+    quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
+    assert sentio_beta_provider.wait_for_login()
+
+
+def test_bat_web_027(sentio_beta_provider):
+    assert sentio_beta_provider._is_authenticated
+
+    # Login always navigates to EN, need to toggle to french manually after login
+    header = sentio_beta_provider.header
+    header_elements = header.elements
+    if sentio_beta_provider.language == "fr":
+        header.click_element(By.CSS_SELECTOR, ".btn.btn-nav-item.btn-language.btn-icon-spaced")
+
+    assert sentio_beta_provider.wait_for_dashboard("classic")
+
+    header.click_element(By.CSS_SELECTOR, header_elements["new"])
+    assert sentio_beta_provider.wait_for_dashboard("new")
+
+
+def test_bat_web_028(sentio_beta_provider, quantum):
+    assert sentio_beta_provider._is_authenticated
+
+    # 1: Test - Logout
+    header = sentio_beta_provider.header
+    header_buttons = header.elements["buttons"]
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
+    assert quantum.domain in sentio_beta_provider.current_url.lower()

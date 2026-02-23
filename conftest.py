@@ -12,6 +12,7 @@ from pages.CustomerPortal import CustomerPortal
 from pages.Homeweb import Homeweb
 from pages.QuantumAPI import QuantumAPI
 from pages.SentioBetaClient import SentioBetaClient
+from pages.SentioBetaProvider import SentioBetaProvider
 
 
 @pytest.fixture(scope="session")
@@ -80,3 +81,8 @@ def customer_portal(driver, language):
 def sentio_beta_client(driver, language):
     sentio_client = SentioBetaClient(driver, language)
     return sentio_client
+
+@pytest.fixture(scope="session")
+def sentio_beta_provider(driver, language):
+    sentio_provider = SentioBetaProvider(driver, language)
+    return sentio_provider
