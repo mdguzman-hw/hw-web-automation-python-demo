@@ -241,7 +241,7 @@ def test_bat_web_012(sentio_beta_client):
 
 
 def test_bat_web_013(sentio_beta_client, quantum, credentials):
-    assert sentio_beta_client.is_landing
+    assert sentio_beta_client._is_landing
     elements = sentio_beta_client.landing_elements
 
     sentio_beta_client.click_element(By.LINK_TEXT, elements["get_started"])
@@ -280,12 +280,28 @@ def test_bat_web_014(sentio_beta_client):
     sentio_beta_client.complete_assessment()
     assert "/assessments" and "results" in sentio_beta_client.current_url.lower()
 
-    # TODO
-    # sentio_beta_client.start_program(tier="", province="")
-    # for program in valid_programs:
-    #     print(program.title)
-    #     print(program.href)
-    #     print(program.status)
+
+#     # TODO: Finish wiring to start program
+#     sentio_beta_client.start_program(tier="", province="")
+#     for program in valid_programs:
+#         print(program.title)
+#         print(program.href)
+#         print(program.status)
+
+def test_bat_web_015(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+    sentio_beta_client.navigate_dashboard()
+    in_progress_programs = sentio_beta_client.in_progress_programs
+    assert in_progress_programs
+
+    valid_program = random.choice(in_progress_programs)
+
+    sentio_beta_client.continue_program(valid_program.title)
+    assert valid_program.href_toc in sentio_beta_client.current_url.lower()
+
+
+def test_bat_web_024(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
 
     header = sentio_beta_client.header
     header_buttons = header.elements["buttons"]

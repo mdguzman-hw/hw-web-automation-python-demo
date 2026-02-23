@@ -32,10 +32,6 @@ class SentioBetaClient(BasePage):
         return "/app/" + self.language + "/dashboard"
 
     @property
-    def is_landing(self):
-        return self._is_landing
-
-    @property
     def landing_elements(self):
         return SentioLanding.EN["elements"] if self.language == "en" else SentioLanding.FR["elements"]
 
@@ -43,18 +39,35 @@ class SentioBetaClient(BasePage):
     def available_programs(self):
         program_cards = self.driver.find_elements(By.CSS_SELECTOR, "div.card-container")
         programs = []
+
         for program in program_cards:
             title = program.find_element(By.CSS_SELECTOR, "p.h4").text
             href = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
             status_elements = program.find_elements(By.CSS_SELECTOR, ".overlay-content")
             status = status_elements[0].text.strip() if status_elements else None
             programs.append(ProgramCard(title, href, status))
+
         return programs
+
+    @property
+    def in_progress_programs(self):
+        program_tiles = self.driver.find_elements(By.CSS_SELECTOR, ".item.item-dashboard.item-dashboard-active")
+        in_progress_programs = []
+
+        for program in program_tiles:
+            title = program.find_element(By.CSS_SELECTOR, "h2.header").text
+            href_toc = program.find_element(By.CSS_SELECTOR, "a.btn.btn-outline-muted").get_attribute("href")
+            href_next_activity = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
+            href_withdraw = program.find_element(By.CSS_SELECTOR, "p.end-service-note a").get_attribute("href")
+            in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw))
+
+        return in_progress_programs
 
     def __init__(self, driver, language):
         super().__init__(driver, language)
         self._is_authenticated = False
         self._is_landing = False
+        self._is_dashboard = False
         self.header = None
         self.update_header()
 
@@ -82,12 +95,19 @@ class SentioBetaClient(BasePage):
 
         self.set_authenticated(True)
 
+        self._is_dashboard = True
+
         return self.wait.until(
             lambda d: self.dashboard_endpoint in d.current_url.lower()
         )
 
+    # TODO: Update this to click on the Header-Logo or Header-Dashboard instead of just URL injection and navigation
+    def navigate_dashboard(self):
+        self.driver.get(self.base_url + self.dashboard_endpoint)
+        self._is_dashboard = True
+
     def navigate_overview(self, title):
-        # 1: Find program card
+        # 1: Find program card by title
         program_card = self.wait.until(
             expected_conditions.presence_of_element_located((By.XPATH, f"//div[contains(@class,'card-container')]//p[@class='h4' and normalize-space(text())='{title}']/ancestor::div[contains(@class,'card-container')]"))
         )
@@ -136,6 +156,25 @@ class SentioBetaClient(BasePage):
             )
 
     # def start_program(self, tier, province):
+    def continue_program(self, title):
+        # 1: Find program tile by title
+        program_tile = self.wait.until(
+            expected_conditions.presence_of_element_located(
+                (By.XPATH, f"//div[contains(@class,'item-dashboard-active')]//h2[normalize-space(text())='{title}']/ancestor::div[contains(@class,'item-dashboard-active')]")
+            )
+        )
+
+        # 2: Scroll program tile into view
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", program_tile)
+        self.wait.until(lambda d: program_tile.is_displayed() and program_tile.is_enabled())
+        time.sleep(0.5)
+
+        # 3: Find table of contents button within tile
+        toc_button = program_tile.find_element(By.CSS_SELECTOR, "a.btn-outline-muted")
+        self.wait.until(lambda d: toc_button.is_displayed() and toc_button.is_enabled())
+
+        # 4: Click button
+        toc_button.click()
 
 
 class SentioLanding:
@@ -159,3 +198,11 @@ class ProgramCard:
         self.title = title
         self.href = href
         self.status = status
+
+
+class ProgramTile:
+    def __init__(self, title, href_toc, href_next_activity, href_withdraw):
+        self.title = title
+        self.href_toc = href_toc
+        self.href_next_activity = href_next_activity
+        self.href_withdraw = href_withdraw
