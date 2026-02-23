@@ -3,10 +3,9 @@ import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.select import Select
 
 from pages.BasePage import BasePage
-from pages.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_DOMAIN
+from pages.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_CLIENT_DOMAIN
 from pages.Header import Header
 
 
@@ -26,7 +25,7 @@ class SentioBetaClient(BasePage):
 
     @property
     def domain(self):
-        return SENTIO_BETA_DOMAIN
+        return SENTIO_BETA_CLIENT_DOMAIN
 
     @property
     def dashboard_endpoint(self):
@@ -39,10 +38,6 @@ class SentioBetaClient(BasePage):
     @property
     def landing_elements(self):
         return SentioLanding.EN["elements"] if self.language == "en" else SentioLanding.FR["elements"]
-
-    @property
-    def dashboard_elements(self):
-        return SentioDashboard.EN["elements"] if self.language == "en" else SentioDashboard.FR["elements"]
 
     @property
     def available_programs(self):

@@ -12,6 +12,10 @@ class Homeweb(BasePage):
     def current_url(self):
         return self.driver.current_url
 
+    @property
+    def domain(self):
+        return HOMEWEB_DOMAIN
+
     def __init__(self, driver, language):
         super().__init__(driver, language)
         self.base_url = HOMEWEB_BASE_URL

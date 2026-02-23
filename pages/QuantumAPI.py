@@ -3,7 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 from pages.BasePage import BasePage
-from pages.Constants import QUANTUM_API_BASE_URL
+from pages.Constants import QUANTUM_API_BASE_URL, QUANTUM_API_DOMAIN
 from pages.Header import Header
 from pages.Login import LoginPage
 
@@ -12,6 +12,10 @@ class QuantumAPI(BasePage):
     @property
     def current_url(self):
         return self.driver.current_url
+
+    @property
+    def domain(self):
+        return QUANTUM_API_DOMAIN
 
     def __init__(self, driver, language):
         super().__init__(driver, language)
