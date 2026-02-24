@@ -36,73 +36,13 @@ class SentioBetaClient(BasePage):
     def landing_elements(self):
         return SentioLanding.EN["elements"] if self.language == "en" else SentioLanding.FR["elements"]
 
-    @property
-    def available_programs(self):
-        program_cards = self.driver.find_elements(By.CSS_SELECTOR, "div.card-container")
-        programs = []
-
-        for program in program_cards:
-            title = program.find_element(By.CSS_SELECTOR, "p.h4").text
-            href = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
-            status_elements = program.find_elements(By.CSS_SELECTOR, ".overlay-content")
-            status = status_elements[0].text.strip() if status_elements else None
-            programs.append(ProgramCard(title, href, status))
-
-        return programs
-
-    @property
-    def in_progress_programs(self):
-        program_tiles = self.driver.find_elements(By.CSS_SELECTOR, ".item.item-dashboard.item-dashboard-active")
-        in_progress_programs = []
-
-        for program in program_tiles:
-            title = program.find_element(By.CSS_SELECTOR, "h2.header").text
-            href_toc = program.find_element(By.CSS_SELECTOR, "a.btn.btn-outline-muted").get_attribute("href")
-            href_next_activity = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
-            href_withdraw = program.find_element(By.CSS_SELECTOR, "p.end-service-note a").get_attribute("href")
-            in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw))
-
-        return in_progress_programs
-
-    @property
-    def available_tiers(self):
-        tier_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.item-tier")
-        tiers = []
-
-        for tier in tier_elements:
-            input_elem = tier.find_element(By.CSS_SELECTOR, "input.btn-check")
-            label = tier.find_element(
-                By.CSS_SELECTOR, "div.item-content b"
-            ).text.strip()
-            value = input_elem.get_attribute("value")
-            clickable_element = tier.find_element(By.CSS_SELECTOR, "label.btn")
-
-            tiers.append(ProgramTier(label, value, clickable_element))
-
-        return tiers
-
-    @property
-    def available_provinces(self):
-        select_element = Select(self.driver.find_element(By.ID, "jurisdictionSelect"))
-
-        provinces = []
-
-        for option in select_element.options:
-            value = option.get_attribute("value")
-
-            # Skip placeholder
-            if not value:
-                continue
-
-            provinces.append(Province(value))
-
-        return provinces
-
     def __init__(self, driver, language):
         super().__init__(driver, language)
         self._is_authenticated = False
         self._is_landing = False
-        self._is_dashboard = False
+        self._is_dashboard = self.dashboard_endpoint in self.current_url
+        self._is_program_status = "/status" in self.current_url
+        self.programs = Programs.EN if self.language == "en" else Programs.FR
         self.header = None
         self.update_header()
 
@@ -130,8 +70,6 @@ class SentioBetaClient(BasePage):
 
         self.set_authenticated(True)
 
-        self._is_dashboard = True
-
         return self.wait.until(
             lambda d: self.dashboard_endpoint in d.current_url.lower()
         )
@@ -139,7 +77,7 @@ class SentioBetaClient(BasePage):
     # TODO: Update this to click on the Header-Logo or Header-Dashboard instead of just URL injection and navigation
     def navigate_dashboard(self):
         self.driver.get(self.base_url + self.dashboard_endpoint)
-        self._is_dashboard = True
+        self.in_progress_programs()
 
     def navigate_overview(self, title):
         # 1: Find program card by title
@@ -191,9 +129,6 @@ class SentioBetaClient(BasePage):
             )
 
     def start_program(self, tier, province):
-        print("Tier->", tier.label, tier.value)
-        print("Province->", province.value)
-
         # 1: Ensure form is visible
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.ID, "startProgramForm"))
@@ -212,6 +147,9 @@ class SentioBetaClient(BasePage):
         submit_btn = self.wait.until(
             expected_conditions.element_to_be_clickable((By.ID, "submitBtn"))
         )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", submit_btn)
+        self.wait.until(lambda d: submit_btn.is_displayed() and submit_btn.is_enabled())
+        time.sleep(0.5)
 
         # 5: Click Start
         submit_btn.click()
@@ -236,6 +174,73 @@ class SentioBetaClient(BasePage):
         # 4: Click button
         toc_button.click()
 
+        self._is_program_status = True
+
+    def available_programs(self):
+        program_cards = self.driver.find_elements(By.CSS_SELECTOR, "div.card-container")
+        programs = []
+
+        for program in program_cards:
+            title = program.find_element(By.CSS_SELECTOR, "p.h4").text
+            href = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
+            status_elements = program.find_elements(By.CSS_SELECTOR, ".overlay-content")
+            status = status_elements[0].text.strip() if status_elements else None
+            programs.append(ProgramCard(title, href, status))
+
+        return programs
+
+    def in_progress_programs(self):
+        program_tiles = self.driver.find_elements(By.CSS_SELECTOR, ".item.item-dashboard.item-dashboard-active")
+        in_progress_programs = []
+
+        for program in program_tiles:
+            title = program.find_element(By.CSS_SELECTOR, "h2.header").text
+            href_toc = program.find_element(By.CSS_SELECTOR, "a.btn.btn-outline-muted").get_attribute("href")
+            href_next_activity = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
+            href_withdraw = program.find_element(By.CSS_SELECTOR, "p.end-service-note a").get_attribute("href")
+            in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw))
+
+        return in_progress_programs
+
+    def available_tiers(self):
+        tier_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.item-tier")
+        tiers = []
+
+        for tier in tier_elements:
+            input_elem = tier.find_element(By.CSS_SELECTOR, "input.btn-check")
+            label = tier.find_element(
+                By.CSS_SELECTOR, "div.item-content b"
+            ).text.strip()
+            value = input_elem.get_attribute("value")
+            clickable_element = tier.find_element(By.CSS_SELECTOR, "label.btn")
+
+            tiers.append(ProgramTier(label, value, clickable_element))
+
+        return tiers
+
+    def available_provinces(self):
+        select_element = Select(self.driver.find_element(By.ID, "jurisdictionSelect"))
+
+        provinces = []
+
+        for option in select_element.options:
+            value = option.get_attribute("value")
+
+            # Skip placeholder
+            if not value:
+                continue
+
+            provinces.append(Province(value))
+
+        return provinces
+
+    def available_modules(self):
+        modules = self.driver.find_elements(
+            By.CSS_SELECTOR, "#previewAccordion .accordion-item"
+        )
+
+        return [ModuleTile(module) for module in modules]
+
 
 class SentioLanding:
     EN = {
@@ -250,6 +255,21 @@ class SentioLanding:
             "get_started": "Commencer",
             "login": "Ouvrir une session"
         }
+    }
+
+class Programs:
+    EN = {
+        "anxiety": "Anxiety",
+        "anxiety_depression": "Co-Existing Anxiety and Depression",
+        "depression": "Depression",
+        "mental_health": "Mental Health and Wellness",
+    }
+
+    FR = {
+        "anxiety": "Anxiété",
+        "anxiety_depression": "Anxiété et dépression coexistantes",
+        "depression": "Dépression",
+        "mental_health": "Santé mentale et bien-être",
     }
 
 
@@ -277,7 +297,21 @@ class ProgramTier:
     def select(self):
         self._clickable.click()
 
+
 class Province:
     def __init__(self, value):
         self.value = value
+
+class ModuleTile:
+    def __init__(self, root_element):
+        self._root = root_element
+
+    @property
+    def title(self):
+        return self._root.find_element(By.CSS_SELECTOR, ".title").text
+
+    @property
+    def status(self):
+        badges = self._root.find_elements(By.CSS_SELECTOR, ".badge-container .badge")
+        return badges[0].text.strip() if badges else "N/A"
 

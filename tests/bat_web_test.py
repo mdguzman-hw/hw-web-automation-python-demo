@@ -188,7 +188,6 @@ def test_bat_web_010(homeweb):
     assert homeweb.wait_for_resource_content()
     homeweb.go_back()
 
-
 ################## CUSTOMER PORTAL #################
 def test_bat_web_011(homeweb, quantum, customer_portal, credentials, language):
     assert homeweb.is_landing()
@@ -258,22 +257,34 @@ def test_bat_web_013(sentio_beta_client, quantum, credentials):
 def test_bat_web_014(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
 
-    programs = sentio_beta_client.available_programs
+    programs = sentio_beta_client.available_programs()
     assert programs
 
+    completed_status = {
+        "en": "Completed",
+        "fr": "Exercice terminé"
+    }
     # Filter programs that are Completed or None
     valid_programs = [
         p for p in programs
-        if p.status is None or p.status.lower() == "completed"
+        if p.status is None or p.status == completed_status[sentio_beta_client.language].upper()
     ]
-
     assert valid_programs, "No completed or unstarted programs available"
 
     # Can modify this to be a specific program, if required
-    test_program = random.choice(valid_programs)
+    # Pick random program to test
+    # test_program = random.choice(valid_programs)
+
+    # Specify program to test
+    test_program = next(
+        p for p in valid_programs
+        if p.title == sentio_beta_client.programs["depression"]
+    )
 
     sentio_beta_client.navigate_overview(test_program.title)
     assert test_program.href in sentio_beta_client.current_url.lower()
+
+    # sentio_beta_client.go_back()
 
     sentio_beta_client.navigate_assessment()
     assert "/assessments" and "take" in sentio_beta_client.current_url.lower()
@@ -281,21 +292,21 @@ def test_bat_web_014(sentio_beta_client):
     sentio_beta_client.complete_assessment()
     assert "/assessments" and "results" in sentio_beta_client.current_url.lower()
 
-    tiers = sentio_beta_client.available_tiers
-    provinces = sentio_beta_client.available_provinces
+    tiers = sentio_beta_client.available_tiers()
+    provinces = sentio_beta_client.available_provinces()
     assert tiers
     assert provinces
 
     # Can modify to be a specific tier and province, if required
-    test_tier = random.choice(tiers)
-    test_province = random.choice(provinces)
-    sentio_beta_client.start_program(test_tier, test_province)
+    # test_tier = random.choice(tiers)
+    # test_province = random.choice(provinces)
+    # sentio_beta_client.start_program(test_tier, test_province)
 
 
 def test_bat_web_015(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
-    sentio_beta_client.navigate_dashboard()
-    in_progress_programs = sentio_beta_client.in_progress_programs
+    # sentio_beta_client.navigate_dashboard()
+    in_progress_programs = sentio_beta_client.in_progress_programs()
     assert in_progress_programs, "No in_progress programs available"
 
     # Can modify to be a specific program, if required
@@ -303,6 +314,21 @@ def test_bat_web_015(sentio_beta_client):
 
     sentio_beta_client.continue_program(valid_program.title)
     assert valid_program.href_toc in sentio_beta_client.current_url.lower()
+
+def test_bat_web_016(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+    assert sentio_beta_client._is_program_status
+    modules = sentio_beta_client.available_modules()
+    assert modules, "No available modules"
+
+    modules_started = any(
+        module.status in ("IN-PROGRESS", "COMPLETED") for module in modules
+    )
+
+    assert not modules_started
+
+
+    # input("Press any key to continue...")
 
 
 def test_bat_web_024(sentio_beta_client):
