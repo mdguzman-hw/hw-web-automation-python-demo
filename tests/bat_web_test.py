@@ -278,13 +278,11 @@ def test_bat_web_014(sentio_beta_client):
     # Specify program to test
     test_program = next(
         p for p in valid_programs
-        if p.title == sentio_beta_client.programs["depression"]
+        if p.title == sentio_beta_client.programs["mental_health"]
     )
 
     sentio_beta_client.navigate_overview(test_program.title)
     assert test_program.href in sentio_beta_client.current_url.lower()
-
-    # sentio_beta_client.go_back()
 
     sentio_beta_client.navigate_assessment()
     assert "/assessments" and "take" in sentio_beta_client.current_url.lower()
@@ -298,37 +296,59 @@ def test_bat_web_014(sentio_beta_client):
     assert provinces
 
     # Can modify to be a specific tier and province, if required
+    # Pick random program to test
     # test_tier = random.choice(tiers)
     # test_province = random.choice(provinces)
-    # sentio_beta_client.start_program(test_tier, test_province)
+
+    # Specify program tier and province
+    test_tier = tiers["TIER_2"]
+    test_province = provinces["Prince Edward Island"]
+    sentio_beta_client.start_program(test_tier, test_province)
+    sentio_beta_client.wait_for_activity_content()
+
+    sentio_beta_client.navigate_dashboard()
+    in_progress_programs = sentio_beta_client.in_progress_programs()
+    assert any(
+        p.title == test_program.title
+        for p in in_progress_programs
+    )
 
 
 def test_bat_web_015(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
-    # sentio_beta_client.navigate_dashboard()
     in_progress_programs = sentio_beta_client.in_progress_programs()
     assert in_progress_programs, "No in_progress programs available"
 
     # Can modify to be a specific program, if required
-    valid_program = random.choice(in_progress_programs)
+    # test_program = random.choice(in_progress_programs)
 
-    sentio_beta_client.continue_program(valid_program.title)
-    assert valid_program.href_toc in sentio_beta_client.current_url.lower()
+    # Specify program to test
+    test_program = next(
+        p for p in in_progress_programs
+        if p.title == sentio_beta_client.programs["mental_health"]
+    )
+
+    sentio_beta_client.continue_program(test_program.title)
+    assert test_program.href_toc in sentio_beta_client.current_url.lower()
 
 def test_bat_web_016(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
+    sentio_beta_client.navigate_dashboard()
+    assert sentio_beta_client.dashboard_endpoint in sentio_beta_client.current_url.lower()
+
+    sentio_beta_client.continue_program(sentio_beta_client.programs["mental_health"])
     assert sentio_beta_client._is_program_status
+
     modules = sentio_beta_client.available_modules()
     assert modules, "No available modules"
-
     modules_started = any(
         module.status in ("IN-PROGRESS", "COMPLETED") for module in modules
     )
 
     assert not modules_started
 
-
-    # input("Press any key to continue...")
+    sentio_beta_client.start_goal()
+    sentio_beta_client.wait_for_activity_content()
 
 
 def test_bat_web_024(sentio_beta_client):
@@ -336,6 +356,7 @@ def test_bat_web_024(sentio_beta_client):
 
     header = sentio_beta_client.header
     header_buttons = header.elements["buttons"]
+
     # 4: Test - Menu dropdown
     header.click_element(By.CLASS_NAME, header_buttons["menu"])
     assert header.wait_for_account_menu(), "Menu not found"

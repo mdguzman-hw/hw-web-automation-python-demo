@@ -135,13 +135,13 @@ class SentioBetaClient(BasePage):
         )
 
         # 2: Select Tier (radio by value)
-        tier.select()
+        tier.click()
 
         # 3: Select Province
         province_select = Select(self.wait.until(
             expected_conditions.presence_of_element_located((By.ID, "jurisdictionSelect"))
         ))
-        province_select.select_by_value(province.value)
+        province_select.select_by_value(province)
 
         # 4: Wait for Start button to become enabled
         submit_btn = self.wait.until(
@@ -203,34 +203,50 @@ class SentioBetaClient(BasePage):
         return in_progress_programs
 
     def available_tiers(self):
+        # TIER_1
+        # TIER_2
+        # TIER_3
+
         tier_elements = self.driver.find_elements(By.CSS_SELECTOR, "div.item-tier")
-        tiers = []
+        tiers = {}
 
         for tier in tier_elements:
             input_elem = tier.find_element(By.CSS_SELECTOR, "input.btn-check")
-            label = tier.find_element(
-                By.CSS_SELECTOR, "div.item-content b"
-            ).text.strip()
-            value = input_elem.get_attribute("value")
+            key = input_elem.get_attribute("value")
             clickable_element = tier.find_element(By.CSS_SELECTOR, "label.btn")
 
-            tiers.append(ProgramTier(label, value, clickable_element))
+            tiers[key] = clickable_element
 
         return tiers
 
     def available_provinces(self):
+        # Alberta
+        # British Columbia
+        # Manitoba
+        # New Brunswick
+        # Newfoundland and Labrador
+        # Nova Scotia
+        # Ontario
+        # Prince Edward Island
+        # Québec
+        # Saskatchewan
+        # Yukon Territory
+        # Northwest Territories
+        # Nunavut
+
         select_element = Select(self.driver.find_element(By.ID, "jurisdictionSelect"))
 
-        provinces = []
+        provinces = {}
 
         for option in select_element.options:
+            key = option.get_attribute("key")
             value = option.get_attribute("value")
 
             # Skip placeholder
-            if not value:
+            if not key:
                 continue
 
-            provinces.append(Province(value))
+            provinces[key] = value
 
         return provinces
 
@@ -240,6 +256,45 @@ class SentioBetaClient(BasePage):
         )
 
         return [ModuleTile(module) for module in modules]
+
+    def wait_for_activity_content(self):
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located((By.ID, "page-program-flow"))
+        )
+
+    def start_goal(self):
+        # 1: Find continue button
+        button = self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "btn-primary"))
+        )
+
+        # 2. Scroll the button into view, if required
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", button
+        )
+        self.wait.until(lambda d: button.is_displayed() and button.is_enabled())
+
+        # 3: Click button
+        button.click()
+
+        assert self.wait_for_activity_content
+
+        self.next_activity()
+
+    def next_activity(self):
+        # 1: Find next activity button within the content container
+        next_button = self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "div.container-detail div.item-program-progress.next a.item-inner.pulse-primary"))
+        )
+
+        # 2. Scroll container into view, if required
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", next_button
+        )
+        self.wait.until(lambda d: next_button.is_displayed() and next_button.is_enabled())
+
+        # 3: Click next button
+        next_button.click()
 
 
 class SentioLanding:
@@ -256,6 +311,7 @@ class SentioLanding:
             "login": "Ouvrir une session"
         }
     }
+
 
 class Programs:
     EN = {
@@ -289,18 +345,12 @@ class ProgramTile:
 
 
 class ProgramTier:
-    def __init__(self, label, value, clickable_element):
-        self.label = label
-        self.value = value
-        self._clickable = clickable_element
+    def __init__(self, clickable_element):
+        self.element = clickable_element
 
     def select(self):
-        self._clickable.click()
+        self.element.click()
 
-
-class Province:
-    def __init__(self, value):
-        self.value = value
 
 class ModuleTile:
     def __init__(self, root_element):
@@ -314,4 +364,3 @@ class ModuleTile:
     def status(self):
         badges = self._root.find_elements(By.CSS_SELECTOR, ".badge-container .badge")
         return badges[0].text.strip() if badges else "N/A"
-
