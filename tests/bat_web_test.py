@@ -337,7 +337,7 @@ def test_bat_web_016(sentio_beta_client):
     assert sentio_beta_client.dashboard_endpoint in sentio_beta_client.current_url.lower()
 
     sentio_beta_client.continue_program(sentio_beta_client.programs["mental_health"])
-    assert sentio_beta_client._is_program_status
+    assert sentio_beta_client.program_status_endpoint
 
     modules = sentio_beta_client.available_modules()
     assert modules, "No available modules"
@@ -349,6 +349,47 @@ def test_bat_web_016(sentio_beta_client):
 
     sentio_beta_client.start_goal()
     sentio_beta_client.wait_for_activity_content()
+
+def test_bat_web_017(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+    sentio_beta_client.navigate_dashboard()
+
+    in_progress_programs = sentio_beta_client.in_progress_programs()
+    assert in_progress_programs, "No in_progress programs available"
+
+    test_program = next(
+        p for p in in_progress_programs
+        if p.title == sentio_beta_client.programs["mental_health"]
+    )
+
+    sentio_beta_client.continue_program(test_program.title)
+    assert sentio_beta_client.program_status_endpoint
+
+    sentio_beta_client.continue_goal()
+    sentio_beta_client.wait_for_activity_content()
+
+def test_bat_web_018(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+    sentio_beta_client.navigate_dashboard()
+
+    in_progress_programs = sentio_beta_client.in_progress_programs()
+    assert in_progress_programs, "No in_progress programs available"
+
+    test_program = next(
+        p for p in in_progress_programs
+        if p.title == sentio_beta_client.programs["mental_health"]
+    )
+
+    sentio_beta_client.continue_program(test_program.title)
+    assert sentio_beta_client.program_status_endpoint
+
+    sentio_beta_client.continue_goal()
+    sentio_beta_client.wait_for_activity_content()
+
+    sentio_beta_client.complete_goal()
+    assert sentio_beta_client.module_complete_endpoint
+
+    # sentio_beta_client.next_activity()
 
 
 def test_bat_web_024(sentio_beta_client):

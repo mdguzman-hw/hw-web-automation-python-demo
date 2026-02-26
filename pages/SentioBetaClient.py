@@ -36,12 +36,19 @@ class SentioBetaClient(BasePage):
     def landing_elements(self):
         return SentioLanding.EN["elements"] if self.language == "en" else SentioLanding.FR["elements"]
 
+    @property
+    def program_status_endpoint(self):
+        return "/status" in self.current_url
+
+    @property
+    def module_complete_endpoint(self):
+        return "/complete" in self.current_url
+
     def __init__(self, driver, language):
         super().__init__(driver, language)
         self._is_authenticated = False
         self._is_landing = False
         self._is_dashboard = self.dashboard_endpoint in self.current_url
-        self._is_program_status = "/status" in self.current_url
         self.programs = Programs.EN if self.language == "en" else Programs.FR
         self.header = None
         self.update_header()
@@ -174,8 +181,6 @@ class SentioBetaClient(BasePage):
         # 4: Click button
         toc_button.click()
 
-        self._is_program_status = True
-
     def available_programs(self):
         program_cards = self.driver.find_elements(By.CSS_SELECTOR, "div.card-container")
         programs = []
@@ -282,19 +287,60 @@ class SentioBetaClient(BasePage):
         self.next_activity()
 
     def next_activity(self):
-        # 1: Find next activity button within the content container
-        next_button = self.wait.until(
-            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "div.container-detail div.item-program-progress.next a.item-inner.pulse-primary"))
+        # 1: Find the content container
+        container = self.wait.until(
+            expected_conditions.presence_of_element_located((By.CLASS_NAME, "container-program-progress-footer")
+            )
         )
 
         # 2. Scroll container into view, if required
         self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", next_button
+            "arguments[0].scrollIntoView({block: 'center'});", container
         )
-        self.wait.until(lambda d: next_button.is_displayed() and next_button.is_enabled())
 
-        # 3: Click next button
+        # input("Footer Container FOUND. Press enter to continue...")
+        # 3: Find next activity button within the container
+        next_button = self.wait.until(
+            expected_conditions.element_to_be_clickable(
+                (By.CSS_SELECTOR, "div.item-program-progress.next:not(.locked) a.item-inner.pulse-primary")
+            )
+        )
+
+        # next_button = self.wait.until(
+        #     container.find_element(By.CSS_SELECTOR, "div.item-program-progress.next a.item-inner.pulse-primary")
+        # )
+        # self.wait.until(lambda d: next_button.is_displayed() and next_button.is_enabled())
+        #
+        # 4: Click next button
+        # input("Next Button FOUND. Press enter to continue...")
         next_button.click()
+
+    def continue_goal(self):
+        module_accordions = self.driver.find_elements(By.CSS_SELECTOR, "div.accordion-header")
+
+        for module in module_accordions:
+            if module.find_elements(By.CSS_SELECTOR, ".badge-in-progress"):
+                continue_btn = module.find_element(
+                    By.CSS_SELECTOR,
+                    "a.btn.btn-primary-light.font-size-sm"
+                )
+                continue_btn.click()
+                break
+
+    def complete_goal(self):
+        while not self.module_complete_endpoint:
+
+            old_url = self.driver.current_url
+
+            self.next_activity()
+
+            # Wait for the URL to change
+            self.wait.until(expected_conditions.url_changes(old_url))
+
+        input("COMPLETE GOAL! Press any key to continue...")
+
+
+# def
 
 
 class SentioLanding:
