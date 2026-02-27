@@ -22,6 +22,8 @@ def test_bat_web_013(sentio_beta_client, quantum, credentials):
     quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert sentio_beta_client.wait_for_dashboard()
 
+    # TODO: Reset In Progress programs by withdrawing, to support subsequent tests accordingly
+
 
 def test_bat_web_014(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
@@ -159,6 +161,7 @@ def test_bat_web_018(sentio_beta_client):
 
     # TODO: Fix error complete_goal()
     sentio_beta_client.complete_goal()
+
 
 # TODO: BAT-WEB-019
 # TODO: BAT-WEB-020
