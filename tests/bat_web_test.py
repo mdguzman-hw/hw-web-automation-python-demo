@@ -384,12 +384,7 @@ def test_bat_web_018(sentio_beta_client):
     assert sentio_beta_client.program_status_endpoint
 
     sentio_beta_client.continue_goal()
-    sentio_beta_client.wait_for_activity_content()
-
     sentio_beta_client.complete_goal()
-    assert sentio_beta_client.module_complete_endpoint
-
-    # sentio_beta_client.next_activity()
 
 
 def test_bat_web_024(sentio_beta_client):
