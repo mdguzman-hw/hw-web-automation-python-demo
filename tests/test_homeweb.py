@@ -11,30 +11,20 @@ def test_bat_web_001(homeweb):
 
 
 def test_bat_web_002(homeweb):
-    # TODO: Handle homepage articles dynamically
     assert homeweb.is_landing()
     resources = homeweb.public["elements"]["resources"]
     paths = homeweb.public["paths"]["resources"]
+    articles = homeweb.get_articles()
 
-    # 1: Test - Resource 1
-    homeweb.click_element(By.XPATH, resources["self_compassion"])
-    assert paths["self_compassion"] in homeweb.current_url.lower()
-    assert homeweb.wait_for_resource_content()
-    homeweb.go_back()
+    # Test - Resources 1-3 (Dynamic articles -> subject to change)
+    for article in articles:
+        locator = f'//h3[contains(normalize-space(), "{article["title"]}")]//ancestor::div[contains(@class,"card-container")]//a[@role="button"]'
+        homeweb.click_element(By.XPATH, locator)
+        assert article["href"] in homeweb.current_url.lower()
+        assert homeweb.wait_for_resource_content()
+        homeweb.go_back()
 
-    # 2: Test - Resource 2
-    homeweb.click_element(By.XPATH, resources["neurodiversity"])
-    assert paths["neurodiversity"] in homeweb.current_url.lower()
-    assert homeweb.wait_for_resource_content()
-    homeweb.go_back()
-
-    # 3: Test - Resource 3
-    homeweb.click_element(By.XPATH, resources["emotional_intelligence"])
-    assert paths["emotional_intelligence"] in homeweb.current_url.lower()
-    assert homeweb.wait_for_resource_content()
-    homeweb.go_back()
-
-    # 4: Test - Resource 4
+    # Test - Resource 4 (Static article)
     homeweb.click_element(By.LINK_TEXT, resources["toolkit"])
     assert paths["toolkit"] in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()

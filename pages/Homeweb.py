@@ -1,3 +1,5 @@
+from selenium.webdriver.common.by import By
+
 from pages.BasePage import BasePage
 from pages.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN, SENTIO_DOMAIN, LIFESTAGE_DOMAIN, LIFESTYLE_DOMAIN
 from pages.Header import Header
@@ -68,7 +70,7 @@ class Homeweb(BasePage):
 
     def wait_for_resource_content(self):
         return self.wait.until(
-            expected_conditions.visibility_of_element_located(("css selector", "#container-manager"))
+            expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "#container-manager"))
         )
 
     def wait_for_sentio_transfer(self):
@@ -88,23 +90,23 @@ class Homeweb(BasePage):
 
     def wait_for_modal(self):
         return self.wait.until(
-            expected_conditions.visibility_of_element_located(("class name", "modal-content"))
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "modal-content"))
         )
 
     def wait_for_course_content(self):
         # 1: Locate embed container
         self.wait.until(
-            expected_conditions.visibility_of_element_located(("class name", "iframeWrapper"))
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "iframeWrapper"))
         )
 
         # 2: Locate and switch to iframe content
         iframe = self.wait.until(
-            expected_conditions.presence_of_element_located(("tag name", "iframe"))
+            expected_conditions.presence_of_element_located((By.TAG_NAME, "iframe"))
         )
         self.driver.switch_to.frame(iframe)
 
         # 3: Wait for main slide to appear inside iframe
-        self.wait.until(expected_conditions.visibility_of_element_located(("id", "div_Slide")))
+        self.wait.until(expected_conditions.visibility_of_element_located((By.ID, "div_Slide")))
 
         # 4: Wait until all immediate child elements of the slide are visible
         self.wait.until(lambda d: d.execute_script("""
@@ -123,7 +125,7 @@ class Homeweb(BasePage):
         # 5: Additional check to user interaction is permitted
         self.wait.until(
             expected_conditions.invisibility_of_element_located(
-                ("css selector", "#blockUserInteraction.loadingBackground")
+                (By.CSS_SELECTOR, "#blockUserInteraction.loadingBackground")
             )
         )
 
@@ -140,3 +142,27 @@ class Homeweb(BasePage):
         return self.wait.until(
             lambda d: self.base_url + "/en" in d.current_url.lower()
         )
+
+    def get_articles(self):
+        self.wait.until(
+            expected_conditions.presence_of_element_located(
+                (By.CLASS_NAME, "row-cards")
+            )
+        )
+
+        article_elements = self.wait.until(
+            expected_conditions.presence_of_all_elements_located((By.CSS_SELECTOR, ".row-cards .card-container"))
+        )
+
+        articles = []
+
+        for article in article_elements:
+            title = article.find_element(By.CLASS_NAME, "card-title").text
+            href = article.find_element(By.CSS_SELECTOR, "a[role='button']").get_attribute("href")
+
+            articles.append({
+                "title": title,
+                "href": href
+            })
+
+        return articles
