@@ -11,6 +11,7 @@ def test_bat_web_001(homeweb):
 
 
 def test_bat_web_002(homeweb):
+    # TODO: Handle homepage articles dynamically
     assert homeweb.is_landing()
     resources = homeweb.public["elements"]["resources"]
     paths = homeweb.public["paths"]["resources"]
