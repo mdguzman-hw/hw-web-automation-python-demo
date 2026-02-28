@@ -22,7 +22,11 @@ def test_bat_web_013(sentio_beta_client, quantum, credentials):
     quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert sentio_beta_client.wait_for_dashboard()
 
-    # TODO: Reset In Progress programs by withdrawing, to support subsequent tests accordingly
+    in_progress_programs = sentio_beta_client.in_progress_programs()
+
+    for program in in_progress_programs:
+        sentio_beta_client.withdraw_program(program)
+        assert sentio_beta_client.wait_for_dashboard()
 
 
 def test_bat_web_014(sentio_beta_client):
@@ -139,7 +143,7 @@ def test_bat_web_017(sentio_beta_client):
     assert sentio_beta_client.program_status_endpoint
 
     sentio_beta_client.continue_goal()
-    sentio_beta_client.wait_for_activity_content()
+    sentio_beta_client.next_activity()
 
 
 def test_bat_web_018(sentio_beta_client):
@@ -159,7 +163,6 @@ def test_bat_web_018(sentio_beta_client):
 
     sentio_beta_client.continue_goal()
 
-    # TODO: Fix error complete_goal()
     sentio_beta_client.complete_goal()
 
 

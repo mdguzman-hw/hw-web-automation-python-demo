@@ -48,7 +48,6 @@ class SentioBetaClient(BasePage):
         super().__init__(driver, language)
         self._is_authenticated = False
         self._is_landing = False
-        self._is_dashboard = self.dashboard_endpoint in self.current_url
         self.programs = Programs.EN if self.language == "en" else Programs.FR
         self.header = None
         self.current_goal = None
@@ -143,6 +142,9 @@ class SentioBetaClient(BasePage):
         )
 
         # 2: Select Tier (radio by value)
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", tier)
+        self.wait.until(lambda d: tier.is_displayed() and tier.is_enabled())
+        time.sleep(0.5)
         tier.click()
 
         # 3: Select Province
@@ -283,7 +285,7 @@ class SentioBetaClient(BasePage):
         # 3: Click button
         button.click()
 
-        assert self.wait_for_activity_content
+        assert self.wait_for_activity_content()
 
         self.next_activity()
 
@@ -303,7 +305,7 @@ class SentioBetaClient(BasePage):
             "arguments[0].scrollIntoView({block: 'center'});",
             next_button_container
         )
-        time.sleep(0.5)
+        time.sleep(1)
 
         # 3: Wait for next button to be clickable
         next_button = self.wait.until(
@@ -331,9 +333,7 @@ class SentioBetaClient(BasePage):
         self.wait_for_activity_content()
 
     def complete_goal(self):
-        toc = "Table of contents" if self.language == "en" else "Table des matières"
         while not self.module_complete_endpoint:
-
             old_url = self.driver.current_url
 
             self.next_activity()
@@ -341,19 +341,20 @@ class SentioBetaClient(BasePage):
             # Wait for the URL to change
             self.wait.until(expected_conditions.url_changes(old_url))
 
-        self.complete_survey()
+        self.complete_goal_survey()
+        assert self.wait_for_activity_content()
 
-        # self.current_goal = None
-
-        toc_link = self.wait.until(expected_conditions.element_to_be_clickable(
+        toc = "Table of contents" if self.language == "en" else "Table des matières"
+        # toc_link = progress_container.find_element(By.LINK_TEXT, toc)
+        toc_link = self.wait.until(expected_conditions.presence_of_element_located(
             (By.LINK_TEXT, toc)
         ))
 
         toc_link.click()
+
         assert self.program_status_endpoint
         assert self.current_goal_completed()
         self.current_goal = None
-
 
     def current_goal_completed(self):
         module = self.driver.find_element(
@@ -363,9 +364,7 @@ class SentioBetaClient(BasePage):
         badge = module.find_element(By.CSS_SELECTOR, "span.badge")
         return self.wait.until(lambda driver: "badge-complete" in badge.get_attribute("class"))
 
-
-
-    def complete_survey(self):
+    def complete_goal_survey(self):
         # 1: Find the form container
         self.wait.until(expected_conditions.presence_of_element_located(
             (By.CSS_SELECTOR, "form.form-completed-survey")
@@ -392,9 +391,58 @@ class SentioBetaClient(BasePage):
 
         submit_button.click()
 
-        assert self.wait_for_activity_content
+    def withdraw_program(self, program):
+        # 1: Locate program tile
+        program_tile = self.driver.find_element(
+            By.XPATH,
+            f'//h2[normalize-space()="{program.title}"]/ancestor::div[contains(@class,"item-dashboard")]'
+        )
 
+        # 2: Find withdraw link within the specified program
+        withdraw_link = program_tile.find_element(
+            By.CSS_SELECTOR, 'a[href*="withdraw"]'
+        )
 
+        # 3: Scroll to withdraw link, if required
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});",
+            withdraw_link
+        )
+        time.sleep(0.5)
+
+        # 4: Click link
+        withdraw_link.click()
+
+        assert program.href_withdraw in self.current_url.lower()
+
+        self.end_program_survey()
+
+    def end_program_survey(self):
+        # 1: Find the form container
+        self.wait.until(expected_conditions.presence_of_element_located(
+            (By.CSS_SELECTOR, "form.form-goal-survey")
+        ))
+
+        # 2: Find questions in the form
+        questions = self.wait.until(expected_conditions.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, "form.form-goal-survey div.row")
+        ))
+
+        for question in questions:
+            # 3: Find all radio buttons inside this row
+            options = question.find_elements(By.CSS_SELECTOR, "input[type='radio']")
+            # 4: Pick a random option
+            choice = random.choice(options)
+            # Wait for the radio button to be clickable
+            label = question.find_element(By.CSS_SELECTOR, f"label[for='{choice.get_attribute('id')}']")
+            # self.wait.until(expected_conditions.element_to_be_clickable(choice))
+            label.click()
+
+        submit_button = self.wait.until(
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "form.form-goal-survey button[type='submit']"))
+        )
+
+        submit_button.click()
 
 
 class SentioLanding:
