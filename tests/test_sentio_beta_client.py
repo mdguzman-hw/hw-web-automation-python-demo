@@ -193,7 +193,6 @@ def test_bat_web_020(sentio_beta_client):
     assert sentio_beta_client.wait_for_exercise_content()
 
 
-# TODO: BAT-WEB-021
 def test_bat_web_021(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
     sentio_beta_client.navigate_dashboard()
