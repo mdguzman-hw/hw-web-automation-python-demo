@@ -35,10 +35,22 @@ MDG 2026
 
 # Tests
 
-### Run English Tests
+## Build Acceptance Test Suite
+- pytest tests/test_bat_web.py
+- LANGUAGE=fr pytest tests/test_bat_web.py
 
-- pytest (LANGUAGE is en by default)
+### Homeweb Sub Suite
+- pytest tests/test_homeweb.py
+- LANGUAGE=fr pytest tests/test_homeweb.py
 
-### Run French Tests
+### Customer Portal Sub Suite
+- pytest tests/test_customer_porta;.py
+- LANGUAGE=fr pytest tests/test_customer_porta;.py
 
-- LANGUAGE=fr pytest
+### Sentio Beta - Client Sub Suite
+- pytest tests/test_sentio_beta_client.py
+- LANGUAGE=fr pytest tests/test_sentio_beta_client.py
+
+### Sentio Beta - Provider Sub Suite
+- pytest tests/test_sentio_beta_provider.py
+- LANGUAGE=fr pytest tests/test_sentio_beta_provider.py
