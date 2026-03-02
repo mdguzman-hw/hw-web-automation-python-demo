@@ -8,12 +8,12 @@ MDG 2026
 
 # Environment Versions
 
-- macOS Tahoe Version 26.2 (25C56)
-- Homebrew 5.0.14
-- node v25.6.1
-- Google Chrome Version 144.0.7559.110
+- macOS Tahoe Version 26.3 (25D125)
+- Google Chrome Version 145.0.7632.117
 - ChromeDriver 144.0.7559.96
-- Python 3.14.2
+- Homebrew 5.0.16
+- node v25.7.0
+- Python 3.14.3
 
 ---
 
@@ -35,9 +35,11 @@ MDG 2026
 
 # Tests
 
+
 ## Build Acceptance Test Suite
 - pytest tests/test_bat_web.py
 - LANGUAGE=fr pytest tests/test_bat_web.py
+- for i in {1..1}; do pytest tests/test_bat_web.py; LANGUAGE=fr pytest tests/test_bat_web.py; done
 
 ### Homeweb Sub Suite
 - pytest tests/test_homeweb.py
