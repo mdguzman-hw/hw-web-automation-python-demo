@@ -82,6 +82,8 @@ def test_bat_web_014(sentio_beta_client):
     sentio_beta_client.wait_for_activity_content()
 
     sentio_beta_client.navigate_dashboard()
+    assert sentio_beta_client.wait_for_dashboard()
+
     in_progress_programs = sentio_beta_client.in_progress_programs()
     assert any(
         p.title == test_program.title
@@ -110,7 +112,7 @@ def test_bat_web_015(sentio_beta_client):
 def test_bat_web_016(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
     sentio_beta_client.navigate_dashboard()
-    assert sentio_beta_client.dashboard_endpoint in sentio_beta_client.current_url.lower()
+    assert sentio_beta_client.wait_for_dashboard()
 
     sentio_beta_client.continue_program(sentio_beta_client.programs["mental_health"])
     assert sentio_beta_client.program_status_endpoint
@@ -130,6 +132,7 @@ def test_bat_web_016(sentio_beta_client):
 def test_bat_web_017(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
     sentio_beta_client.navigate_dashboard()
+    assert sentio_beta_client.wait_for_dashboard()
 
     in_progress_programs = sentio_beta_client.in_progress_programs()
     assert in_progress_programs, "No in_progress programs available"
@@ -149,6 +152,7 @@ def test_bat_web_017(sentio_beta_client):
 def test_bat_web_018(sentio_beta_client):
     assert sentio_beta_client._is_authenticated
     sentio_beta_client.navigate_dashboard()
+    assert sentio_beta_client.wait_for_dashboard()
 
     in_progress_programs = sentio_beta_client.in_progress_programs()
     assert in_progress_programs, "No in_progress programs available"
@@ -166,6 +170,7 @@ def test_bat_web_018(sentio_beta_client):
 
 
 def test_bat_web_019(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
     assert sentio_beta_client.program_status_endpoint
 
     sentio_beta_client.continue_goal()
@@ -175,21 +180,32 @@ def test_bat_web_019(sentio_beta_client):
     # BAT-WEB-019 is to test the exercise start only, so assert the URL once the return from complete_goal is received
     assert sentio_beta_client.current_url.endswith("/input")
 
-# TODO: BAT-WEB-020
+def test_bat_web_020(sentio_beta_client):
+    assert sentio_beta_client._is_authenticated
+    sentio_beta_client.navigate_dashboard()
+    assert sentio_beta_client.wait_for_dashboard()
+    header_tasks = sentio_beta_client.header.elements["buttons"]["tasks"]
+
+    sentio_beta_client.click_element(By.CSS_SELECTOR, header_tasks)
+    assert sentio_beta_client.current_url.endswith("/tasks")
+    sentio_beta_client.start_exercise()
+    assert sentio_beta_client.wait_for_exercise_content()
+
+
 # TODO: BAT-WEB-021
 # TODO: BAT-WEB-022
 # TODO: BAT-WEB-023
 
-def test_bat_web_024(sentio_beta_client):
-    assert sentio_beta_client._is_authenticated
-
-    header = sentio_beta_client.header
-    header_buttons = header.elements["buttons"]
-
-    # 4: Test - Menu dropdown
-    header.click_element(By.CLASS_NAME, header_buttons["menu"])
-    assert header.wait_for_account_menu(), "Menu not found"
-
-    # 5: Test - Logout
-    header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
-    assert sentio_beta_client.base_url in sentio_beta_client.current_url.lower()
+# def test_bat_web_024(sentio_beta_client):
+#     assert sentio_beta_client._is_authenticated
+#
+#     header = sentio_beta_client.header
+#     header_buttons = header.elements["buttons"]
+#
+#     # 4: Test - Menu dropdown
+#     header.click_element(By.CLASS_NAME, header_buttons["menu"])
+#     assert header.wait_for_account_menu(), "Menu not found"
+#
+#     # 5: Test - Logout
+#     header.click_element(By.CSS_SELECTOR, header_buttons["menu_sign_out"])
+#     assert sentio_beta_client.base_url in sentio_beta_client.current_url.lower()

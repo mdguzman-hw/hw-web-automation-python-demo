@@ -83,8 +83,9 @@ class SentioBetaClient(BasePage):
 
     # TODO: Update this to click on the Header-Logo or Header-Dashboard instead of just URL injection and navigation
     def navigate_dashboard(self):
-        self.driver.get(self.base_url + self.dashboard_endpoint)
+        self.click_element(By.CSS_SELECTOR, self.header.elements["buttons"]["dashboard"])
         self.in_progress_programs()
+        # self.driver.get(self.base_url + self.dashboard_endpoint)
 
     def navigate_overview(self, title):
         # 1: Find program card by title
@@ -485,9 +486,17 @@ class SentioBetaClient(BasePage):
 
         start_button.click()
 
-        # Wait for navigation to input page
+        # Wait for navigation to exercise page and content to load
+        self.wait_for_exercise_content()
+
+    def wait_for_exercise_content(self):
         assert "/exercises/" in self.driver.current_url
         assert self.driver.current_url.endswith("/input")
+
+        return self.wait.until(
+            expected_conditions.visibility_of_element_located((By.ID, "container-page-vue"))
+        )
+
 
 
 class SentioLanding:

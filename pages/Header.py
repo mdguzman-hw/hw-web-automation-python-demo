@@ -126,6 +126,8 @@ class HeaderSentioBetaClient:
             "buttons": {
                 "menu": "nav-account-toggle",
                 "menu_sign_out": "[aria-label=\"Sign out\"]",
+                "dashboard": "[aria-label=\"Dashboard\"]",
+                "tasks": "[aria-label=\"Tasks\"]",
             }
         }
     }
@@ -134,6 +136,8 @@ class HeaderSentioBetaClient:
             "buttons": {
                 "menu": "nav-account-toggle",
                 "menu_sign_out": "[aria-label=\"Se déconnecter\"]",
+                "dashboard": "[aria-label=\"Tableau de bord\"]",
+                "tasks": "[aria-label=\"Tâches\"]",
             }
         }
     }
