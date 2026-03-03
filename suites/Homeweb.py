@@ -1,11 +1,9 @@
 from selenium.webdriver.common.by import By
 
-from pages.BasePage import BasePage
-from pages.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN, SENTIO_DOMAIN, LIFESTAGE_DOMAIN, LIFESTYLE_DOMAIN
-from pages.Header import Header
+from core.BasePage import BasePage
+from core.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN, SENTIO_DOMAIN, LIFESTAGE_DOMAIN, LIFESTYLE_DOMAIN
+from core.Header import Header
 from selenium.webdriver.support import expected_conditions
-
-from pages.Public import Public
 
 
 class Homeweb(BasePage):

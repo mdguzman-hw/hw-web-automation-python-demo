@@ -1,7 +1,6 @@
-from pages.BasePage import BasePage
-from pages.Constants import CUSTOMER_PORTAL_BASE_URL
-from pages.Header import Header
-from selenium.webdriver.support.wait import WebDriverWait
+from core.BasePage import BasePage
+from core.Constants import CUSTOMER_PORTAL_BASE_URL
+from core.Header import Header
 from selenium.webdriver.support import expected_conditions
 
 

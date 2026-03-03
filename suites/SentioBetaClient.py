@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 
 from pages.BasePage import BasePage
-from pages.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_CLIENT_DOMAIN
+from core.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_CLIENT_DOMAIN
 from pages.Header import Header
 
 
@@ -594,6 +594,8 @@ class SentioBetaClient(BasePage):
 
         # 4: Click button
         continue_button.click()
+
+    # def complete_program(self):
 
 
 class SentioLanding:

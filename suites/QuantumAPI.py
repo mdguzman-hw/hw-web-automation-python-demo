@@ -1,11 +1,10 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 from pages.BasePage import BasePage
-from pages.Constants import QUANTUM_API_BASE_URL, QUANTUM_API_DOMAIN
+from core.Constants import QUANTUM_API_BASE_URL, QUANTUM_API_DOMAIN
 from pages.Header import Header
-from pages.Login import LoginPage
+from core.Login import LoginPage
 
 
 class QuantumAPI(BasePage):

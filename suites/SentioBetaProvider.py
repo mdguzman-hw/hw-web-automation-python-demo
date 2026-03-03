@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
 from pages.BasePage import BasePage
-from pages.Constants import SENTIO_BETA_PROVIDER_BASE_URL, SENTIO_BETA_PROVIDER_DOMAIN
+from core.Constants import SENTIO_BETA_PROVIDER_BASE_URL, SENTIO_BETA_PROVIDER_DOMAIN
 from pages.Header import Header
 
 
