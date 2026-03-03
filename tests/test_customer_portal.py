@@ -3,6 +3,7 @@
 from selenium.webdriver.common.by import By
 
 
+# TEST: Reports validation
 def test_bat_web_011(quantum, customer_portal, credentials):
     # 1: Navigate to Customer Portal - Always EN
     customer_portal.driver.get(customer_portal.base_url)

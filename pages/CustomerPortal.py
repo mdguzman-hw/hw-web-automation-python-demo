@@ -21,9 +21,7 @@ class CustomerPortal(BasePage):
 
     def update_header(self):
         user_type = "AUTH" if self._is_authenticated else "ANON"
-        # print(user_type)
         self.header = Header(self.driver, domain="customer_portal", language=self.language, user=user_type)
-        # print(self.header.elements)
 
     def set_authenticated(self, value):
         self._is_authenticated = value
