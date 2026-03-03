@@ -5,6 +5,8 @@ from core.Constants import HOMEWEB_BASE_URL, HOMEWEB_DOMAIN, SENTIO_DOMAIN, LIFE
 from core.Header import Header
 from selenium.webdriver.support import expected_conditions
 
+from core.Public import Public
+
 
 class Homeweb(BasePage):
     # Properties
