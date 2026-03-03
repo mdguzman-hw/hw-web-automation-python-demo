@@ -59,10 +59,7 @@ class QuantumAPI(BasePage):
         email_input.send_keys(input_value)
 
     def submit(self):
-        next_button = self.wait.until(
-            expected_conditions.visibility_of_element_located((By.XPATH, self.elements["elements"]["buttons"]["next"]))
-        )
-        next_button.click()
+        self.click_element(By.XPATH, self.elements["elements"]["buttons"]["next"])
 
     def wait_for_password(self):
         xpath = self.elements["elements"]["inputs"]["password"]
