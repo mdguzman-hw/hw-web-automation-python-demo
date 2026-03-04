@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
-from pages.BasePage import BasePage
+from core.BasePage import BasePage
 from core.Constants import QUANTUM_API_BASE_URL, QUANTUM_API_DOMAIN
-from pages.Header import Header
+from core.Header import Header
 from core.Login import LoginPage
 
 

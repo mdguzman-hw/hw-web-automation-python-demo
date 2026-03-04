@@ -6,9 +6,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 
-from pages.BasePage import BasePage
+from core.BasePage import BasePage
 from core.Constants import SENTIO_BETA_CLIENT_BASE_URL, SENTIO_BETA_CLIENT_DOMAIN
-from pages.Header import Header
+from core.Header import Header
 
 
 class SentioBetaClient(BasePage):

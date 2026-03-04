@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from pages.CustomerPortal import CustomerPortal
-from pages.Homeweb import Homeweb
-from pages.QuantumAPI import QuantumAPI
-from pages.SentioBetaClient import SentioBetaClient
-from pages.SentioBetaProvider import SentioBetaProvider
+from suites.CustomerPortal import CustomerPortal
+from suites.Homeweb import Homeweb
+from suites.QuantumAPI import QuantumAPI
+from suites.SentioBetaClient import SentioBetaClient
+from suites.SentioBetaProvider import SentioBetaProvider
 
 
 @pytest.fixture(scope="session")
