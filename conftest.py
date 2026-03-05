@@ -12,6 +12,7 @@ from suites.CustomerPortal import CustomerPortal
 from suites.Homeweb import Homeweb
 from suites.QuantumAPI import QuantumAPI
 from suites.SentioBetaClient import SentioBetaClient
+from suites.SentioBetaClientTest import SentioBetaClientTest
 from suites.SentioBetaProvider import SentioBetaProvider
 
 
@@ -80,6 +81,11 @@ def customer_portal(driver, language):
 @pytest.fixture(scope="session")
 def sentio_beta_client(driver, language):
     sentio_client = SentioBetaClient(driver, language)
+    return sentio_client
+
+@pytest.fixture(scope="session")
+def sentio_beta_client_test(driver, language):
+    sentio_client = SentioBetaClientTest(driver, language)
     return sentio_client
 
 @pytest.fixture(scope="session")
