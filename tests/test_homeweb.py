@@ -162,41 +162,43 @@ def test_bat_web_009(homeweb):
     homeweb.navigate_landing()
 
 
-# def test_bat_web_010(homeweb, quantum, credentials):
-#     assert homeweb.is_landing()
-#     header = homeweb.header
-#     header_buttons = header.elements["buttons"]
-#     paths = header.paths["buttons"]
-#
-#     # 1: Test - Sign In - Header
-#     header.click_element(By.CLASS_NAME, header_buttons["sign_in"])
-#     assert paths["sign_in"] in quantum.current_url.lower()
-#
-#     # 2: Test - Login - Homeweb - HHI Demo
-#     quantum.login(credentials["hhi_demo"]["email"], credentials["hhi_demo"]["password"])
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 3: Test - Check and cancel active appointments
-#     appointments = homeweb.get_active_appointments()
-#     topics = [a.topic for a in appointments]
-#
-#     for topic in topics:
-#         homeweb.end_services(topic)
-#         assert homeweb.wait_for_dashboard()
-#         remaining = homeweb.get_active_appointments()
-#         assert not any(a.topic == topic for a in remaining)
-#
-#
-#     # 4: Test - Menu dropdown
-#     header.click_element(By.CLASS_NAME, header_buttons["menu"])
-#     assert header.wait_for_account_menu(), "Menu not found"
-#
-#     # 5: Test - Logout
-#     header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
-#     assert homeweb.wait_for_logout()
-#
-#     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
-#     homeweb.navigate_landing()
+def test_bat_web_010(homeweb, quantum, credentials):
+    assert homeweb.is_landing()
+    header_anon = homeweb.header
+    header_anon_buttons = header_anon.elements["buttons"]
+    paths = header_anon.paths["buttons"]
+
+    # 1: Test - Sign In - Header
+    header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
+    assert paths["sign_in"] in quantum.current_url.lower()
+
+    # 2: Test - Login - Homeweb - HHI Demo
+    quantum.login(credentials["hhi_demo"]["email"], credentials["hhi_demo"]["password"])
+    assert homeweb.wait_for_dashboard()
+
+    # 3: Test - Check and cancel active appointments
+    appointments = homeweb.get_active_appointments()
+    topics = [a.topic for a in appointments]
+
+    for topic in topics:
+        homeweb.end_services(topic)
+        assert homeweb.wait_for_dashboard()
+        remaining = homeweb.get_active_appointments()
+        assert not any(a.topic == topic for a in remaining)
+
+
+    # 4: Test - Menu dropdown
+    header_auth = homeweb.header
+    header_auth_buttons = header_auth.elements["buttons"]
+    header_auth.click_element(By.CLASS_NAME, header_auth_buttons["menu"])
+    assert header_auth.wait_for_account_menu(), "Menu not found"
+
+    # 5: Test - Logout
+    header_auth.click_element(By.CSS_SELECTOR, header_auth_buttons["sign_out"])
+    assert homeweb.wait_for_logout()
+
+    # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
+    homeweb.navigate_landing()
 
 
 # TODO: BAT-WEB-011 | Live Chat

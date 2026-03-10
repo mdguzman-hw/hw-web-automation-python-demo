@@ -232,6 +232,7 @@ class Homeweb(BasePage):
         )
         random.choice(radios).click()
 
+
 class AppointmentTile:
     def __init__(self, tile):
         self._tile = tile
@@ -247,7 +248,3 @@ class AppointmentTile:
     @property
     def provider(self):
         return self._tile.find_element(By.CSS_SELECTOR, ".column-provider-details .name").text.strip()
-
-    # @property
-    # def href_cancel(self):
-    #     return self._tile.find_element(By.CSS_SELECTOR, 'a[href*="cancel"]').get_attribute("href")
