@@ -8,9 +8,9 @@ MDG 2026
 
 # Environment Versions
 
-- macOS Tahoe Version 26.3 (25D125)
-- Google Chrome Version 145.0.7632.117
-- ChromeDriver 144.0.7559.96
+- macOS Tahoe Version 26.3.1 (25D2128)
+- Google Chrome Version 146.0.7680.72 
+- ChromeDriver 146.0.7680.72
 - Homebrew 5.0.16
 - node v25.7.0
 - Python 3.14.3
