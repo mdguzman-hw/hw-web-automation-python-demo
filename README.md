@@ -8,11 +8,11 @@ MDG 2026
 
 # Environment Versions
 
-- macOS Tahoe Version 26.3.1 (25D2128)
-- Google Chrome Version 146.0.7680.72 
+- macOS Tahoe Version 26.3.1 (a) (25D771280a)
+- Google Chrome Version 146.0.7680.165
 - ChromeDriver 146.0.7680.72
-- Homebrew 5.0.16
-- node v25.7.0
+- Homebrew 5.1.0
+- node v25.8.1
 - Python 3.14.3
 
 ---
@@ -35,24 +35,43 @@ MDG 2026
 
 # Tests
 
+## Build Acceptance Test Suite [WIP]
 
-## Build Acceptance Test Suite
-- pytest tests/test_bat_web.py
-- LANGUAGE=fr pytest tests/test_bat_web.py
-- for i in {1..1}; do pytest tests/test_bat_web.py; LANGUAGE=fr pytest tests/test_bat_web.py; done
-
+---
+- pytest tests/build_acceptance/test_bat_web.py
+- LANGUAGE=fr pytest tests/build_acceptance/test_bat_web.py
+- for i in {1..1}; do pytest tests/build_acceptance/test_bat_web.py; LANGUAGE=fr pytest tests/build_acceptance/test_bat_web.py; done
+```
+Environment Parameters (Default -> all)
+--env=prod
+--env=beta
+--env=all
+```
+```
+Language Injection (Default -> en)
+LANGUAGE=en
+LANGUAGE=fr
+```
 ### Homeweb Sub Suite
-- pytest tests/test_homeweb.py
-- LANGUAGE=fr pytest tests/test_homeweb.py
+- pytest tests/build_acceptance/test_homeweb.py
+- LANGUAGE=fr pytest tests/build_acceptance/test_homeweb.py
 
 ### Customer Portal Sub Suite
-- pytest tests/test_customer_porta;.py
-- LANGUAGE=fr pytest tests/test_customer_porta;.py
+
+- pytest tests/build_acceptance/test_customer_porta;.py
+- LANGUAGE=fr pytest tests/build_acceptance/test_customer_porta;.py
 
 ### Sentio Beta - Client Sub Suite
-- pytest tests/test_sentio_beta_client.py
-- LANGUAGE=fr pytest tests/test_sentio_beta_client.py
+
+- pytest tests/build_acceptance/test_sentio_beta_client.py
+- LANGUAGE=fr pytest tests/build_acceptance/test_sentio_client.py
 
 ### Sentio Beta - Provider Sub Suite
-- pytest tests/test_sentio_beta_provider.py
-- LANGUAGE=fr pytest tests/test_sentio_beta_provider.py
+
+- pytest tests/build_acceptance/test_sentio_beta_provider.py
+- LANGUAGE=fr pytest tests/build_acceptance/test_sentio_provider.py
+
+---
+
+## Smoke Test Suite [NEXT]
+
