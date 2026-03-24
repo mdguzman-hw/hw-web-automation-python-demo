@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 

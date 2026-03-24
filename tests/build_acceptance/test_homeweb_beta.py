@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 ################# BUILD ACCEPTANCE ################
 ################## HOMEWEB BETA ###################
 from selenium.webdriver.common.by import By

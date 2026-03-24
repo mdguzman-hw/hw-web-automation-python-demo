@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 ################# BUILD ACCEPTANCE ################
 ############## SENTIO BETA - CLIENT ###############
 from selenium.webdriver.common.by import By

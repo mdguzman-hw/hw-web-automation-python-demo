@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 from core.BasePage import BasePage
 from core.Constants import CUSTOMER_PORTAL_BASE_URL, CUSTOMER_PORTAL_DOMAIN
 from core.Header import Header

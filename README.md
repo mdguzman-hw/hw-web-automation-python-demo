@@ -2,7 +2,7 @@
 
 #### Selenium - Python
 
-MDG 2026
+Copyright © 2026 - Homewood Health Inc.
 
 ---
 
@@ -38,21 +38,26 @@ MDG 2026
 ## Build Acceptance Test Suite [WIP]
 
 ---
+
 - pytest tests/build_acceptance/test_bat_web.py
 - LANGUAGE=fr pytest tests/build_acceptance/test_bat_web.py
 - for i in {1..1}; do pytest tests/build_acceptance/test_bat_web.py; LANGUAGE=fr pytest tests/build_acceptance/test_bat_web.py; done
+
 ```
 Environment Parameters (Default -> all)
 --env=prod
 --env=beta
 --env=all
 ```
+
 ```
 Language Injection (Default -> en)
 LANGUAGE=en
 LANGUAGE=fr
 ```
+
 ### Homeweb Sub Suite
+
 - pytest tests/build_acceptance/test_homeweb.py
 - LANGUAGE=fr pytest tests/build_acceptance/test_homeweb.py
 

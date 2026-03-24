@@ -1,6 +1,7 @@
 # CONFIG.md
 
 ## Pytest Environment Configuration & Execution Guide
+Copyright © 2026 - Homewood Health Inc.
 
 ---
 

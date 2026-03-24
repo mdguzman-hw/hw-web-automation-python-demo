@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 ################# BUILD ACCEPTANCE ################ [WIP]
 ##################### HOMEWEB ##################### [WIP]
 ################## HOMEWEB BETA ################### [WIP]

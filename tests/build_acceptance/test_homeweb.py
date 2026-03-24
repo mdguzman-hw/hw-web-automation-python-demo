@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 ################# BUILD ACCEPTANCE ################
 ##################### HOMEWEB #####################
 from selenium.webdriver.common.by import By
@@ -42,7 +44,6 @@ def test_bat_web_003(homeweb, credentials):
 
     # 1: Test - Sign In - Button
     homeweb.click_element(By.XPATH, buttons["sign_in"])
-    print(f"MDG TESTING -> {quantum.domain}")
     assert quantum.domain in homeweb.current_url.lower()
 
     # 2: Test - Login - Homeweb - Personal

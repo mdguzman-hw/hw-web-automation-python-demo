@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 ################# BUILD ACCEPTANCE ################
 ############# SENTIO BETA - PROVIDER ##############
 from selenium.webdriver.common.by import By
@@ -7,7 +9,6 @@ from selenium.webdriver.common.by import By
 def test_bat_web_024(sentio_provider):
     sentio_provider.driver.get(sentio_provider.base_url)
     quantum = sentio_provider.quantum
-    print(f"MDG::Testing->{quantum.domain}")
     assert quantum.domain in sentio_provider.current_url.lower()
 
 

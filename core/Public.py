@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 class Public:
     EN = {
         "elements": {

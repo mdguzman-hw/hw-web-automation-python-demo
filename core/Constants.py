@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 HOMEWEB_BASE_URL = "https://homeweb.ca"
 HOMEWEB_BETA_BASE_URL = "https://beta.homeweb.ca"
 CUSTOMER_PORTAL_BASE_URL = "https://portal.homewoodhealth.com"

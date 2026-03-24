@@ -1,3 +1,5 @@
+# Copyright © 2026 - Homewood Health Inc.
+
 class LoginPage:
     EN = {
         "base_url": "https://api.homewoodhealth.io/en/login",

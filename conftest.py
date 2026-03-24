@@ -1,6 +1,6 @@
-"""
-Pytest configuration and shared fixtures
-"""
+# Copyright © 2026 - Homewood Health Inc.
+
+# Pytest configuration and shared fixtures
 import os
 
 import pytest
