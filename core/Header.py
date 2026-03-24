@@ -121,7 +121,7 @@ class HeaderQuantumApi:
     }
 
 
-class HeaderSentioBetaClient:
+class HeaderSentioClient:
     EN = {
         "elements": {
             "buttons": {
@@ -144,7 +144,7 @@ class HeaderSentioBetaClient:
     }
 
 
-class HeaderSentioBetaProvider:
+class HeaderSentioProvider:
     EN = {
         "elements": {
             "classic": "[aria-label=\"Classic Dashboard\"]",
@@ -173,8 +173,8 @@ class Header(BasePage):
         "homeweb": {"AUTH": HeaderHomeweb, "ANON": HeaderAnon},
         "customer_portal": {"AUTH": HeaderCustomerPortal, "ANON": HeaderAnon},
         "quantum_api": {"AUTH": HeaderQuantumApi, "ANON": HeaderAnonApi},
-        "sentio_beta_client": {"AUTH": HeaderSentioBetaClient, "ANON": HeaderAnon},
-        "sentio_beta_provider": {"AUTH": HeaderSentioBetaProvider, "ANON": HeaderAnon},
+        "sentio_beta_client": {"AUTH": HeaderSentioClient, "ANON": HeaderAnon},
+        "sentio_beta_provider": {"AUTH": HeaderSentioProvider, "ANON": HeaderAnon},
     }
 
     def __init__(self, driver, language, domain="homeweb", user="ANON"):
