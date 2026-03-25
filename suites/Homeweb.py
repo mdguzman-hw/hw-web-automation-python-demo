@@ -2,8 +2,10 @@
 
 import random
 import time
+from datetime import datetime
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from core.BasePage import BasePage
@@ -49,11 +51,14 @@ class Homeweb(BasePage):
     def navigate_dashboard(self):
         self.click_element(By.CSS_SELECTOR, self.header.elements["buttons"]["dashboard"])
 
-    # def navigate_recommendations(self):
-    #     pathfinder_tile = self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "item-pathfinder-recommends-v2")))
-    #     print("Pathfinder tile found")
-    #
-    #     pathfinder_link = pathfinder_tile.find_element()
+    def navigate_recommendations(self):
+        self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "item-pathfinder-recommends-v2")))
+        self.click_element(By.CSS_SELECTOR, "div.item-pathfinder-recommends-v2 a")
+
+    def navigate_rating(self):
+        self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-recommendations")))
+        link_text = "Commencer Maintenant" if self.language == "fr" else "Get started"
+        self.click_element(By.LINK_TEXT, link_text)
 
     def go_back(self):
         self.driver.back()
@@ -166,6 +171,70 @@ class Homeweb(BasePage):
 
         return True
 
+    def wait_for_recommendation(self):
+        recommendation_endpoint = "pathfinder/assessment/recommendation"
+        self.wait.until(lambda d: recommendation_endpoint in d.current_url.lower())
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-recommendations"))
+        )
+
+        return True
+
+    def wait_for_rating(self):
+        recommendation_endpoint = "pathfinder/assessment/rating"
+        self.wait.until(lambda d: recommendation_endpoint in d.current_url.lower())
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-five-star-rating"))
+        )
+
+        return True
+
+    def wait_for_booking_create(self):
+        booking_create_endpoint = "homeweb/booking/create"
+        self.wait.until(lambda d: booking_create_endpoint in d.current_url.lower())
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-case-creation"))
+        )
+
+        return True
+
+    def wait_for_service_confirm(self):
+        service_confirm_endpoint = "homeweb/services/confirm"
+        self.wait.until(lambda d: service_confirm_endpoint in d.current_url.lower())
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-confirm"))
+        )
+
+        return True
+
+    def wait_for_booking_digest(self):
+        booking_digest_endpoint = "homeweb/booking"
+        self.wait.until(lambda d: booking_digest_endpoint in d.current_url.lower())
+
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "controller-content"))
+        )
+
+        return True
+
+    def wait_for_booking_details(self):
+        booking_digest_endpoint = "homeweb/booking/detail"
+        self.wait.until(lambda d: booking_digest_endpoint in d.current_url.lower())
+
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-booking"))
+        )
+
+        return True
+
     def get_articles(self):
         # 1: Find articles container
         self.wait.until(
@@ -193,7 +262,7 @@ class Homeweb(BasePage):
         # 4: Return array of articles
         return articles
 
-    def get_active_appointments(self):
+    def get_active_services(self):
         # 1: Find Active appointments container
         appointments_zone = self.driver.find_elements(By.CSS_SELECTOR, ".zone-appointments")
 
@@ -415,7 +484,9 @@ class Homeweb(BasePage):
         return "/assessment/recommendation" in self.driver.current_url
 
     def wait_for_next_step(self, previous_question):
-        def condition():
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+
+        def condition(driver):
             # case 1: completed
             if self.is_assessment_complete():
                 return True
@@ -438,6 +509,164 @@ class Homeweb(BasePage):
                 expected_conditions.element_to_be_clickable(answers[0])
             ).click()
             self.wait_for_next_step(question_text)
+
+    def complete_rating(self):
+        options = self.driver.find_elements(By.CSS_SELECTOR, "#rating-form label")
+        selected = random.choice(options)
+        # self.click_element(selected)
+        self.wait.until(expected_conditions.element_to_be_clickable(selected))
+        selected.click()
+
+    def complete_booking_create_form(self):
+        # 1: Wait for form to load
+        self.wait.until(
+            expected_conditions.visibility_of_element_located(
+                (By.CSS_SELECTOR, "div.controller-content form")
+            )
+        )
+
+        # 2: Street Address
+        address = self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "streetAddress")))
+        address.clear()
+        address.send_keys("6767 Homewood Street")
+
+        # 3: Province
+        province_select = Select(self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "provinceState"))))
+        province_options = [o.text for o in province_select.options if o.get_attribute("value")]
+        current_province = province_select.first_selected_option.text
+        current_cities = [o.text for o in self.driver.find_element(By.ID, "city").find_elements(By.TAG_NAME, "option")]
+        selected_province = random.choice(province_options)
+        province_select.select_by_visible_text(selected_province)
+        print(selected_province)
+
+        # 4: City (wait for reload only if province changed)
+        from selenium.common.exceptions import StaleElementReferenceException
+
+        if selected_province != current_province:
+            def city_reloaded(driver):
+                try:
+                    return [o.text for o in driver.find_element(By.ID, "city").find_elements(By.TAG_NAME, "option")] != current_cities
+                except StaleElementReferenceException:
+                    return False
+
+            self.wait.until(city_reloaded)
+
+        # if selected_province != current_province:
+        #     self.wait.until(lambda d: [o.text for o in d.find_element(By.ID, "city").find_elements(By.TAG_NAME, "option")] != current_cities)
+
+        city_select = Select(self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "city"))))
+        city_options = [o.text for o in city_select.options if o.get_attribute("value")]
+        selected_city = random.choice(city_options)
+        city_select.select_by_visible_text(selected_city)
+        print(selected_city)
+
+        # 5: Postal Code
+        postal = self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "postalZipCode")))
+        postal.clear()
+        postal.send_keys("T6V7X3")
+
+        # 6: Phone Number
+        phone = self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "phoneNumber")))
+        phone.clear()
+        phone.send_keys("9876543210")
+
+        # 7: Message Permission
+        # messageOk
+        # discreetMessage
+        # noMessage
+        self.click_element(By.ID, "noMessage")
+
+        # 8: Comments
+        phone = self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "comments")))
+        phone.clear()
+        timestamp = datetime.now().strftime("%m-%d-%Y-%H%M%S")
+        base_text = f"TEST COMMENT-{timestamp}"
+        phone.send_keys(base_text)
+
+        # 9: Submit
+        self.click_element(By.CSS_SELECTOR, "button.submit-inner")
+
+    def complete_service_confirm_form(self, email):
+        # 1: Wait for form to load
+        self.wait.until(
+            expected_conditions.visibility_of_element_located(
+                (By.CLASS_NAME, "container-confirm")
+            )
+        )
+
+        # 2: Email
+        email_field = self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "email")))
+        email_field.clear()
+        email_field.send_keys(email)
+        print(email)
+
+        self.click_element(By.CSS_SELECTOR, "button[type='submit']")
+
+    def continue_booking(self, topic):
+        continue_text = "Reprendre la prise du rendez-vous" if self.language == "fr" else "Continue to Booking"
+
+        tile = self.driver.find_element(
+            By.XPATH,
+            f'//p[normalize-space()="{topic}"]/ancestor::div[contains(@class,"item-booking-v2")]'
+        )
+        continue_link = tile.find_element(By.LINK_TEXT, continue_text)
+        # print(f"CONTINUE FOUND -> {continue_link}")
+        self.click_element(By.LINK_TEXT, continue_text)
+        # self.wait.until(expected_conditions.element_to_be_clickable((By.LINK_TEXT, continue_text)))
+        # continue_link.click()
+
+    def get_booking_options(self):
+        self.wait.until(
+            expected_conditions.presence_of_element_located((By.CSS_SELECTOR, ".section-suggestions .item-booking-option"))
+        )
+
+        tiles = self.driver.find_elements(By.CSS_SELECTOR, ".section-suggestions .item-booking-option")
+        return [ProviderTile(tile) for tile in tiles]
+
+    # TODO: Select provider w/ time
+    def select_provider_time(self):
+        booking_options = self.get_booking_options()
+        # self.click_element()
+        # selected_option = random.choice(booking_options)
+        # print(f"Selected provider: {selected_option.provider_name}")
+        # selected_time = selected_option.select_random_time()
+        # print(f"Selected time: {selected_time}")
+
+    # def select_provider(self):
+    #     booking_options = self.get_booking_options()
+    #     selected_option = random.choice(booking_options)
+    #     print(selected_option.provider_name)
+    #     selected_option.provider_details_link.click()
+
+    def select_provider(self):
+        booking_options = self.get_booking_options()
+        selected_option = random.choice(booking_options)
+        print(selected_option.provider_name)
+        link = selected_option.provider_details_link
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", link)
+        self.wait.until(expected_conditions.element_to_be_clickable(link))
+        link.click()
+
+    def select_booking_options(self):
+        self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-booking")))
+
+        # 2: Select a random available time
+        time_options = self.wait.until(
+            expected_conditions.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, ".provider-times-container label.btn-time")
+            )
+        )
+        random.choice(time_options).click()
+
+        # 3: Wait for modality select to enable after time selection
+        self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "appointmentModality")))
+        modality_select = Select(self.driver.find_element(By.ID, "appointmentModality"))
+        modality_options = [o.text for o in modality_select.options if o.get_attribute("value") != "0"]
+        modality_select.select_by_visible_text(random.choice(modality_options))
+
+        # 4: Click Review & confirm
+        input("Time and Format selected. Press enter to continue...")
+        self.click_element(By.CSS_SELECTOR, "button.btn-primary:not(.disabled)")
 
 
 class AppointmentTile:
@@ -462,3 +691,24 @@ class DashboardTile:
         self.title = title
         self.href = href
         self.link_text = link_text
+
+
+class ProviderTile:
+    def __init__(self, tile):
+        self._tile = tile
+
+    @property
+    def provider_name(self):
+        return self._tile.find_element(By.CSS_SELECTOR, "a.provider-name").text.strip()
+
+    @property
+    def provider_details_link(self):
+        return self._tile.find_element(By.CSS_SELECTOR, "a.link-provider-details")
+
+    @property
+    def available_times(self):
+        return self._tile.find_elements(By.CSS_SELECTOR, ".provider-times-container .btn-time")
+
+    def select_random_time(self):
+        times = self.available_times
+        random.choice(times).click()

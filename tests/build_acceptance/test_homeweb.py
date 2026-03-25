@@ -198,13 +198,13 @@ def test_bat_web_010(homeweb, quantum, credentials, env):
     assert homeweb.wait_for_dashboard()
 
     # 3: Test - Check and cancel active appointments
-    appointments = homeweb.get_active_appointments()
+    appointments = homeweb.get_active_services()
     topics = [a.topic for a in appointments]
 
     for topic in topics:
         homeweb.end_services(topic)
         assert homeweb.wait_for_dashboard()
-        remaining = homeweb.get_active_appointments()
+        remaining = homeweb.get_active_services()
         assert not any(a.topic == topic for a in remaining)
 
     # 4: Test - Menu dropdown
@@ -221,26 +221,28 @@ def test_bat_web_010(homeweb, quantum, credentials, env):
     homeweb.navigate_landing()
 
 
-# TODO: BAT-WEB-011 | Live Chat
-# def test_bat_web_011(homeweb, quantum, credentials):
-#     homeweb.navigate_landing()
-#     assert homeweb.domain in homeweb.current_url.lower()
-#     header_anon = homeweb.header
-#     header_anon_buttons = header_anon.elements["buttons"]
-#     paths = header_anon.paths["buttons"]
-#
-#     # 1: Test - Sign In - Header
-#     header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
-#     assert paths["sign_in"] in quantum.current_url.lower()
-#
-#     # 2: Test - Login - Homeweb - DSG Demo
-#     email = credentials["sentio"]["email"]
-#     quantum.login(email, credentials["sentio"]["password"])
-#     assert homeweb.wait_for_dashboard()
-#
-#     homeweb.test_live_chat(email)
+# TEST: Live Chat
+def test_bat_web_011(homeweb, quantum, credentials, env):
+    # TODO: Manual for now
+    pytest.skip(f"Skipping {env} test_bat_web_011")
+    homeweb.navigate_landing()
+    assert homeweb.domain in homeweb.current_url.lower()
+    header_anon = homeweb.header
+    header_anon_buttons = header_anon.elements["buttons"]
+    paths = header_anon.paths["buttons"]
 
+    # 1: Test - Sign In - Header
+    header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
+    assert paths["sign_in"] in quantum.current_url.lower()
 
+    # 2: Test - Login - Homeweb - DSG Demo
+    email = credentials["sentio"]["email"]
+    quantum.login(email, credentials["sentio"]["password"])
+    assert homeweb.wait_for_dashboard()
+
+    homeweb.test_live_chat(email)
+
+# TEST: Complete Pathfinder Assessment
 def test_bat_web_012(homeweb, credentials):
     assert homeweb.is_landing()
     header_anon = homeweb.header
@@ -257,13 +259,13 @@ def test_bat_web_012(homeweb, credentials):
     assert homeweb.wait_for_dashboard()
 
     # 3: Test - Check and cancel active services
-    appointments = homeweb.get_active_appointments()
+    appointments = homeweb.get_active_services()
     topics = [a.topic for a in appointments]
 
     for topic in topics:
         homeweb.end_services(topic)
         assert homeweb.wait_for_dashboard()
-        remaining = homeweb.get_active_appointments()
+        remaining = homeweb.get_active_services()
         assert not any(a.topic == topic for a in remaining)
 
     # TODO: Investigate if this is expected
@@ -287,38 +289,79 @@ def test_bat_web_012(homeweb, credentials):
     )
     assert homeweb.is_assessment_complete()
 
-# TODO: BAT-WEB-013 | Pathfinder Booking
-# def test_bat_web_013x(homeweb, credentials):
-#     assert homeweb.is_landing()
-#     header_anon = homeweb.header
-#     header_anon_buttons = header_anon.elements["buttons"]
-#     paths = header_anon.paths["buttons"]
-#     quantum = homeweb.quantum
-#
-#     # 1: Test - Sign In - Header
-#     header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
-#     assert paths["sign_in"] in quantum.current_url.lower()
-#
-#     # 2: Test - Login - Homeweb - DSG Demo
-#     quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
-#     assert homeweb.wait_for_dashboard()
-#
-#     homeweb.navigate_recommendations()
-#     assert "pathfinder/assessment/recommendation" in homeweb.current_url()
-#     input("Navigated Recommendation. Press enter to continue...")
-    # # : Test - Menu dropdown
-    # header_auth = homeweb.header
-    # header_auth_buttons = header_auth.elements["buttons"]
-    # header_auth.click_element(By.CLASS_NAME, header_auth_buttons["menu"])
-    # assert header_auth.wait_for_account_menu(), "Menu not found"
+
+# TEST: Create Pathfinder Booking
+def test_bat_web_013(homeweb, credentials):
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+    email = credentials["sentio"]["email"]
+
+    homeweb.navigate_recommendations()
+    assert homeweb.wait_for_recommendation()
+
+    homeweb.navigate_rating()
+    assert homeweb.wait_for_rating()
+    homeweb.complete_rating()
+    assert homeweb.wait_for_booking_create()
+    homeweb.complete_booking_create_form()
+    assert homeweb.wait_for_service_confirm()
+    homeweb.complete_service_confirm_form(email)
+    assert homeweb.wait_for_booking_digest()
+
+
+# TODO: TEST: Complete Pathfinder Booking
+def test_bat_web_014(homeweb, credentials):
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # assert homeweb.is_landing()
+    # header_anon = homeweb.header
+    # header_anon_buttons = header_anon.elements["buttons"]
+    # paths = header_anon.paths["buttons"]
+    # quantum = homeweb.quantum
     #
-    # # : Test - Logout
-    # header_auth.click_element(By.CSS_SELECTOR, header_auth_buttons["sign_out"])
-    # assert homeweb.wait_for_logout()
+    # # 1: Test - Sign In - Header
+    # header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
+    # assert paths["sign_in"] in quantum.current_url.lower()
+    #
+    # # 2: Test - Login - Homeweb - DSG Demo
+    # quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
+    # assert homeweb.wait_for_dashboard()
+
+    # 3: Test - Check Active Services
+    appointments = homeweb.get_active_services()
+    topics = [a.topic for a in appointments]
+    print(topics)
+
+    homeweb.continue_booking(topics[0])
+    assert homeweb.wait_for_booking_digest()
+    homeweb.select_provider()
+    assert homeweb.wait_for_booking_details()
+    homeweb.select_booking_options()
+    # input("NAVIGATED BOOKING DETAILS. Press enter to continue...")
+
+    # booking_options = homeweb.get_booking_options()
+
+    # for option in booking_options:
+    #     print(option.provider_name)
+    #     for time in option.available_times:
+    #         print(time.text.strip())
+    # for topic in topics:
+    #     homeweb
+
+    # : Test - Menu dropdown
+    header_auth = homeweb.header
+    header_auth_buttons = header_auth.elements["buttons"]
+    header_auth.click_element(By.CLASS_NAME, header_auth_buttons["menu"])
+    assert header_auth.wait_for_account_menu(), "Menu not found"
+
+    # : Test - Logout
+    header_auth.click_element(By.CSS_SELECTOR, header_auth_buttons["sign_out"])
+    assert homeweb.wait_for_logout()
 
 
 # TEST: Mobile - Embedded resources
-def test_bat_web_013xx(homeweb):
+def test_bat_web_015(homeweb):
     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
     homeweb.navigate_landing()
     assert homeweb.is_landing()
