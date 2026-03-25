@@ -123,7 +123,10 @@ def homeweb(driver, language, env, quantum):
 
 @pytest.fixture(scope="session")
 def customer_portal(driver, language, env, quantum):
-    return CustomerPortal(driver, language, env, quantum)
+    if env == "beta":
+        return pytest.skip(f"Skipping {env} environment")
+    else:
+        return CustomerPortal(driver, language, env, quantum)
 
 
 @pytest.fixture(scope="session")
