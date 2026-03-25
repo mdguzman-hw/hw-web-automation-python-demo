@@ -48,7 +48,8 @@ class HeaderHomeweb:
         "elements": {
             "buttons": {
                 "menu": "nav-account-toggle",
-                "sign_out": "[aria-label=\"Sign out\"]"
+                "sign_out": "[aria-label=\"Sign out\"]",
+                "dashboard": "[aria-label=\"Dashboard\"]"
             }
         },
         "paths": {
@@ -59,7 +60,9 @@ class HeaderHomeweb:
         "elements": {
             "buttons": {
                 "menu": "nav-account-toggle",
-                "sign_out": "[aria-label=\"Se déconnecter\"]"
+                "sign_out": "[aria-label=\"Se déconnecter\"]",
+                "dashboard": "[aria-label=\"Tableau de bord\"]",
+
             }
         },
         "paths": {
