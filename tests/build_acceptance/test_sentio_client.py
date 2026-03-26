@@ -16,10 +16,11 @@ def test_bat_web_017(sentio_client):
 
 
 # TEST: Sentio Client Login
-def test_bat_web_018(sentio_client, quantum, credentials):
+def test_bat_web_018(sentio_client, credentials):
     assert sentio_client._is_landing
     elements = sentio_client.landing_elements
 
+    quantum = sentio_client.quantum
     sentio_client.click_element(By.LINK_TEXT, elements["get_started"])
     assert quantum.base_url + "/" + sentio_client.language + "/login" in sentio_client.current_url.lower()
 

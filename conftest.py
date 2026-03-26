@@ -135,16 +135,22 @@ def quantum_prod(driver, language):
 
 
 @pytest.fixture(scope="session")
-def sentio_client(driver, language, env, quantum_prod):
+def sentio_client(driver, language, env, quantum, quantum_prod):
     if env == "prod":
         return pytest.skip(f"Skipping {env} environment")
     else:
-        return SentioClient(driver, language, env, quantum_prod)
+        print(f"MDG::{quantum.base_url}")
+        print(f"MDG::{quantum.domain}")
+        # TODO: Switch back on MONDAY 03-30-2026
+        # return SentioClient(driver, language, env, quantum_prod)
+        return SentioClient(driver, language, env, quantum)
 
 
 @pytest.fixture(scope="session")
-def sentio_provider(driver, language, env, quantum_prod):
+def sentio_provider(driver, language, env, quantum, quantum_prod):
     if env == "prod":
         return pytest.skip(f"Skipping {env} environment")
     else:
-        return SentioProvider(driver, language, env, quantum_prod)
+        # TODO: Switch back on MONDAY 03-30-2026
+        # return SentioProvider(driver, language, env, quantum_prod)
+        return SentioProvider(driver, language, env, quantum)

@@ -4,7 +4,7 @@ HOMEWEB_BASE_URL = "https://homeweb.ca"
 HOMEWEB_BETA_BASE_URL = "https://beta.homeweb.ca"
 CUSTOMER_PORTAL_BASE_URL = "https://portal.homewoodhealth.com"
 QUANTUM_API_BASE_URL = "https://api.homewoodhealth.io"
-QUANTUM_API_BETA_BASE_URL = "https://api.homewoodhealth.io"
+QUANTUM_API_BETA_BASE_URL = "https://betaapi.homewoodhealth.io"
 SENTIO_BETA_CLIENT_BASE_URL = "https://beta.sentioapp.com"
 SENTIO_BETA_PROVIDER_BASE_URL = "https://beta-portal.sentioapp.com"
 
