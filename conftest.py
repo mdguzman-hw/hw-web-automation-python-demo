@@ -16,7 +16,7 @@ from suites.SentioProvider import SentioProvider
 
 
 @pytest.fixture(scope="session")
-def driver():
+def driver(env):
     # 1: Configure Chrome options
     chrome_options = Options()
     # chrome_options.add_argument("--start-maximized")
