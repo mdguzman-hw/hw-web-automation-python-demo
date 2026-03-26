@@ -1,14 +1,13 @@
 # Copyright © 2026 - Homewood Health Inc.
 
-################# BUILD ACCEPTANCE ################ [WIP]
-##################### HOMEWEB ##################### [WIP]
-################## HOMEWEB BETA ################### [WIP]
-################# CUSTOMER PORTAL ################# [DONE]
-############## SENTIO BETA - CLIENT ############### [WIP]
-############# SENTIO BETA - PROVIDER ############## [WIP]
+################# BUILD ACCEPTANCE TEST SUITE ################
+################# QUANTUM API ################################
+################# HOMEWEB ####################################
+################# CUSTOMER PORTAL ############################
+################# SENTIO CLIENT ##############################
+################# SENTIO PROVIDER ############################
 
-from test_homeweb import *
-from test_customer_portal import *
-from test_sentio_client import *
-from test_sentio_provider import *
-
+from test_bat_homeweb import *
+from test_bat_customer_portal import *
+from test_bat_sentio_client import *
+from test_bat_sentio_provider import *
