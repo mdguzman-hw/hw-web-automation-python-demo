@@ -104,7 +104,6 @@ class Homeweb(BasePage):
 
     def wait_for_lifestyle_transfer(self):
         return self.wait.until(lambda d: LIFESTYLE_DOMAIN in d.current_url.lower())
-        # return self.wait.until(lambda d: d.execute_script("return document.readyState") == "complete")
 
     def wait_for_modal(self):
         return self.wait.until(
@@ -284,9 +283,9 @@ class Homeweb(BasePage):
 
         for tile in tile_elements:
             title = tile.find_element(By.CSS_SELECTOR, ".item-content h3.title").text.strip()
-            href = tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link")
+            href = tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").get_attribute("href")
             link_text = tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").text.strip()
-            tiles.append(DashboardTile(title, href, link_text))
+            tiles.append(DashboardTile(tile, title, href, link_text))
         return tiles
 
     def end_services(self, topic):
@@ -459,27 +458,6 @@ class Homeweb(BasePage):
 
         return assessment_question, assessment_options
 
-    def answer_current_question(self, answer_text=None):
-        question, options = self.get_current_question()
-
-        if answer_text:
-            for option in options:
-                if answer_text.lower() in option.text.lower():
-                    option.click()
-                    return
-            raise Exception(f"Answer '{answer_text}' not found for question: {question}")
-        else:
-            import random
-            random.choice(options).click()
-
-    # def wait_for_next_question(self, previous_question):
-    #     self.wait.until(
-    #         lambda driver: driver.find_element(
-    #             By.CSS_SELECTOR,
-    #             ".assessment-question-text h3"
-    #         ).text.strip() != previous_question
-    #     )
-
     def is_assessment_complete(self):
         return "/assessment/recommendation" in self.driver.current_url
 
@@ -632,18 +610,13 @@ class Homeweb(BasePage):
         # selected_time = selected_option.select_random_time()
         # print(f"Selected time: {selected_time}")
 
-    # def select_provider(self):
-    #     booking_options = self.get_booking_options()
-    #     selected_option = random.choice(booking_options)
-    #     print(selected_option.provider_name)
-    #     selected_option.provider_details_link.click()
-
     def select_provider(self):
         booking_options = self.get_booking_options()
         selected_option = random.choice(booking_options)
         print(selected_option.provider_name)
         link = selected_option.provider_details_link
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", link)
+        time.sleep(0.5)
         self.wait.until(expected_conditions.element_to_be_clickable(link))
         link.click()
 
@@ -656,16 +629,19 @@ class Homeweb(BasePage):
                 (By.CSS_SELECTOR, ".provider-times-container label.btn-time")
             )
         )
-        random.choice(time_options).click()
+        selected_time = random.choice(time_options)
+        print(selected_time)
+        selected_time.click()
 
         # 3: Wait for modality select to enable after time selection
         self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "appointmentModality")))
         modality_select = Select(self.driver.find_element(By.ID, "appointmentModality"))
         modality_options = [o.text for o in modality_select.options if o.get_attribute("value") != "0"]
-        modality_select.select_by_visible_text(random.choice(modality_options))
+        selected_modality = random.choice(modality_options)
+        print(selected_modality)
+        modality_select.select_by_visible_text(selected_modality)
 
         # 4: Click Review & confirm
-        input("Time and Format selected. Press enter to continue...")
         self.click_element(By.CSS_SELECTOR, "button.btn-primary:not(.disabled)")
 
 
@@ -686,11 +662,24 @@ class AppointmentTile:
         return self._tile.find_element(By.CSS_SELECTOR, ".column-provider-details .name").text.strip()
 
 
+# Dashboard Tiles - EN
+# 0 - Pathfinder
+# 1 - Sentio by Homewood Health
+# 2 - Resource Library
+# 3 - How are you doing today?
+# 4 - Childcare Resource Locator by LifestageCare
+# 5 - Eldercare Resource Locator by LifestageCare
+# 6 - Health and Wellness Library
+# 7 - Health Risk Assessment
 class DashboardTile:
-    def __init__(self, title, href, link_text):
+    def __init__(self, tile, title, href, link_text):
+        self.tile = tile
         self.title = title
         self.href = href
         self.link_text = link_text
+
+    def click(self):
+        self.tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").click()
 
 
 class ProviderTile:

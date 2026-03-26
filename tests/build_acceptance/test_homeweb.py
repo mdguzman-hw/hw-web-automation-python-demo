@@ -47,6 +47,7 @@ def test_bat_web_003(homeweb, credentials):
 
     # 2: Test - Login - Homeweb - Personal
     quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
+    # quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert homeweb.wait_for_dashboard()
 
 
@@ -60,16 +61,25 @@ def test_bat_web_004(homeweb):
     assert homeweb.wait_for_resource_content()
 
 
-# TEST: Sentio kick-out
+# TEST: Sentio kickout
 def test_bat_web_005(homeweb):
     assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
 
-    # 1: Navigate to sentio resource
-    sentio_resource_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/62c5a1e929ed9c1608d0434b"
-    homeweb.driver.get(sentio_resource_target)
+    # 1: Test - Retrieve Dashboard Tiles
+    # TODO: Investigate if this is expected
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 2: Test - Navigate Sentio Resource
+    sentio_endpoint = "/resources/62c5a1e929ed9c1608d0434b"
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[1].link_text)
+    assert sentio_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
 
-    # 2: Test - Sentio transfer kickout
+    # 3: Test - Sentio transfer kickout
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_sentio_transfer()
     homeweb.go_back()
@@ -92,7 +102,7 @@ def test_bat_web_006(homeweb):
     homeweb.navigate_landing()
 
 
-# TEST: Homeweb Login - Different user
+# TEST: Homeweb Login - Different Account
 def test_bat_web_007(homeweb, credentials, env):
     if env == "prod":
         email = credentials["dsg_demo"]["email"]
@@ -112,37 +122,63 @@ def test_bat_web_007(homeweb, credentials, env):
     assert paths["sign_in"] in quantum.current_url.lower()
 
     # 2: Test - Login - Homeweb - DSG Demo
-    # TODO - FIX ERROR HERE BETA
-
     quantum.login(email, password)
     assert homeweb.wait_for_dashboard()
 
 
 # TEST: Kickouts
-# TODO: Kickouts should click the tiles on Dashboard
 def test_bat_web_008(homeweb):
+    childcare_endpoint = "/resources/579ba4db88db7af01fe6ddd4"
+    eldercare_endpoint = "/resources/579ba49a88db7af01fe6ddc8"
+    hra_endpoint = "/resources/579ba53088db7af01fe6dde6"
+
     assert homeweb.is_authenticated()
-    childcare_resource_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/579ba4db88db7af01fe6ddd4"
-    eldercare_resource_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/579ba49a88db7af01fe6ddc8"
-    hra_resource_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/579ba53088db7af01fe6dde6"
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
 
-    # 1: Test - ChildCare - Lifestage transfer kickout
-    homeweb.driver.get(childcare_resource_target)
+    # 1: Test - Retrieve Dashboard Tiles
+    # TODO: Investigate if this is expected
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 2: Test: Childcare Resource Locator
+    childcare_tile = next(t for t in dashboard_tiles if childcare_endpoint in t.href)
+    childcare_tile.click()
+    assert childcare_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
+    homeweb.navigate_landing()
+    assert homeweb.domain in homeweb.current_url.lower()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
 
-    # 2: Test - ElderCare - Lifestage transfer kickout
-    homeweb.driver.get(eldercare_resource_target)
+    # 3: Test: Eldercare Resource Locator
+    eldercare_tile = next(t for t in dashboard_tiles if eldercare_endpoint in t.href)
+    eldercare_tile.click()
+    assert eldercare_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
+    homeweb.navigate_landing()
+    assert homeweb.domain in homeweb.current_url.lower()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
 
-    # 3: Test - HRA - LifeStyles transfer kickout
-    homeweb.driver.get(hra_resource_target)
+    # 4: Test: Health Risk Assessment
+    hra_tile = next(t for t in dashboard_tiles if hra_endpoint in t.href)
+    hra_tile.click()
+    assert hra_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestyle_transfer()
+    homeweb.navigate_landing()
+    assert homeweb.domain in homeweb.current_url.lower()
 
 
 # TEST: Course consent
@@ -162,12 +198,11 @@ def test_bat_web_009(homeweb):
 
     # 3: Test - Dismiss modal, display course content
     homeweb.click_element(By.CSS_SELECTOR, "[data-bs-dismiss=\"modal\"]")
-    # assert homeweb.wait_for_course_content()
-    assert homeweb.wait_for_course_content(), "iframe content issue"
+    assert homeweb.wait_for_course_content()
 
     # 4: Test - Menu dropdown
     header.click_element(By.CLASS_NAME, header_buttons["menu"])
-    assert header.wait_for_account_menu(), "Menu not found"
+    assert header.wait_for_account_menu()
 
     # 5: Test - Logout
     header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
@@ -177,7 +212,7 @@ def test_bat_web_009(homeweb):
     homeweb.navigate_landing()
 
 
-# TEST: DEMO - Cancel Active Appointments
+# TEST: DEMO - Cancel Active Services
 def test_bat_web_010(homeweb, quantum, credentials, env):
     if env == "beta":
         return pytest.skip(f"Skipping {env} test_bat_web_010")
@@ -223,8 +258,9 @@ def test_bat_web_010(homeweb, quantum, credentials, env):
 
 # TEST: Live Chat
 def test_bat_web_011(homeweb, quantum, credentials, env):
-    # TODO: Manual for now
-    pytest.skip(f"Skipping {env} test_bat_web_011")
+    # Manual for now
+    pytest.skip(f"Skipping Live Chat {env} test_bat_web_011")
+
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
     header_anon = homeweb.header
@@ -241,6 +277,7 @@ def test_bat_web_011(homeweb, quantum, credentials, env):
     assert homeweb.wait_for_dashboard()
 
     homeweb.test_live_chat(email)
+
 
 # TEST: Complete Pathfinder Assessment
 def test_bat_web_012(homeweb, credentials):
@@ -281,6 +318,7 @@ def test_bat_web_012(homeweb, credentials):
     assert homeweb.wait_for_assessment()
 
     # 6: Test - Complete Assessment
+    # TODO: Support passing in answers as parameter, to go through specific pathfinder flows
     homeweb.complete_assessment(
         # answers={
         #     0: "Work & career",
@@ -314,21 +352,7 @@ def test_bat_web_014(homeweb, credentials):
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
 
-    # assert homeweb.is_landing()
-    # header_anon = homeweb.header
-    # header_anon_buttons = header_anon.elements["buttons"]
-    # paths = header_anon.paths["buttons"]
-    # quantum = homeweb.quantum
-    #
-    # # 1: Test - Sign In - Header
-    # header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
-    # assert paths["sign_in"] in quantum.current_url.lower()
-    #
-    # # 2: Test - Login - Homeweb - DSG Demo
-    # quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
-    # assert homeweb.wait_for_dashboard()
-
-    # 3: Test - Check Active Services
+    # 1: Test - Check Active Services
     appointments = homeweb.get_active_services()
     topics = [a.topic for a in appointments]
     print(topics)
