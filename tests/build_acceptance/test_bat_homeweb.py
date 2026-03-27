@@ -177,12 +177,13 @@ def test_bat_web_008(homeweb):
     assert len(dashboard_tiles) == expected
 
     # 2: Test: Childcare Resource Locator
-    childcare_tile = next(t for t in dashboard_tiles if childcare_endpoint in t.href)
-    childcare_tile.click()
+    childcare_tile = dashboard_tiles[4]
+    childcare_tile.navigate()
     assert childcare_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
+
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
     homeweb.navigate_dashboard()
@@ -191,12 +192,13 @@ def test_bat_web_008(homeweb):
     assert len(dashboard_tiles) == expected
 
     # 3: Test: Eldercare Resource Locator
-    eldercare_tile = next(t for t in dashboard_tiles if eldercare_endpoint in t.href)
-    eldercare_tile.click()
+    eldercare_tile = dashboard_tiles[5]
+    eldercare_tile.navigate()
     assert eldercare_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")
     assert homeweb.wait_for_lifestage_transfer()
+
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
     homeweb.navigate_dashboard()
@@ -205,8 +207,8 @@ def test_bat_web_008(homeweb):
     assert len(dashboard_tiles) == expected
 
     # 4: Test: Health Risk Assessment
-    hra_tile = next(t for t in dashboard_tiles if hra_endpoint in t.href)
-    hra_tile.click()
+    hra_tile = dashboard_tiles[7]
+    hra_tile.navigate()
     assert hra_endpoint in homeweb.current_url.lower()
     assert homeweb.wait_for_resource_content()
     homeweb.click_element(By.CLASS_NAME, "btn-primary")

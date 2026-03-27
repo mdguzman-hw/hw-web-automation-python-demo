@@ -87,6 +87,8 @@ class Homeweb(BasePage):
 
         self.set_authenticated(True)
 
+        # self.
+
         return self.wait.until(
             lambda d: HOMEWEB_DOMAIN in d.current_url.lower() and expected_path in d.current_url.lower()
         )
@@ -276,7 +278,6 @@ class Homeweb(BasePage):
     #
     #     return True
 
-
     def get_articles(self):
         # 1: Find articles container
         self.wait.until(
@@ -328,7 +329,7 @@ class Homeweb(BasePage):
             title = tile.find_element(By.CSS_SELECTOR, ".item-content h3.title").text.strip()
             href = tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").get_attribute("href")
             link_text = tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").text.strip()
-            tiles.append(DashboardTile(tile, title, href, link_text))
+            tiles.append(DashboardTile(self.driver, self.wait, tile, title, href, link_text))
         return tiles
 
     def get_primary_categories(self):
@@ -729,8 +730,6 @@ class Homeweb(BasePage):
         buttons = self.driver.find_elements(By.CLASS_NAME, "btn-booking")
         print(len(buttons))
 
-
-
         # if method == "text":
         #     buttons[0].click()
         # else:
@@ -764,14 +763,31 @@ class AppointmentTile:
 # 6 - Health and Wellness Library
 # 7 - Health Risk Assessment
 class DashboardTile:
-    def __init__(self, tile, title, href, link_text):
+    def __init__(self, driver, wait, tile, title, href, link_text):
+        self.driver = driver
+        self.wait = wait
         self.tile = tile
         self.title = title
         self.href = href
         self.link_text = link_text
 
-    def click(self):
-        self.tile.find_element(By.CSS_SELECTOR, ".item-content a.item-link").click()
+    def navigate(self):
+        link = self.tile.find_element(By.LINK_TEXT, self.link_text)
+
+        # scroll into view
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block: 'center'});", link
+        )
+
+        # 3: Wait for layout to stabilize
+        self.wait.until(lambda d: link.is_displayed() and link.is_enabled())
+
+        # 4: Small pause to allow any final reflows
+        time.sleep(0.5)
+        # wait until clickable
+        clickable_element = self.wait.until(expected_conditions.element_to_be_clickable(link))
+
+        clickable_element.click()
 
 
 class ProviderTile:
