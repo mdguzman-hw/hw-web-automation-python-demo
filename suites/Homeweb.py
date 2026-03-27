@@ -234,21 +234,21 @@ class Homeweb(BasePage):
 
         return True
 
-    # TODO TEST: Resource Libraru
-    # def wait_for_resources(self):
-    #     resources_endpoint = "/resources"
-    #     self.wait.until(lambda d: resources_endpoint in d.current_url.lower())
-    #
-    #     self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
-    #
-    #     self.wait.until(
-    #         expected_conditions.visibility_of_element_located((By.CLASS_NAME, "controller-content"))
-    #     )
-    #
-    #     expected_active = "Santé mentale" if self.language == "fr" else "Mental Health"
-    #     active_item = self.driver.find_element(By.CSS_SELECTOR, "#categoryNav li.active > a").text.strip()
-    #     print (active_item)
-    #     assert expected_active in active_item
+        # TODO TEST: Resource Libraru
+        # def wait_for_resources(self):
+        #     resources_endpoint = "/resources"
+        #     self.wait.until(lambda d: resources_endpoint in d.current_url.lower())
+        #
+        #     self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+        #
+        #     self.wait.until(
+        #         expected_conditions.visibility_of_element_located((By.CLASS_NAME, "controller-content"))
+        #     )
+        #
+        #     expected_active = "Santé mentale" if self.language == "fr" else "Mental Health"
+        #     active_item = self.driver.find_element(By.CSS_SELECTOR, "#categoryNav li.active > a").text.strip()
+        #     print (active_item)
+        #     assert expected_active in active_item
 
         return True
 
@@ -263,6 +263,18 @@ class Homeweb(BasePage):
         )
 
         return True
+
+    # def wait_for_booking_confirmation(self):
+    #     booking_confirmation_endpoint = "/homeweb/booking/confirm"
+    #     self.wait.until(lambda d: booking_confirm_endpoint in d.current_url.lower())
+    #
+    #     self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+    #
+    #     self.wait.until(
+    #         expected_conditions.visibility_of_element_located((By.CLASS_NAME, "dsg-inner"))
+    #     )
+    #
+    #     return True
 
 
     def get_articles(self):
@@ -695,8 +707,6 @@ class Homeweb(BasePage):
 
     def confirm_booking(self):
         self.driver.find_elements(By.CLASS_NAME, "btn-booking")
-        # for button in buttons:
-        #     print(button.text.strip())
 
         yes_button = self.wait.until(
             expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "div.container-buttons button"))
@@ -704,11 +714,22 @@ class Homeweb(BasePage):
 
         yes_button.click()
 
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+        # print("PAGE LOADED")
+
+        # TODO: Assert Continue to Booking button is no longer visible on Dashboard
+        # NOTE: Booking Confirmed at this point - Sufficient for now. See Additional Tests Below
+        # Additional Tests
+        # TEST: Confirmation Method
+        # homeweb.choose_confirmation_method()
+
     def choose_confirmation_method(self, method="text"):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-buttons")))
 
         buttons = self.driver.find_elements(By.CLASS_NAME, "btn-booking")
         print(len(buttons))
+
+
 
         # if method == "text":
         #     buttons[0].click()

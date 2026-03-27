@@ -404,12 +404,7 @@ def test_bat_web_014(homeweb, credentials):
     assert homeweb.wait_for_booking_confirm()
 
     homeweb.confirm_booking()
-    # TODO: Assert Continue to Booking button is no longer visible
-    # Booking Confirmed - Sufficient for now. See Additional Tests Below
 
-    # Additional Tests
-    # TEST: Confirmation Method
-    homeweb.choose_confirmation_method()
     # : Test - Menu dropdown
     header_auth = homeweb.header
     header_auth_buttons = header_auth.elements["buttons"]
