@@ -1,5 +1,5 @@
 # Copyright © 2026 - Homewood Health Inc.
-
+import pytest
 ################# BUILD ACCEPTANCE ################
 ################# SENTIO CLIENT ###################
 from selenium.webdriver.common.by import By
@@ -195,9 +195,12 @@ def test_bat_web_024(sentio_client):
 
 
 # TODO: BAT-WEB-025 | Live Chat
-# def test_bat_web_022(sentio_client, credentials):
-#     assert sentio_client._is_authenticated
-#     sentio_client.test_live_chat(credentials["sentio"]["email"])
+def test_bat_web_025(sentio_client, credentials):
+    pytest.skip("Skipping due to missing credentials")
+    assert sentio_client._is_authenticated
+
+    assert sentio_client._is_authenticated
+    sentio_client.test_live_chat(credentials["sentio"]["email"])
 
 
 # TEST: Sentio Client Logout
