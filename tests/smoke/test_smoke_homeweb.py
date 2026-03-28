@@ -243,6 +243,37 @@ def test_smoke_homeweb_022(homeweb):
     homeweb.navigate_landing("pbc")
     assert homeweb.wait_for_landing()
 
+
+# RESOURCES
+# TEST: External redirects for homeweb
+def test_smoke_homeweb_023(homeweb, quantum, env, credentials):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing()
+    assert homeweb.wait_for_landing()
+
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+    paths = header.paths["buttons"]
+    quantum = homeweb.quantum
+
+    # 1: Test - Sign In - Header
+    header.click_element(By.CLASS_NAME, header_buttons["sign_in"])
+    assert paths["sign_in"] in quantum.current_url.lower()
+
+    # 2: Test - Login - Homeweb - DSG Demo
+    email = credentials["sentio"]["email"]
+    password = credentials["sentio"]["password"]
+    quantum.login(email, password)
+    assert homeweb.wait_for_dashboard()
+
+    # 1: Test - Retrieve Dashboard Tiles
+    # TODO: Investigate if this is expected
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+    for tile in dashboard_tiles:
+        tile.navigate()
+        assert tile.href in homeweb.current_url.lower()
 # TODO: SMOKE-024	| External redirects for homeweb LSO
 # TODO: SMOKE-025	| External redirects for homeweb Enbridge
 # TODO: SMOKE-026	| External redirects for homeweb EQ
