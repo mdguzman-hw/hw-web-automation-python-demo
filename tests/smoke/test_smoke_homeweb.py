@@ -85,8 +85,7 @@ def test_smoke_homeweb_007(homeweb):
     assert homeweb.wait_for_dashboard()
 
     expected = 6 if homeweb.language == "fr" else 8
-    dashboard_tiles = homeweb.get_dashboard_tiles()
-    assert len(dashboard_tiles) == expected
+    assert len(homeweb.get_dashboard_tiles()) == expected
 
     # 1: Test - Check and cancel active services
     appointments = homeweb.get_active_services()
@@ -100,6 +99,7 @@ def test_smoke_homeweb_007(homeweb):
 
     # 2: Test - Navigate Wellness
     assert homeweb.wait_for_dashboard()
+    dashboard_tiles = homeweb.get_dashboard_tiles()
     pathfinder_tile = dashboard_tiles[0]
     pathfinder_tile.navigate()
     assert homeweb.wait_for_assessment()
@@ -143,7 +143,7 @@ def test_smoke_homeweb_010(homeweb):
     homeweb.navigate_rating()
     assert homeweb.wait_for_rating()
 
-    homeweb.complete_rating()
+    homeweb.complete_rating("5")
     assert homeweb.wait_for_booking_create()
 
 
@@ -162,6 +162,7 @@ def test_smoke_homeweb_011(homeweb, credentials):
 
 # TEST: Booking calendar
 def test_smoke_homeweb_012(homeweb):
+    assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
 
@@ -190,6 +191,10 @@ def test_smoke_homeweb_012(homeweb):
 
 # TEST: End Services
 def test_smoke_homeweb_016(homeweb):
+    assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
     # 1: Test - Check and cancel active services
     appointments = homeweb.get_active_services()
     topics = [a.topic for a in appointments]
@@ -199,6 +204,20 @@ def test_smoke_homeweb_016(homeweb):
         assert homeweb.wait_for_dashboard()
         remaining = homeweb.get_active_services()
         assert not any(a.topic == topic for a in remaining)
+
+    assert homeweb.is_authenticated()
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+
+    # 2: Test - Menu dropdown
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    # 3: Test - Logout
+    # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
+    header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
+    assert homeweb.wait_for_logout()
+    homeweb.navigate_landing()
 
 
 # LANDING PAGE - CUSTOM
@@ -270,10 +289,13 @@ def test_smoke_homeweb_023(homeweb, quantum, env, credentials):
     # TODO: Investigate if this is expected
     expected = 6 if homeweb.language == "fr" else 8
     dashboard_tiles = homeweb.get_dashboard_tiles()
-    assert len(dashboard_tiles) == expected
+    actual = len(dashboard_tiles)
+    assert actual == expected
     for tile in dashboard_tiles:
         tile.navigate()
         assert tile.href in homeweb.current_url.lower()
+
+
 # TODO: SMOKE-024	| External redirects for homeweb LSO
 # TODO: SMOKE-025	| External redirects for homeweb Enbridge
 # TODO: SMOKE-026	| External redirects for homeweb EQ
@@ -293,4 +315,18 @@ def test_smoke_homeweb_023(homeweb, quantum, env, credentials):
 # TODO: SMOKE-036	| Login in test
 # TODO: SMOKE-037	| Forgot password
 # TODO: SMOKE-038	| Footer tests
-# TODO: SMOKE-039	| Logout
+# TEST:Logout
+def test_smoke_homeweb_039(homeweb):
+    assert homeweb.is_authenticated()
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+
+    # 1: Test - Menu dropdown
+    header.click_element(By.CLASS_NAME, header_buttons["menu"])
+    assert header.wait_for_account_menu(), "Menu not found"
+
+    # 2: Test - Logout
+    # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
+    header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
+    assert homeweb.wait_for_logout()
+    homeweb.navigate_landing()

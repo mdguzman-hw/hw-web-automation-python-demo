@@ -44,7 +44,7 @@ class Homeweb(BasePage):
         user_type = "AUTH" if self._is_authenticated else "ANON"
         self.header = Header(self.driver, domain="homeweb", language=self.language, user=user_type)
 
-    def navigate_landing(self, custom):
+    def navigate_landing(self, custom=None):
         if custom:
             self.driver.get(f"{self.base_url}/{self.language}/{custom}")
 
@@ -227,7 +227,11 @@ class Homeweb(BasePage):
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
-            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "collection-provider-match"))
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "collection-provider-matches"))
+        )
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "dp__instance_calendar"))
         )
 
         return True
@@ -286,7 +290,6 @@ class Homeweb(BasePage):
         )
 
         return True
-
 
     # def wait_for_booking_confirmation(self):
     #     booking_confirmation_endpoint = "/homeweb/booking/confirm"
@@ -572,10 +575,17 @@ class Homeweb(BasePage):
             ).click()
             self.wait_for_next_step(question_text)
 
-    def complete_rating(self):
-        options = self.driver.find_elements(By.CSS_SELECTOR, "#rating-form label")
-        selected = random.choice(options)
-        # self.click_element(selected)
+    def complete_rating(self, rating=None):
+        if rating is not None:
+            selected = self.wait.until(
+                expected_conditions.element_to_be_clickable(
+                    (By.CSS_SELECTOR, f'#rating-form label[for="{rating}"]')
+                )
+            )
+        else:
+            options = self.driver.find_elements(By.CSS_SELECTOR, f"#rating-form label")
+            selected = random.choice(options)
+
         self.wait.until(expected_conditions.element_to_be_clickable(selected))
         selected.click()
 
