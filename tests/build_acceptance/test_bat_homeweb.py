@@ -61,38 +61,7 @@ def test_bat_web_004(homeweb):
     assert homeweb.wait_for_resource_content()
 
 
-# TODO TEST: Resource Library
-# def test_bat_web_005x(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Investigate if this is expected
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Resource Library
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[2].link_text)
-#     assert homeweb.wait_for_resources()
-#
-#     # 3: Get all primary categories and its subcategories
-#     primary_categories = homeweb.get_primary_categories()
-#     for category in primary_categories:
-#         print(category.text.strip())
 
-# for resource_category in resource_categories:
-#     print(resource_category["title"])
-#
-#     # Click category to expand and get subcategories
-#     homeweb.click_element(By.LINK_TEXT, resource_category["title"])
-#     assert homeweb.wait_for_resources()
-#
-#     resource_categories = homeweb.get_primary_categories()
-#     active_category = next(c for c in resource_categories if c["title"] == resource_category["title"])
-#     print(active_category["subcategories"])
-# for resource_category in resource_categories:
-#     print(resource_category["title"])
-#     print(resource_category["subcategories"])
 
 
 # TEST: Sentio kickout
@@ -216,6 +185,38 @@ def test_bat_web_008(homeweb):
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
 
+# TODO TEST: Resource Library
+# def test_bat_web_005x(homeweb):
+#     assert homeweb.is_authenticated()
+#
+#     # 1: Test - Retrieve Dashboard Tiles
+#     # TODO: Investigate if this is expected
+#     expected = 6 if homeweb.language == "fr" else 8
+#     dashboard_tiles = homeweb.get_dashboard_tiles()
+#     assert len(dashboard_tiles) == expected
+#
+#     # 2: Test - Navigate Resource Library
+#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[2].link_text)
+#     assert homeweb.wait_for_resources()
+#
+#     # 3: Get all primary categories and its subcategories
+#     primary_categories = homeweb.get_primary_categories()
+#     for category in primary_categories:
+#         print(category.text.strip())
+
+# for resource_category in resource_categories:
+#     print(resource_category["title"])
+#
+#     # Click category to expand and get subcategories
+#     homeweb.click_element(By.LINK_TEXT, resource_category["title"])
+#     assert homeweb.wait_for_resources()
+#
+#     resource_categories = homeweb.get_primary_categories()
+#     active_category = next(c for c in resource_categories if c["title"] == resource_category["title"])
+#     print(active_category["subcategories"])
+# for resource_category in resource_categories:
+#     print(resource_category["title"])
+#     print(resource_category["subcategories"])
 
 # TEST: Course consent
 def test_bat_web_009(homeweb):
@@ -366,6 +367,7 @@ def test_bat_web_012(homeweb, credentials):
 
 # TEST: Create Pathfinder Booking
 def test_bat_web_013(homeweb, credentials):
+    assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
     email = credentials["sentio"]["email"]
@@ -388,6 +390,7 @@ def test_bat_web_013(homeweb, credentials):
 
 # TODO: TEST: Complete Pathfinder Booking
 def test_bat_web_014(homeweb, credentials):
+    assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
 
