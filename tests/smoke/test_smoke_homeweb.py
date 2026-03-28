@@ -200,6 +200,49 @@ def test_smoke_homeweb_016(homeweb):
         remaining = homeweb.get_active_services()
         assert not any(a.topic == topic for a in remaining)
 
+
+# LANDING PAGE - CUSTOM
+# TEST: Enbridge Landing - Initial State
+def test_smoke_homeweb_017(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("enbridge")
+    assert homeweb.wait_for_landing()
+
+
+# TEST: Suncor Landing - Initial State
+def test_smoke_homeweb_018(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("suncor")
+    assert homeweb.wait_for_landing()
+
+
+# TEST: LSO Landing- Initial State
+def test_smoke_homeweb_019(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("map")
+    assert homeweb.wait_for_landing()
+
+
+# TEST: EQ Landing- Initial State
+def test_smoke_homeweb_020(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("equitable")
+    assert homeweb.wait_for_landing()
+
+
+# TEST: ALUMNI Landing- Initial State
+def test_smoke_homeweb_021(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("alumni")
+    assert homeweb.wait_for_landing()
+
+
+# TEST: Pacific Blue Cross Landing- Initial State
+def test_smoke_homeweb_022(homeweb):
+    assert not homeweb.is_authenticated()
+    homeweb.navigate_landing("pbc")
+    assert homeweb.wait_for_landing()
+
 # TODO: SMOKE-024	| External redirects for homeweb LSO
 # TODO: SMOKE-025	| External redirects for homeweb Enbridge
 # TODO: SMOKE-026	| External redirects for homeweb EQ
