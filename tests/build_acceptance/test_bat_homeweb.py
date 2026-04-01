@@ -511,7 +511,7 @@ def test_bat_web_022(homeweb):
 
 
 # TEST: Mobile - Embedded resources
-def test_bat_web_015(homeweb):
+def test_bat_web_023(homeweb):
     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
     homeweb.navigate_landing()
     assert homeweb.is_landing()

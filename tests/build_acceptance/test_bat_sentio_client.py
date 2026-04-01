@@ -10,13 +10,13 @@ from selenium.webdriver.common.by import By
 #     sentio_client.reset_default_content()
 
 # TEST: Navigate Sentio Client
-def test_bat_web_017(sentio_client):
+def test_bat_web_025(sentio_client):
     sentio_client.navigate_landing()
     assert sentio_client.landing_url in sentio_client.current_url.lower()
 
 
 # TEST: Sentio Client Login
-def test_bat_web_018(sentio_client, credentials):
+def test_bat_web_026(sentio_client, credentials):
     assert sentio_client._is_landing
     elements = sentio_client.landing_elements
 
@@ -33,7 +33,7 @@ def test_bat_web_018(sentio_client, credentials):
 
 
 # TEST: Start Program
-def test_bat_web_019(sentio_client):
+def test_bat_web_027(sentio_client):
     assert sentio_client._is_authenticated
 
     # 1: Check for In Progress Programs
@@ -109,7 +109,7 @@ def test_bat_web_019(sentio_client):
 
 
 # TEST: Continue Program
-def test_bat_web_020(sentio_client):
+def test_bat_web_028(sentio_client):
     assert sentio_client._is_authenticated
     assert sentio_client.dashboard_endpoint in sentio_client.current_url.lower()
     in_progress_programs = sentio_client.in_progress_programs()
@@ -130,7 +130,7 @@ def test_bat_web_020(sentio_client):
 
 
 # TEST: Start Goal
-def test_bat_web_021(sentio_client):
+def test_bat_web_029(sentio_client):
     assert sentio_client._is_authenticated
     sentio_client.navigate_dashboard()
     assert sentio_client.wait_for_dashboard()
@@ -158,7 +158,7 @@ def test_bat_web_021(sentio_client):
 
 
 # TEST: Continue Goal
-def test_bat_web_022(sentio_client):
+def test_bat_web_030(sentio_client):
     assert sentio_client._is_authenticated
     assert sentio_client.program_status_endpoint
 
@@ -166,7 +166,7 @@ def test_bat_web_022(sentio_client):
 
 
 # TEST: Complete Goal
-def test_bat_web_023(sentio_client):
+def test_bat_web_031(sentio_client):
     assert sentio_client._is_authenticated
 
     sentio_client.complete_goal()
@@ -181,7 +181,7 @@ def test_bat_web_023(sentio_client):
 
 
 # TEST: Complete Program
-def test_bat_web_024(sentio_client):
+def test_bat_web_032(sentio_client):
     assert sentio_client._is_authenticated
     assert sentio_client.program_status_endpoint
 
@@ -194,8 +194,8 @@ def test_bat_web_024(sentio_client):
     assert all(module.status == "COMPLETED" for module in modules)
 
 
-# TODO: BAT-WEB-025 | Live Chat
-def test_bat_web_025(sentio_client, credentials):
+# TODO: BAT-WEB-033 | Live Chat
+def test_bat_web_033(sentio_client, credentials):
     pytest.skip("Skipping due to missing credentials")
     assert sentio_client._is_authenticated
 
@@ -204,7 +204,7 @@ def test_bat_web_025(sentio_client, credentials):
 
 
 # TEST: Sentio Client Logout
-def test_bat_web_026(sentio_client):
+def test_bat_web_034(sentio_client):
     assert sentio_client._is_authenticated
 
     header = sentio_client.header

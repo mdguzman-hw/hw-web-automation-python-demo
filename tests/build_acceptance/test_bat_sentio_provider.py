@@ -6,14 +6,14 @@ from selenium.webdriver.common.by import By
 
 
 # TEST: Navigate Sentio Provider
-def test_bat_web_027(sentio_provider):
+def test_bat_web_035(sentio_provider):
     sentio_provider.driver.get(sentio_provider.base_url)
     quantum = sentio_provider.quantum
     assert quantum.domain in sentio_provider.current_url.lower()
 
 
 # TEST: Sentio Provider Login
-def test_bat_web_028(sentio_provider, credentials):
+def test_bat_web_036(sentio_provider, credentials):
     quantum = sentio_provider.quantum
 
     assert quantum.domain in quantum.current_url.lower()
@@ -22,7 +22,7 @@ def test_bat_web_028(sentio_provider, credentials):
 
 
 # TEST: New Dashboard
-def test_bat_web_029(sentio_provider):
+def test_bat_web_037(sentio_provider):
     assert sentio_provider._is_authenticated
 
     # Login always navigates to EN, need to toggle to french manually after login
@@ -38,7 +38,7 @@ def test_bat_web_029(sentio_provider):
 
 
 # TEST: Sentio Provider Logout
-def test_bat_web_030(sentio_provider):
+def test_bat_web_038(sentio_provider):
     assert sentio_provider._is_authenticated
 
     header = sentio_provider.header
