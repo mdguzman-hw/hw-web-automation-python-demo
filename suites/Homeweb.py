@@ -321,10 +321,6 @@ class Homeweb(BasePage):
         self.wait.until(expected_conditions.element_to_be_clickable(buttons[1]))
         buttons[1].click()
 
-
-
-
-
     def get_articles(self):
         # 1: Find articles container
         self.wait.until(
@@ -570,6 +566,41 @@ class Homeweb(BasePage):
     def is_assessment_complete(self):
         return "/assessment/recommendation" in self.driver.current_url
 
+    def get_recommendations(self):
+        recommendation_tiles = self.driver.find_elements(By.CLASS_NAME, "item-pathfinder-recommends-v2")
+        # for tile in recommendation_tiles:
+        #     print(tile.text.strip())
+        return recommendation_tiles
+
+    def _recommendation_texts(self):
+        return [tile.text.strip() for tile in self.get_recommendations()]
+
+    def _has_recommendation(self, text):
+        return any(text in t for t in self._recommendation_texts())
+
+    @property
+    def _support_text(self):
+        return "Un soutien professionnel" if self.language == "fr" else "Professional Support"
+
+    @property
+    def _icbt_text(self):
+        return "La TCC en ligne Sentio" if self.language == "fr" else "Sentio iCBT"
+
+    def assert_recommendation_scenario_1(self):
+        """Scenario 1: Professional Support AND Sentio iCBT"""
+        assert self._has_recommendation(self._support_text), f"Expected '{self._support_text}' tile"
+        assert self._has_recommendation(self._icbt_text), f"Expected '{self._icbt_text}' tile"
+
+    def assert_recommendation_scenario_2(self):
+        """Scenario 2: Sentio iCBT only"""
+        assert self._has_recommendation(self._icbt_text), f"Expected '{self._icbt_text}' tile"
+        assert not self._has_recommendation(self._support_text), f"Did not expect '{self._support_text}' tile"
+
+    def assert_recommendation_scenario_3(self):
+        """Scenario 3: Professional Support only"""
+        assert self._has_recommendation(self._support_text), f"Expected '{self._support_text}' tile"
+        assert not self._has_recommendation(self._icbt_text), f"Did not expect '{self._icbt_text}' tile"
+
     def wait_for_next_step(self, previous_question):
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
@@ -586,16 +617,40 @@ class Homeweb(BasePage):
 
         self.wait.until(condition)
 
-    def complete_assessment(self):
+    def complete_assessment(self, flow=None, answer_index=0):
+        """
+        Complete the assessment by selecting an answer on each question.
+
+        flow         : list of int — answer indices to follow in order (e.g. [0, 1, 0, 2])
+                                     falls back to answer_index when the list is exhausted
+        answer_index : int         — fallback answer position when no flow is given or flow runs out
+                     : "random"    — pick a random answer as the fallback
+        """
+        step = 0
+        used_flow = []
 
         while not self.is_assessment_complete():
-            # Can modify answer logic here (For specific flows)
             question_text, answers = self.get_current_question()
-            print(answers[0].text.strip())
+
+            if flow and step < len(flow):
+                index = flow[step]
+            elif answer_index == "random":
+                index = random.randrange(len(answers))
+            else:
+                index = answer_index
+
+            selected = answers[min(index, len(answers) - 1)]
+            used_flow.append(index)
+
+            print(f"Q{step + 1}: [{index}] {selected.text.strip()}")
+
             self.wait.until(
-                expected_conditions.element_to_be_clickable(answers[0])
+                expected_conditions.element_to_be_clickable(selected)
             ).click()
             self.wait_for_next_step(question_text)
+            step += 1
+
+        return used_flow
 
     def complete_rating(self, rating=None):
         if rating is not None:

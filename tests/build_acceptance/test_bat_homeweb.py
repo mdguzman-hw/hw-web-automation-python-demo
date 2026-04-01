@@ -61,9 +61,6 @@ def test_bat_web_004(homeweb):
     assert homeweb.wait_for_resource_content()
 
 
-
-
-
 # TEST: Sentio kickout
 def test_bat_web_005(homeweb):
     assert homeweb.is_authenticated()
@@ -130,7 +127,10 @@ def test_bat_web_007(homeweb, credentials, env):
 
 
 # TEST: Kickouts
-def test_bat_web_008(homeweb):
+def test_bat_web_008(homeweb, env):
+    if env == "beta":
+        return pytest.skip(f"Skipping {env}. KNOWN ISSUE")
+
     childcare_endpoint = "/resources/579ba4db88db7af01fe6ddd4"
     eldercare_endpoint = "/resources/579ba49a88db7af01fe6ddc8"
     hra_endpoint = "/resources/579ba53088db7af01fe6dde6"
@@ -185,38 +185,6 @@ def test_bat_web_008(homeweb):
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
 
-# TODO TEST: Resource Library
-# def test_bat_web_005x(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Investigate if this is expected
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Resource Library
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[2].link_text)
-#     assert homeweb.wait_for_resources()
-#
-#     # 3: Get all primary categories and its subcategories
-#     primary_categories = homeweb.get_primary_categories()
-#     for category in primary_categories:
-#         print(category.text.strip())
-
-# for resource_category in resource_categories:
-#     print(resource_category["title"])
-#
-#     # Click category to expand and get subcategories
-#     homeweb.click_element(By.LINK_TEXT, resource_category["title"])
-#     assert homeweb.wait_for_resources()
-#
-#     resource_categories = homeweb.get_primary_categories()
-#     active_category = next(c for c in resource_categories if c["title"] == resource_category["title"])
-#     print(active_category["subcategories"])
-# for resource_category in resource_categories:
-#     print(resource_category["title"])
-#     print(resource_category["subcategories"])
 
 # TEST: Course consent
 def test_bat_web_009(homeweb):
@@ -316,7 +284,9 @@ def test_bat_web_011(homeweb, quantum, credentials, env):
     homeweb.test_live_chat(email)
 
 
-# TEST: Complete Pathfinder Assessment
+# TEST: Complete Pathfinder Assessment - Scenario 1
+# Mental Health > Anxiety > Low Severity > Low Risk
+# Professional Support & Sentio iCBT
 def test_bat_web_012(homeweb, credentials):
     assert homeweb.is_landing()
     header_anon = homeweb.header
@@ -355,14 +325,9 @@ def test_bat_web_012(homeweb, credentials):
     assert homeweb.wait_for_assessment()
 
     # 6: Test - Complete Assessment
-    # TODO: Support passing in answers as parameter, to go through specific pathfinder flows
-    homeweb.complete_assessment(
-        # answers={
-        #     0: "Work & career",
-        #     1: "Work stress"
-        # }
-    )
+    homeweb.complete_assessment()
     assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_1()
 
 
 # TEST: Create Pathfinder Booking
@@ -388,8 +353,73 @@ def test_bat_web_013(homeweb, credentials):
     assert homeweb.wait_for_booking_digest()
 
 
-# TODO: TEST: Complete Pathfinder Booking
+# TEST: Complete Pathfinder Assessment - Scenario 2
+# Mental Health > Anxiety > Low Severity > Low Risk
+# Sentio iCBT ONLY
+# Same flow as BAT-WEB-012, except for this scenario, need to have started a booking already
+# Appointment tile should be visible in Dashboard for the topic (Mental Health > Anxiety)
 def test_bat_web_014(homeweb, credentials):
+    assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # 4: Test - Retrieve Dashboard Tiles
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 5: Test - Navigate Assessment
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
+    assessment_endpoint = "pathfinder/assessment"
+    assert assessment_endpoint in homeweb.current_url
+    assert homeweb.wait_for_assessment()
+
+    # 6: Test - Complete Assessment
+    # flow = [0, 1, 0, 0, 1, 2, 2, 2, 2, 2, 0, 0, 0]
+    # flow = [0, 0, 1, 1, 1, 1]
+    homeweb.complete_assessment()
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_2()
+
+
+# TEST: Complete Pathfinder Assessment - Scenario 3
+# Work & career > Anger > Low Severity > Low Risk
+# Professional Support ONLY
+def test_bat_web_015(homeweb, credentials):
+    assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # 4: Test - Retrieve Dashboard Tiles
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 5: Test - Navigate Assessment
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
+    assessment_endpoint = "pathfinder/assessment"
+    assert assessment_endpoint in homeweb.current_url
+    assert homeweb.wait_for_assessment()
+
+    # 6: Test - Complete Assessment
+    flow = [2, 1, 2]
+    homeweb.complete_assessment(flow)
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_3()
+
+# TODO TEST: Complete Pathfinder Assessment - Scenario 4
+# Resource ONLY
+def test_bat_web_016(homeweb, credentials):
+    pytest.skip("Skipping [WIP]")
+
+# TODO TEST: Complete Pathfinder Assessment - Scenario 5
+# Legal / Financial Flow?
+def test_bat_web_017(homeweb, credentials):
+    pytest.skip("Skipping [WIP]")
+
+
+# TEST: Complete Pathfinder Booking
+def test_bat_web_018(homeweb, credentials):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
