@@ -1,3 +1,5 @@
+# OSX
+.DS_Store
 .idea
 .env
 
@@ -9,3 +11,5 @@ __pycache__/
 *.pyd
 
 /node_modules
+
+/reports
