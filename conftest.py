@@ -1,7 +1,9 @@
 # Copyright © 2026 - Homewood Health Inc.
 
 # Pytest configuration and shared fixtures
+import csv
 import os
+from datetime import datetime
 
 import pytest
 from dotenv import load_dotenv
@@ -13,6 +15,149 @@ from suites.Homeweb import Homeweb
 from suites.QuantumAPI import QuantumAPI
 from suites.SentioClient import SentioClient
 from suites.SentioProvider import SentioProvider
+
+
+# --- Report Collection ---
+
+_env_results = {}
+_versions = {}  # {"PROD": {"Homeweb": "v3.0.17.261", ...}, "BETA": {...}}
+
+
+def _pct(r):
+    total = r["passed"] + r["failed"]
+    return f"{int(r['passed'] / total * 100)}%" if total > 0 else "N/A"
+
+
+@pytest.fixture(scope="session")
+def record_version():
+    import requests
+
+    def _record(label, base_url, env):
+        try:
+            r = requests.get(f"{base_url}/version.html", timeout=5)
+            version = r.text.strip()
+        except Exception:
+            version = "N/A"
+        env_key = env.upper()
+        if env_key not in _versions:
+            _versions[env_key] = {}
+        _versions[env_key][label] = version
+
+    return _record
+
+
+def pytest_runtest_logreport(report):
+    if report.when == "setup" and report.skipped:
+        phase = "skipped"
+    elif report.when == "call":
+        if report.passed:
+            phase = "passed"
+        elif report.failed:
+            phase = "failed"
+        elif report.skipped:
+            phase = "skipped"
+        else:
+            return
+    else:
+        return
+
+    name = report.nodeid
+    if "[PROD]" in name:
+        env = "PROD"
+    elif "[BETA]" in name:
+        env = "BETA"
+    else:
+        env = "PROD"
+
+    if env not in _env_results:
+        _env_results[env] = {"passed": 0, "failed": 0, "skipped": 0}
+
+    _env_results[env][phase] += 1
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    if not _env_results:
+        return
+
+    envs = ["PROD", "BETA"]
+    results = {e: _env_results.get(e, {"passed": 0, "failed": 0, "skipped": 0}) for e in envs}
+
+    total_passed = sum(r["passed"] for r in results.values())
+    total_failed = sum(r["failed"] for r in results.values())
+    total_skipped = sum(r["skipped"] for r in results.values())
+    total_completed = total_passed
+    total_run = total_passed + total_failed
+    total_pct = f"{int(total_passed / total_run * 100)}%" if total_run > 0 else "N/A"
+
+    # Build version strings per env: "Label: version\nLabel: version\n..."
+    prod_versions_str = "\n".join(
+        f"{label}: {ver}" for label, ver in _versions.get("PROD", {}).items()
+    )
+    beta_versions_str = "\n".join(
+        f"{label}: {ver}" for label, ver in _versions.get("BETA", {}).items()
+    )
+
+    sep = "-" * 52
+    terminalreporter.write_sep("=", "TEST REPORT")
+
+    if _versions:
+        terminalreporter.write_line(f"{'Versions':<35} {'PROD':<25} BETA")
+        terminalreporter.write_line(sep)
+        prod_lines = prod_versions_str.splitlines()
+        beta_lines = beta_versions_str.splitlines()
+        for i in range(max(len(prod_lines), len(beta_lines))):
+            p = prod_lines[i] if i < len(prod_lines) else ""
+            b = beta_lines[i] if i < len(beta_lines) else ""
+            terminalreporter.write_line(f"  {p:<33} {b}")
+        terminalreporter.write_line("")
+
+    terminalreporter.write_line(f"{'Metric':<35} {'PROD':>7} {'BETA':>7}")
+    terminalreporter.write_line(sep)
+    terminalreporter.write_line(f"{'Passed':<35} {results['PROD']['passed']:>7} {results['BETA']['passed']:>7}")
+    terminalreporter.write_line(f"{'Failed':<35} {results['PROD']['failed']:>7} {results['BETA']['failed']:>7}")
+    terminalreporter.write_line(f"{'Not Run (Skipped, N/A, etc.)':<35} {results['PROD']['skipped']:>7} {results['BETA']['skipped']:>7}")
+    terminalreporter.write_line(f"{'Completed':<35} {results['PROD']['passed']:>7} {results['BETA']['passed']:>7}")
+    terminalreporter.write_line(f"{'Percentage Passed':<35} {_pct(results['PROD']):>7} {_pct(results['BETA']):>7}")
+    terminalreporter.write_line(sep)
+    terminalreporter.write_line(f"{'Total Passed':<35} {total_passed:>7}")
+    terminalreporter.write_line(f"{'Total Failed':<35} {total_failed:>7}")
+    terminalreporter.write_line(f"{'Total Not Run':<35} {total_skipped:>7}")
+    terminalreporter.write_line(f"{'Total Completed':<35} {total_completed:>7}")
+    terminalreporter.write_line(f"{'Total Percentage Passed':<35} {total_pct:>7}")
+
+    os.makedirs("reports", exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    name_map = {
+        "test_bat_web": "bat",
+        "test_bat_homeweb": "bat_homeweb",
+        "test_bat_customer_portal": "bat_customer_portal",
+        "test_bat_sentio_client": "bat_sentio_client",
+        "test_bat_sentio_provider": "bat_sentio_provider",
+    }
+    file_args = [a for a in config.invocation_params.args if a.endswith(".py")]
+    if file_args:
+        stem = os.path.basename(file_args[0]).replace(".py", "")
+        report_name = name_map.get(stem, stem.replace("test_", ""))
+    else:
+        report_name = "bat"
+    csv_path = f"reports/{report_name}_{timestamp}.csv"
+
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Metric", "PROD", "BETA", "Total"])
+        writer.writerow(["Versions", prod_versions_str, beta_versions_str, ""])
+        writer.writerow(["Passed", results["PROD"]["passed"], results["BETA"]["passed"], total_passed])
+        writer.writerow(["Failed", results["PROD"]["failed"], results["BETA"]["failed"], total_failed])
+        writer.writerow(["Not Run (Skipped, N/A, etc.)", results["PROD"]["skipped"], results["BETA"]["skipped"], total_skipped])
+        writer.writerow(["Completed", results["PROD"]["passed"], results["BETA"]["passed"], total_completed])
+        writer.writerow(["Percentage Passed", _pct(results["PROD"]), _pct(results["BETA"]), total_pct])
+        writer.writerow(["Total Passed", "", "", total_passed])
+        writer.writerow(["Total Failed", "", "", total_failed])
+        writer.writerow(["Total Not Run", "", "", total_skipped])
+        writer.writerow(["Total Completed", "", "", total_completed])
+        writer.writerow(["Total Percentage Passed", "", "", total_pct])
+
+    terminalreporter.write_line(f"\n  Report saved: {csv_path}")
 
 
 @pytest.fixture(scope="session")
