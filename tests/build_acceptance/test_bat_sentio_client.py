@@ -39,26 +39,31 @@ def test_bat_web_026(sentio_client, credentials):
 def test_bat_web_027(sentio_client):
     assert sentio_client._is_authenticated
 
-    # 1: Check for In Progress Programs
-    in_progress_programs = sentio_client.in_progress_programs()
-
-    # 1.1: Withdraw from In Progress Programs
-    for program in in_progress_programs:
-        sentio_client.withdraw_program(program)
-        assert sentio_client.wait_for_dashboard()
-
-    programs = sentio_client.available_programs()
-    assert programs
-
     completed_status = {
         "en": "Completed",
         "fr": "Exercice terminé"
     }
+    completed_label = completed_status[sentio_client.language].upper()
 
-    # 1.2: Filter programs that are Completed or Not started
+    # 1: Check for In Progress Programs
+    in_progress_programs = sentio_client.in_progress_programs()
+
+    # 1.1: Complete or withdraw from In Progress Programs
+    for program in in_progress_programs:
+        if program.is_completable:
+            sentio_client.driver.get(program.href_complete)
+            sentio_client.complete_program_survey()
+        else:
+            sentio_client.withdraw_program(program)
+        assert sentio_client.wait_for_dashboard()
+
+    # 1.2: Filter programs for valid starting states (Not started or Completed)
+    programs = sentio_client.available_programs()
+    assert programs
+
     valid_programs = [
         p for p in programs
-        if p.status is None or p.status == completed_status[sentio_client.language].upper()
+        if p.status is None or p.status == completed_label
     ]
     assert valid_programs, "No completed or unstarted programs available"
 

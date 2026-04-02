@@ -213,8 +213,12 @@ class SentioClient(BasePage):
             title = program.find_element(By.CSS_SELECTOR, "h2.header").text.strip()
             href_toc = program.find_element(By.CSS_SELECTOR, "a.btn.btn-outline-muted").get_attribute("href")
             href_next_activity = program.find_element(By.CSS_SELECTOR, "a.btn.btn-primary").get_attribute("href")
-            href_withdraw = program.find_element(By.CSS_SELECTOR, "p.end-service-note a").get_attribute("href")
-            in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw))
+            end_service_link = program.find_element(By.CSS_SELECTOR, "p.end-service-note a").get_attribute("href")
+
+            if "withdraw" in end_service_link:
+                in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_withdraw=end_service_link))
+            else:
+                in_progress_programs.append(ProgramTile(title, href_toc, href_next_activity, href_complete=end_service_link))
 
         return in_progress_programs
 
@@ -537,26 +541,8 @@ class SentioClient(BasePage):
         self.click_element(By.CSS_SELECTOR, ".container-program-progress-footer .item-program-progress.next a")
 
     def withdraw_program(self, program):
-        # 1: Locate program tile
-        program_tile = self.driver.find_element(
-            By.XPATH,
-            f'//h2[normalize-space()="{program.title}"]/ancestor::div[contains(@class,"item-dashboard")]'
-        )
-
-        # 2: Find withdraw link within the specified program
-        withdraw_link = program_tile.find_element(
-            By.CSS_SELECTOR, 'a[href*="withdraw"]'
-        )
-
-        # 3: Scroll to withdraw link, if required
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});",
-            withdraw_link
-        )
-        time.sleep(0.5)
-
-        # 4: Click withdraw link
-        withdraw_link.click()
+        # 1: Navigate directly to withdraw URL
+        self.driver.get(program.href_withdraw)
 
         assert program.href_withdraw in self.current_url.lower()
 
@@ -729,11 +715,16 @@ class ProgramCard:
 
 
 class ProgramTile:
-    def __init__(self, title, href_toc, href_next_activity, href_withdraw):
+    def __init__(self, title, href_toc, href_next_activity, href_withdraw=None, href_complete=None):
         self.title = title
         self.href_toc = href_toc
         self.href_next_activity = href_next_activity
         self.href_withdraw = href_withdraw
+        self.href_complete = href_complete
+
+    @property
+    def is_completable(self):
+        return self.href_complete is not None
 
 
 class ProgramTier:
