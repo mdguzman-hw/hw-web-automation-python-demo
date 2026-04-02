@@ -16,7 +16,6 @@ from suites.QuantumAPI import QuantumAPI
 from suites.SentioClient import SentioClient
 from suites.SentioProvider import SentioProvider
 
-
 # --- Report Collection ---
 
 _env_results = {}
@@ -30,12 +29,14 @@ def _pct(r):
 
 @pytest.fixture(scope="session")
 def record_version():
+    import re
     import requests
 
     def _record(label, base_url, env):
         try:
             r = requests.get(f"{base_url}/version.html", timeout=5)
-            version = r.text.strip()
+            match = re.search(r"v?\d+\.\d+\.\d+\.\d+", r.text)
+            version = match.group(0) if match else "N/A"
         except Exception:
             version = "N/A"
         env_key = env.upper()
@@ -101,8 +102,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     terminalreporter.write_sep("=", "TEST REPORT")
 
     if _versions:
-        terminalreporter.write_line(f"{'Versions':<35} {'PROD':<25} BETA")
-        terminalreporter.write_line(sep)
         prod_lines = prod_versions_str.splitlines()
         beta_lines = beta_versions_str.splitlines()
         for i in range(max(len(prod_lines), len(beta_lines))):
@@ -151,11 +150,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         writer.writerow(["Not Run (Skipped, N/A, etc.)", results["PROD"]["skipped"], results["BETA"]["skipped"], total_skipped])
         writer.writerow(["Completed", results["PROD"]["passed"], results["BETA"]["passed"], total_completed])
         writer.writerow(["Percentage Passed", _pct(results["PROD"]), _pct(results["BETA"]), total_pct])
-        writer.writerow(["Total Passed", "", "", total_passed])
-        writer.writerow(["Total Failed", "", "", total_failed])
-        writer.writerow(["Total Not Run", "", "", total_skipped])
-        writer.writerow(["Total Completed", "", "", total_completed])
-        writer.writerow(["Total Percentage Passed", "", "", total_pct])
 
     terminalreporter.write_line(f"\n  Report saved: {csv_path}")
 
