@@ -34,9 +34,10 @@ def record_version():
 
     def _record(label, base_url, env):
         try:
-            r = requests.get(f"{base_url}/version.html", timeout=5)
+            r = requests.get(f"{base_url}/version.html", timeout=5, verify=False)
             match = re.search(r"v?\d+\.\d+\.\d+\.\d+", r.text)
-            version = match.group(0) if match else "N/A"
+            raw = match.group(0) if match else "N/A"
+            version = raw if raw == "N/A" or raw.startswith("v") else f"v{raw}"
         except Exception:
             version = "N/A"
         env_key = env.upper()
@@ -115,7 +116,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     terminalreporter.write_line(f"{'Passed':<35} {results['PROD']['passed']:>7} {results['BETA']['passed']:>7}")
     terminalreporter.write_line(f"{'Failed':<35} {results['PROD']['failed']:>7} {results['BETA']['failed']:>7}")
     terminalreporter.write_line(f"{'Not Run (Skipped, N/A, etc.)':<35} {results['PROD']['skipped']:>7} {results['BETA']['skipped']:>7}")
-    terminalreporter.write_line(f"{'Completed':<35} {results['PROD']['passed']:>7} {results['BETA']['passed']:>7}")
+    terminalreporter.write_line(f"{'Completed':<35} {results['PROD']['passed'] + results['PROD']['failed']:>7} {results['BETA']['passed'] + results['BETA']['failed']:>7}")
     terminalreporter.write_line(f"{'Percentage Passed':<35} {_pct(results['PROD']):>7} {_pct(results['BETA']):>7}")
     terminalreporter.write_line(sep)
     terminalreporter.write_line(f"{'Total Passed':<35} {total_passed:>7}")
@@ -283,8 +284,8 @@ def sentio_client(driver, language, env, quantum, quantum_prod):
         return pytest.skip(f"Skipping {env} environment")
     else:
         # TODO: Switch back on MONDAY 03-30-2026
-        # return SentioClient(driver, language, env, quantum_prod)
-        return SentioClient(driver, language, env, quantum)
+        return SentioClient(driver, language, env, quantum_prod)
+        # return SentioClient(driver, language, env, quantum)
 
 
 @pytest.fixture(scope="session")
