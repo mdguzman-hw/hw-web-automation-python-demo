@@ -62,7 +62,7 @@ def test_smoke_homeweb_005(homeweb, credentials):
 
 # TEST: Pulsecheck Recommendation - Check In
 def test_smoke_homeweb_006(homeweb):
-    pytest.skip("Skipping for now")
+    pytest.skip("Skipping for now -> PulseCheck Check In")
     assert homeweb.is_authenticated()
     assert homeweb.wait_for_pulsecheck()
 
@@ -107,7 +107,7 @@ def test_smoke_homeweb_007(homeweb):
 
 # TEST: Launch Pathfinder - Same as 007 ???
 def test_smoke_homeweb_008(homeweb):
-    pytest.skip("Skipping for now")
+    pytest.skip("Skipping for now -> Duplicate test?")
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -132,24 +132,28 @@ def test_smoke_homeweb_009(homeweb):
 
 
 # TEST: 5 star rating pages
-def test_smoke_homeweb_010(homeweb):
+def test_smoke_homeweb_010(homeweb, env):
     assert homeweb.is_authenticated()
-    homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
+    assert homeweb.is_assessment_complete()
 
-    homeweb.navigate_recommendations()
-    assert homeweb.wait_for_recommendation()
+    if env == "beta":
+        pytest.skip(f"Skipping. No rating page in {env}")
+    else:
+        homeweb.get_started()
+        assert homeweb.wait_for_rating()
+        homeweb.complete_rating(5)
 
-    homeweb.navigate_rating()
-    assert homeweb.wait_for_rating()
-
-    homeweb.complete_rating("5")
     assert homeweb.wait_for_booking_create()
 
 
 # TEST: Intake questions
-def test_smoke_homeweb_011(homeweb, credentials):
+def test_smoke_homeweb_011(homeweb, credentials, env):
     assert homeweb.is_authenticated()
+    if env == "beta":
+        homeweb.get_started()
+        assert homeweb.wait_for_book_for()
+        homeweb.complete_book_for(0)
+
     assert homeweb.wait_for_booking_create()
     email = credentials["sentio"]["email"]
 

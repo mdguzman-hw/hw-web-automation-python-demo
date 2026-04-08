@@ -99,7 +99,7 @@ class Homeweb(BasePage):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "item-pathfinder-recommends-v2")))
         self.click_element(By.CSS_SELECTOR, "div.item-pathfinder-recommends-v2 a")
 
-    def navigate_rating(self):
+    def get_started(self):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-recommendations")))
         link_text = "Commencer Maintenant" if self.language == "fr" else "Get started"
         self.click_element(By.LINK_TEXT, link_text)
@@ -223,6 +223,7 @@ class Homeweb(BasePage):
 
     def wait_for_recommendation(self):
         recommendation_endpoint = "pathfinder/assessment/recommendation"
+
         self.wait.until(lambda d: recommendation_endpoint in d.current_url.lower())
 
         self.wait.until(
@@ -237,6 +238,18 @@ class Homeweb(BasePage):
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-five-star-rating"))
+        )
+
+        return True
+
+    def wait_for_book_for(self):
+        url = self.driver.current_url
+        book_for_endpoint = "book-for"
+
+        self.wait.until(lambda d: book_for_endpoint in d.current_url.lower())
+
+        self.wait.until(
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-confirm-booking"))
         )
 
         return True
@@ -604,7 +617,8 @@ class Homeweb(BasePage):
         return assessment_question, assessment_options
 
     def is_assessment_complete(self):
-        return "/assessment/recommendation" in self.driver.current_url
+        url = self.driver.current_url
+        return "pathfinder/assessment" in url and "recommendation" in url
 
     def get_recommendations(self):
         recommendation_tiles = self.driver.find_elements(By.CLASS_NAME, "item-pathfinder-recommends-v2")
@@ -626,6 +640,13 @@ class Homeweb(BasePage):
     def _icbt_text(self):
         return "La TCC en ligne Sentio" if self.language == "fr" else "Sentio iCBT"
 
+    def _has_resource_recommendation(self):
+        tiles = self.get_recommendations()
+        for tile in tiles:
+            if tile.find_elements(By.CSS_SELECTOR, "a[href*='/resources/']"):
+                return True
+        return False
+
     def assert_recommendation_scenario_1(self):
         """Scenario 1: Professional Support AND Sentio iCBT"""
         assert self._has_recommendation(self._support_text), f"Expected '{self._support_text}' tile"
@@ -639,6 +660,12 @@ class Homeweb(BasePage):
     def assert_recommendation_scenario_3(self):
         """Scenario 3: Professional Support only"""
         assert self._has_recommendation(self._support_text), f"Expected '{self._support_text}' tile"
+        assert not self._has_recommendation(self._icbt_text), f"Did not expect '{self._icbt_text}' tile"
+
+    def assert_recommendation_scenario_4(self):
+        """Scenario 4: Resource only"""
+        assert self._has_resource_recommendation(), "Expected a resource recommendation tile"
+        assert not self._has_recommendation(self._support_text), f"Did not expect '{self._support_text}' tile"
         assert not self._has_recommendation(self._icbt_text), f"Did not expect '{self._icbt_text}' tile"
 
     def wait_for_next_step(self, previous_question):
@@ -702,6 +729,17 @@ class Homeweb(BasePage):
         else:
             options = self.driver.find_elements(By.CSS_SELECTOR, f"#rating-form label")
             selected = random.choice(options)
+
+        self.wait.until(expected_conditions.element_to_be_clickable(selected))
+        selected.click()
+
+    def complete_book_for(self, book_for=None):
+        buttons = self.wait.until(
+            expected_conditions.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "div.item-content button.btn-answer")
+            )
+        )
+        selected = buttons[book_for] if book_for is not None else random.choice(buttons)
 
         self.wait.until(expected_conditions.element_to_be_clickable(selected))
         selected.click()

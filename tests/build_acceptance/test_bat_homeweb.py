@@ -90,8 +90,33 @@ def test_bat_web_005(homeweb):
     homeweb.go_back()
 
 
-# TEST: Homeweb Logout
+# TEST: Complete Pathfinder Assessment - Scenario 4
+# Employee at Homewood Health Inc (HHI Employee Program)
+# Resource ONLY
 def test_bat_web_006(homeweb):
+    assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # 4: Test - Retrieve Dashboard Tiles
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 5: Test - Navigate Assessment
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
+    assessment_endpoint = "pathfinder/assessment"
+    assert assessment_endpoint in homeweb.current_url
+    assert homeweb.wait_for_assessment()
+
+    # 6: Test - Complete Assessment
+    homeweb.complete_assessment()
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_4()
+
+
+# TEST: Homeweb Logout
+def test_bat_web_007(homeweb):
     assert homeweb.is_authenticated()
     header = homeweb.header
     header_buttons = header.elements["buttons"]
@@ -108,7 +133,7 @@ def test_bat_web_006(homeweb):
 
 
 # TEST: Homeweb Login - Different Account
-def test_bat_web_007(homeweb, credentials, env):
+def test_bat_web_008(homeweb, credentials, env):
     if env == "prod":
         email = credentials["dsg_demo"]["email"]
         password = credentials["dsg_demo"]["password"]
@@ -132,7 +157,7 @@ def test_bat_web_007(homeweb, credentials, env):
 
 
 # TEST: Kickouts
-def test_bat_web_008(homeweb, env):
+def test_bat_web_009(homeweb, env):
     if env == "beta":
         return pytest.skip(f"Skipping {env}. KNOWN ISSUE")
 
@@ -192,7 +217,7 @@ def test_bat_web_008(homeweb, env):
 
 
 # TEST: Course consent
-def test_bat_web_009(homeweb):
+def test_bat_web_010(homeweb):
     assert homeweb.is_authenticated()
     header = homeweb.header
     header_buttons = header.elements["buttons"]
@@ -223,9 +248,15 @@ def test_bat_web_009(homeweb):
 
 
 # TEST: DEMO - Cancel Active Services
-def test_bat_web_010(homeweb, quantum, credentials, env):
-    if env == "beta":
-        return pytest.skip(f"Skipping {env} test_bat_web_010")
+def test_bat_web_011(homeweb, quantum, credentials, env):
+    if env == "prod":
+        email = credentials["hhi_demo"]["email"]
+        password = credentials["hhi_demo"]["password"]
+    else:
+        email = credentials["personal"]["email"]
+        password = credentials["personal"]["password"]
+    # if env == "beta":
+    #     return pytest.skip(f"Skipping {env} - DEMO Prod account only")
 
     assert homeweb.is_landing()
     header_anon = homeweb.header
@@ -238,8 +269,7 @@ def test_bat_web_010(homeweb, quantum, credentials, env):
     assert paths["sign_in"] in quantum.current_url.lower()
 
     # 2: Test - Login - Homeweb - HHI Demo
-
-    quantum.login(credentials["hhi_demo"]["email"], credentials["hhi_demo"]["password"])
+    quantum.login(email, password)
     assert homeweb.wait_for_dashboard()
 
     # 3: Test - Check and cancel active appointments
@@ -267,9 +297,9 @@ def test_bat_web_010(homeweb, quantum, credentials, env):
 
 
 # TEST: Live Chat
-def test_bat_web_011(homeweb, quantum, credentials, env):
+def test_bat_web_012(homeweb, quantum, credentials, env):
     # Manual for now
-    pytest.skip(f"Skipping Live Chat {env} test_bat_web_011")
+    pytest.skip(f"Skipping Live Chat {env}. Manually testing")
 
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
@@ -290,9 +320,10 @@ def test_bat_web_011(homeweb, quantum, credentials, env):
 
 
 # TEST: Complete Pathfinder Assessment - Scenario 1
-# Mental Health > Anxiety > Low Severity > Low Risk
+# Mental Health > Anxiety > High Severity > Low Risk
 # Professional Support & Sentio iCBT
-def test_bat_web_012(homeweb, credentials):
+def test_bat_web_013(homeweb, credentials):
+    pytest.skip("Skipping Scenario 1. Manually testing flow")
     assert homeweb.is_landing()
     header_anon = homeweb.header
     header_anon_buttons = header_anon.elements["buttons"]
@@ -330,32 +361,12 @@ def test_bat_web_012(homeweb, credentials):
     assert homeweb.wait_for_assessment()
 
     # 6: Test - Complete Assessment
-    homeweb.complete_assessment()
+    # 16 total if high sev?
+    # flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    homeweb.complete_assessment(flow)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_1()
-
-
-# TEST: Create Pathfinder Booking
-def test_bat_web_013(homeweb, credentials):
-    assert homeweb.is_authenticated()
-    homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
-    email = credentials["sentio"]["email"]
-
-    homeweb.navigate_recommendations()
-    assert homeweb.wait_for_recommendation()
-
-    homeweb.navigate_rating()
-    assert homeweb.wait_for_rating()
-
-    homeweb.complete_rating()
-    assert homeweb.wait_for_booking_create()
-
-    homeweb.complete_booking_create_form()
-    assert homeweb.wait_for_service_confirm()
-
-    homeweb.complete_service_confirm_form(email)
-    assert homeweb.wait_for_booking_digest()
 
 
 # TEST: Complete Pathfinder Assessment - Scenario 2
@@ -364,6 +375,7 @@ def test_bat_web_013(homeweb, credentials):
 # Same flow as BAT-WEB-012, except for this scenario, need to have started a booking already
 # Appointment tile should be visible in Dashboard for the topic (Mental Health > Anxiety)
 def test_bat_web_014(homeweb, credentials):
+    pytest.skip("Skipping Scenario 2. Manually testing flow")
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -412,15 +424,79 @@ def test_bat_web_015(homeweb, credentials):
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
 
-# TODO TEST: Complete Pathfinder Assessment - Scenario 4
-# Resource ONLY
-def test_bat_web_016(homeweb, credentials):
-    pytest.skip("Skipping [WIP]")
 
-# TODO TEST: Complete Pathfinder Assessment - Scenario 5
-# Legal / Financial Flow?
+# TEST: Create Pathfinder Booking
+def test_bat_web_016(homeweb, credentials, env):
+    assert homeweb.is_authenticated()
+    email = credentials["sentio"]["email"]
+    assert homeweb.is_assessment_complete()
+    # homeweb.navigate_dashboard()
+    # assert homeweb.wait_for_dashboard()
+    # homeweb.navigate_recommendations()
+    # assert homeweb.wait_for_recommendation()
+
+    if env == "beta":
+        homeweb.get_started()
+        assert homeweb.wait_for_book_for()
+        homeweb.complete_book_for(0)
+    else:
+        homeweb.get_started()
+        assert homeweb.wait_for_rating()
+        homeweb.complete_rating(5)
+
+    assert homeweb.wait_for_booking_create()
+
+    homeweb.complete_booking_create_form()
+    assert homeweb.wait_for_service_confirm()
+
+    homeweb.complete_service_confirm_form(email)
+    assert homeweb.wait_for_booking_digest()
+
+
+# TEST: Complete Pathfinder Assessment - Scenario 5
+# Legal flow
+# Financial Flow
 def test_bat_web_017(homeweb, credentials):
-    pytest.skip("Skipping [WIP]")
+    assert homeweb.is_authenticated()
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # 4: Test - Retrieve Dashboard Tiles
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 5: Test - Navigate Assessment
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
+    assessment_endpoint = "pathfinder/assessment"
+    assert assessment_endpoint in homeweb.current_url
+    assert homeweb.wait_for_assessment()
+
+    # 6: Test - Complete Assessment - Legal > Real estate law
+    flow = [3, 3]
+    homeweb.complete_assessment(flow)
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_3()
+
+    homeweb.navigate_dashboard()
+    assert homeweb.wait_for_dashboard()
+
+    # 4: Test - Retrieve Dashboard Tiles
+    expected = 6 if homeweb.language == "fr" else 8
+    dashboard_tiles = homeweb.get_dashboard_tiles()
+    assert len(dashboard_tiles) == expected
+
+    # 5: Test - Navigate Assessment
+    homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
+    assessment_endpoint = "pathfinder/assessment"
+    assert assessment_endpoint in homeweb.current_url
+    assert homeweb.wait_for_assessment()
+
+    # 6: Test - Complete Assessment - Financial > Bankruptcy
+    flow = [4, 4]
+    homeweb.complete_assessment(flow)
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_3()
 
 
 # TEST: Complete Pathfinder Booking
