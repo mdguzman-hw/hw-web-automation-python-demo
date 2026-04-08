@@ -31,6 +31,7 @@ class Homeweb(BasePage):
             self.base_url = HOMEWEB_BETA_BASE_URL
             self.domain = HOMEWEB_BETA_DOMAIN
 
+        self.env = env
         self.quantum = quantum
         self.landing_url = self.base_url + "/" + language
         self.public = Public.EN if language == "en" else Public.FR
@@ -67,6 +68,7 @@ class Homeweb(BasePage):
         )
 
         return True
+
     def wait_for_resources(self):
         return self.wait.until(
             expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "nav.category-nav"))
@@ -135,8 +137,6 @@ class Homeweb(BasePage):
         self.set_landing(False)
 
         self.set_authenticated(True)
-
-        # self.
 
         return self.wait.until(
             lambda d: HOMEWEB_DOMAIN in d.current_url.lower() and expected_path in d.current_url.lower()
@@ -243,7 +243,6 @@ class Homeweb(BasePage):
         return True
 
     def wait_for_book_for(self):
-        url = self.driver.current_url
         book_for_endpoint = "book-for"
 
         self.wait.until(lambda d: book_for_endpoint in d.current_url.lower())
@@ -255,11 +254,13 @@ class Homeweb(BasePage):
         return True
 
     def wait_for_booking_create(self):
-        booking_create_endpoint = "homeweb/booking/create"
-        self.wait.until(lambda d: booking_create_endpoint in d.current_url.lower())
+        self.wait.until(lambda d: "homeweb/booking" in d.current_url.lower() and "/create" in d.current_url.lower())
 
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+
+        container = "container-confirm-booking" if self.env == "beta" else "container-case-creation"
         self.wait.until(
-            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-case-creation"))
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, container))
         )
 
         return True
@@ -284,15 +285,16 @@ class Homeweb(BasePage):
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "collection-provider-matches"))
         )
 
+        availability_container = "section-priority-results" if self.env == "beta" else "dp__instance_calendar"
         self.wait.until(
-            expected_conditions.visibility_of_element_located((By.CLASS_NAME, "dp__instance_calendar"))
+            expected_conditions.visibility_of_element_located((By.CLASS_NAME, availability_container))
         )
 
         return True
 
     def wait_for_booking_details(self):
-        booking_digest_endpoint = "homeweb/booking/detail"
-        self.wait.until(lambda d: booking_digest_endpoint in d.current_url.lower())
+        provider_detail_endpoint = "/provider-detail" if self.env == "beta" else "/detail"
+        self.wait.until(lambda d: "homeweb/booking" in d.current_url.lower() and provider_detail_endpoint in d.current_url.lower())
 
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
@@ -321,8 +323,8 @@ class Homeweb(BasePage):
         return True
 
     def wait_for_booking_confirm(self):
-        booking_confirm_endpoint = "/homeweb/booking/confirm"
-        self.wait.until(lambda d: booking_confirm_endpoint in d.current_url.lower())
+        booking_confirm_endpoint = "/confirm"
+        self.wait.until(lambda d: "homeweb/booking" in d.current_url.lower() and booking_confirm_endpoint in d.current_url.lower())
 
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
@@ -365,8 +367,8 @@ class Homeweb(BasePage):
         buttons = self.driver.find_elements(By.CSS_SELECTOR, ".btn-block a.btn")
         # TODO: Investigate duplicate modal-content
         # print(len(buttons))
-        print(buttons[0].text.strip()) # United States
-        print(buttons[1].text.strip()) # Canada
+        print(buttons[0].text.strip())  # United States
+        print(buttons[1].text.strip())  # Canada
         # print(buttons[2].text.strip()) # EMPTY??
         # print(buttons[3].text.strip()) # EMPTY??
         # for button in buttons:
@@ -848,7 +850,7 @@ class Homeweb(BasePage):
         )
 
         tiles = self.driver.find_elements(By.CSS_SELECTOR, ".section-suggestions .item-booking-option")
-        return [ProviderTile(tile) for tile in tiles]
+        return [ProviderTile(tile, self.env) for tile in tiles]
 
     # TODO: Select provider w/ time
     def select_provider_time(self):
@@ -864,7 +866,7 @@ class Homeweb(BasePage):
         selected_option = random.choice(booking_options)
         print(selected_option.provider_name)
         link = selected_option.provider_details_link
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", link)
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'start'});", link)
         time.sleep(0.5)
         self.wait.until(expected_conditions.element_to_be_clickable(link))
         link.click()
@@ -872,35 +874,73 @@ class Homeweb(BasePage):
     def select_booking_options(self):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-booking")))
 
-        # 2: Select a random available time
-        time_options = self.wait.until(
-            expected_conditions.presence_of_all_elements_located(
-                (By.CSS_SELECTOR, ".provider-times-container label.btn-time")
+        if self.env == "beta":
+            # 2: Cycle through date ranges until available times are found
+            date_range_select = Select(self.wait.until(
+                expected_conditions.presence_of_element_located((By.ID, "dateRange"))
+            ))
+            time_options = []
+            for option in date_range_select.options:
+                date_range_select.select_by_value(option.get_attribute("value"))
+                self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+                time_options = self.driver.find_elements(By.CSS_SELECTOR, ".provider-times-container label.btn-time")
+                if time_options:
+                    break
+
+            assert time_options, "No available times found across all date ranges"
+            selected_time = random.choice(time_options)
+            print(selected_time.text.strip())
+            selected_for = selected_time.get_attribute("for")
+            self.click_element(By.CSS_SELECTOR, f"label[for='{selected_for}']")
+
+            # 3: Wait for modality select to enable then select an option
+            self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "appointmentModality")))
+            modality_select = Select(self.driver.find_element(By.ID, "appointmentModality"))
+            modality_options = [o for o in modality_select.options if o.get_attribute("value") not in ("0", "")]
+            if modality_options:
+                selected_modality = random.choice(modality_options)
+                print(selected_modality.text.strip())
+                modality_select.select_by_visible_text(selected_modality.text.strip())
+
+            # 4: Click Review & confirm
+            self.click_element(By.CSS_SELECTOR, "button.btn-primary:not(.disabled)")
+
+        else:
+            # 2: Select a random available time
+            time_options = self.wait.until(
+                expected_conditions.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, ".provider-times-container label.btn-time")
+                )
             )
-        )
-        selected_time = random.choice(time_options)
-        print(selected_time.text.strip())
-        selected_time.click()
+            selected_time = random.choice(time_options)
+            print(selected_time.text.strip())
+            selected_time.click()
 
-        # 3: Wait for modality select to enable after time selection
-        self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "appointmentModality")))
-        modality_select = Select(self.driver.find_element(By.ID, "appointmentModality"))
-        modality_options = [o.text for o in modality_select.options if o.get_attribute("value") != "0"]
-        selected_modality = random.choice(modality_options)
-        print(selected_modality)
-        modality_select.select_by_visible_text(selected_modality)
+            # 3: Wait for modality select to enable after time selection
+            self.wait.until(expected_conditions.element_to_be_clickable((By.ID, "appointmentModality")))
+            modality_select = Select(self.driver.find_element(By.ID, "appointmentModality"))
+            modality_options = [o for o in modality_select.options if o.get_attribute("value") not in ("0", "")]
+            if modality_options:
+                selected_modality = random.choice(modality_options)
+                print(selected_modality.text.strip())
+                modality_select.select_by_visible_text(selected_modality.text.strip())
 
-        # 4: Click Review & confirm
-        self.click_element(By.CSS_SELECTOR, "button.btn-primary:not(.disabled)")
+            # 4: Click Review & confirm
+            self.click_element(By.CSS_SELECTOR, "button.btn-primary:not(.disabled)")
 
     def confirm_booking(self):
-        self.driver.find_elements(By.CLASS_NAME, "btn-booking")
+        if self.env == "beta":
+            self.click_element(By.ID, "acknowledge-services")
+            self.click_element(By.ID, "acknowledge-cancellation-policy")
+            self.click_element(By.CSS_SELECTOR, "button[form='form-acknowledgement']:not(.disabled)")
+        else:
+            self.driver.find_elements(By.CLASS_NAME, "btn-booking")
 
-        yes_button = self.wait.until(
-            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "div.container-buttons button"))
-        )
+            yes_button = self.wait.until(
+                expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "div.container-buttons button"))
+            )
 
-        yes_button.click()
+            yes_button.click()
 
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
         # print("PAGE LOADED")
@@ -978,7 +1018,8 @@ class DashboardTile:
 
 
 class ProviderTile:
-    def __init__(self, tile):
+    def __init__(self, tile, env):
+        self._env = env
         self._tile = tile
 
     @property
@@ -987,7 +1028,8 @@ class ProviderTile:
 
     @property
     def provider_details_link(self):
-        return self._tile.find_element(By.CSS_SELECTOR, "a.link-provider-details")
+        link = "a.provider-name" if self._env == "beta" else "a.link-provider-details"
+        return self._tile.find_element(By.CSS_SELECTOR, link)
 
     @property
     def available_times(self):

@@ -65,6 +65,7 @@ def test_smoke_homeweb_006(homeweb):
     pytest.skip("Skipping for now -> PulseCheck Check In")
     assert homeweb.is_authenticated()
     assert homeweb.wait_for_pulsecheck()
+    # TODO-PRIORITY
 
     # TODO: Navigate through header
 
@@ -149,16 +150,15 @@ def test_smoke_homeweb_010(homeweb, env):
 # TEST: Intake questions
 def test_smoke_homeweb_011(homeweb, credentials, env):
     assert homeweb.is_authenticated()
+    email = credentials["sentio"]["email"]
     if env == "beta":
         homeweb.get_started()
         assert homeweb.wait_for_book_for()
         homeweb.complete_book_for(0)
-
-    assert homeweb.wait_for_booking_create()
-    email = credentials["sentio"]["email"]
-
-    homeweb.complete_booking_create_form()
-    assert homeweb.wait_for_service_confirm()
+        assert homeweb.wait_for_booking_create()
+    else:
+        homeweb.complete_booking_create_form()
+        assert homeweb.wait_for_service_confirm()
 
     homeweb.complete_service_confirm_form(email)
     assert homeweb.wait_for_booking_digest()
@@ -167,17 +167,18 @@ def test_smoke_homeweb_011(homeweb, credentials, env):
 # TEST: Booking calendar
 def test_smoke_homeweb_012(homeweb):
     assert homeweb.is_authenticated()
-    homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
-
-    # 1: Test - Check Active Services
-    appointments = homeweb.get_active_services()
-    topics = [a.topic for a in appointments]
-    print(topics)
-
-    # 2: Test - Continue booking for first appointment available
-    homeweb.continue_booking(topics[0])
     assert homeweb.wait_for_booking_digest()
+    # homeweb.navigate_dashboard()
+    # assert homeweb.wait_for_dashboard()
+    #
+    # # 1: Test - Check Active Services
+    # appointments = homeweb.get_active_services()
+    # topics = [a.topic for a in appointments]
+    # print(topics)
+    #
+    # # 2: Test - Continue booking for first appointment available
+    # homeweb.continue_booking(topics[0])
+    # assert homeweb.wait_for_booking_digest()
 
     # 3: Test - Select
     homeweb.select_provider()

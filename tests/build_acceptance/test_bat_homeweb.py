@@ -439,15 +439,14 @@ def test_bat_web_016(homeweb, credentials, env):
         homeweb.get_started()
         assert homeweb.wait_for_book_for()
         homeweb.complete_book_for(0)
+        assert homeweb.wait_for_booking_create()
     else:
         homeweb.get_started()
         assert homeweb.wait_for_rating()
         homeweb.complete_rating(5)
-
-    assert homeweb.wait_for_booking_create()
-
-    homeweb.complete_booking_create_form()
-    assert homeweb.wait_for_service_confirm()
+        assert homeweb.wait_for_booking_create()
+        homeweb.complete_booking_create_form()
+        assert homeweb.wait_for_service_confirm()
 
     homeweb.complete_service_confirm_form(email)
     assert homeweb.wait_for_booking_digest()
