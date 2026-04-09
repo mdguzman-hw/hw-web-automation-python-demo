@@ -70,6 +70,7 @@ class Homeweb(BasePage):
         return True
 
     def wait_for_resources(self):
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
         return self.wait.until(
             expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "nav.category-nav"))
         )
@@ -138,11 +139,12 @@ class Homeweb(BasePage):
 
         self.set_authenticated(True)
 
-        return self.wait.until(
-            lambda d: HOMEWEB_DOMAIN in d.current_url.lower() and expected_path in d.current_url.lower()
-        )
+        self.wait.until(lambda d: HOMEWEB_DOMAIN in d.current_url.lower() and expected_path in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
+        return True
 
     def wait_for_resource_content(self):
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
         return self.wait.until(
             expected_conditions.visibility_of_element_located((By.CSS_SELECTOR, "#container-manager"))
         )
@@ -214,6 +216,7 @@ class Homeweb(BasePage):
     def wait_for_assessment(self):
         assessment_endpoint = "pathfinder/assessment"
         self.wait.until(lambda d: assessment_endpoint in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-assessment"))
@@ -225,6 +228,7 @@ class Homeweb(BasePage):
         recommendation_endpoint = "pathfinder/assessment/recommendation"
 
         self.wait.until(lambda d: recommendation_endpoint in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-recommendations"))
@@ -235,6 +239,7 @@ class Homeweb(BasePage):
     def wait_for_rating(self):
         recommendation_endpoint = "pathfinder/assessment/rating"
         self.wait.until(lambda d: recommendation_endpoint in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "section-five-star-rating"))
@@ -246,6 +251,7 @@ class Homeweb(BasePage):
         book_for_endpoint = "book-for"
 
         self.wait.until(lambda d: book_for_endpoint in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-confirm-booking"))
@@ -268,6 +274,7 @@ class Homeweb(BasePage):
     def wait_for_service_confirm(self):
         service_confirm_endpoint = "homeweb/services/confirm"
         self.wait.until(lambda d: service_confirm_endpoint in d.current_url.lower())
+        self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-confirm"))
@@ -671,6 +678,7 @@ class Homeweb(BasePage):
         assert not self._has_recommendation(self._icbt_text), f"Did not expect '{self._icbt_text}' tile"
 
     def wait_for_next_step(self, previous_question):
+        pre_url = self.current_url
         self.wait.until(expected_conditions.invisibility_of_element_located((By.CLASS_NAME, "loadingPage")))
 
         def condition(driver):
@@ -678,10 +686,13 @@ class Homeweb(BasePage):
             if self.is_assessment_complete():
                 return True
 
-            # case 2: new question
-            elements = self.driver.find_elements(By.CSS_SELECTOR, ".assessment-question-text h3")
+            # case 2: new question text appeared (same or different URL)
+            elements = driver.find_elements(By.CSS_SELECTOR, ".assessment-question-text h3")
             if elements:
-                return elements[0].text.strip() != previous_question
+                text = elements[0].text.strip()
+                return bool(text) and text != previous_question
+
+            # case 3: URL changed and no question present — still transitioning, keep waiting
             return False
 
         self.wait.until(condition)
@@ -831,6 +842,14 @@ class Homeweb(BasePage):
 
         self.click_element(By.CSS_SELECTOR, "button[type='submit']")
 
+        # PROD only: handle optional Meet Now speedbump
+        if self.env != "beta":
+            self.wait.until(lambda d:
+                            "homeweb/meetnow" in d.current_url.lower()
+                            )
+            if "homeweb/meetnow" in self.driver.current_url.lower():
+                self.click_element(By.CSS_SELECTOR, "a.btn-answer")
+
     def continue_booking(self, topic):
         continue_text = "Reprendre la prise du rendez-vous" if self.language == "fr" else "Continue to Booking"
 
@@ -860,6 +879,9 @@ class Homeweb(BasePage):
         # print(f"Selected provider: {selected_option.provider_name}")
         # selected_time = selected_option.select_random_time()
         # print(f"Selected time: {selected_time}")
+
+    # TODO: Select available provider!!
+    # TODO: Ensure to select available provider!! Non-schedulable should be a different case
 
     def select_provider(self):
         booking_options = self.get_booking_options()
