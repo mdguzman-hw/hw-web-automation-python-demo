@@ -419,7 +419,7 @@ def test_bat_web_015(homeweb, credentials):
     assert homeweb.wait_for_assessment()
 
     # 6: Test - Complete Assessment
-    flow = [2, 1, 2]
+    flow = [2, 1, 1]
     homeweb.complete_assessment(flow)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
@@ -452,6 +452,7 @@ def test_bat_web_016(homeweb, credentials, env):
     assert homeweb.wait_for_booking_digest()
 
 # TEST: Complete Pathfinder Booking
+# TODO: Ensure to select available provider!! Non-schedulable should be a different case
 def test_bat_web_017(homeweb, credentials):
     assert homeweb.is_authenticated()
     # homeweb.navigate_dashboard()
