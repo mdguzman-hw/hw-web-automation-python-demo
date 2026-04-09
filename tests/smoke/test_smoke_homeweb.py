@@ -247,6 +247,7 @@ def test_smoke_homeweb_017(homeweb, credentials, env):
     quantum = homeweb.quantum
 
     # 1: Test - Sign In - Header
+    # TODO: [FR] aria-label "Sign In" is hardcoded EN — will fail in FR session. Add FR variant to HeaderHomeweb.
     homeweb.click_element(By.CSS_SELECTOR, "[aria-label=\"Sign In\"]")
     homeweb.complete_enbridge_login_modal()
     assert quantum.domain in homeweb.current_url.lower()
