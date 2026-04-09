@@ -165,6 +165,7 @@ def test_smoke_homeweb_011(homeweb, credentials, env):
 
 
 # TEST: Booking calendar
+# TODO: Ensure to select available provider!! Non-schedulable should be a different case
 def test_smoke_homeweb_012(homeweb):
     assert homeweb.is_authenticated()
     assert homeweb.wait_for_booking_digest()
@@ -181,6 +182,7 @@ def test_smoke_homeweb_012(homeweb):
     # assert homeweb.wait_for_booking_digest()
 
     # 3: Test - Select
+    # TODO: Select available provider!!
     homeweb.select_provider()
     assert homeweb.wait_for_booking_details()
 

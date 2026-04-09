@@ -883,7 +883,6 @@ class Homeweb(BasePage):
 
     # TODO: Select available provider!!
     # TODO: Ensure to select available provider!! Non-schedulable should be a different case
-
     def select_provider(self):
         booking_options = self.get_booking_options()
         selected_option = random.choice(booking_options)

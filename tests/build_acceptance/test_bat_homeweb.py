@@ -466,6 +466,7 @@ def test_bat_web_017(homeweb, credentials):
     # homeweb.continue_booking(topics[0])
     assert homeweb.wait_for_booking_digest()
 
+    # TODO: Select available provider!!
     homeweb.select_provider()
     assert homeweb.wait_for_booking_details()
 
