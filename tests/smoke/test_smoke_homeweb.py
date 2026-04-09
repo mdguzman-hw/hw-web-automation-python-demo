@@ -73,7 +73,12 @@ def test_smoke_homeweb_006(homeweb):
         homeweb.navigate_wellness()
         assert homeweb.wait_for_wellness_history()
 
-        # 3: Navigate back to PulseCheck for next feeling (skip on last)
+        # 3: Test - Validate latest history entry matches submitted feeling
+        latest = homeweb.get_latest_pulsecheck_history()
+        assert latest == homeweb.PulseCheck.LABELS[feeling]
+        print(f"{homeweb.PulseCheck.LABELS[feeling]} VALIDATED")
+
+        # 4: Navigate back to PulseCheck for next feeling (skip on last)
         if i < len(feelings) - 1:
             homeweb.navigate_pulsecheck()
             assert homeweb.wait_for_pulsecheck()

@@ -370,14 +370,13 @@ class Homeweb(BasePage):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "container-homeweb-recent-check-ins")))
         return True
 
-    # feeling_steps: excellent=0, good=1, gettingBy=2, notGood=3, inCrisis=4
-    FEELING_STEPS = {
-        "excellent": 0,
-        "good": 1,
-        "gettingBy": 2,
-        "notGood": 3,
-        "inCrisis": 4,
-    }
+    def get_latest_pulsecheck_history(self):
+        item = self.wait.until(
+            expected_conditions.presence_of_element_located(
+                (By.CSS_SELECTOR, ".container-homeweb-recent-check-ins .item-mood-history.pulse")
+            )
+        )
+        return item.find_element(By.CSS_SELECTOR, "span.title").text.strip()
 
     def complete_pulsecheck(self, feeling):
         slider = self.wait.until(
@@ -385,7 +384,7 @@ class Homeweb(BasePage):
         )
         slider.click()
         slider.send_keys(Keys.HOME)
-        for _ in range(self.FEELING_STEPS[feeling]):
+        for _ in range(PulseCheck.STEPS[feeling]):
             slider.send_keys(Keys.ARROW_RIGHT)
         self.click_element(By.CSS_SELECTOR, "button.btn-continue:not(.disabled)")
         self.wait.until(lambda d: "wellness/pulsecheck" not in d.current_url.lower())
@@ -1023,6 +1022,24 @@ class Homeweb(BasePage):
         #     buttons[1].click()
 
 
+class PulseCheck:
+    STEPS = {
+        "excellent": 0,
+        "good": 1,
+        "gettingBy": 2,
+        "notGood": 3,
+        "inCrisis": 4,
+    }
+
+    LABELS = {
+        "excellent": "Excellent",
+        "good": "Good",
+        "gettingBy": "Getting by",
+        "notGood": "Not good",
+        "inCrisis": "In crisis",
+    }
+
+
 class AppointmentTile:
     def __init__(self, tile):
         self._tile = tile
@@ -1098,3 +1115,5 @@ class ProviderTile:
     def select_random_time(self):
         times = self.available_times
         random.choice(times).click()
+
+Homeweb.PulseCheck = PulseCheck
