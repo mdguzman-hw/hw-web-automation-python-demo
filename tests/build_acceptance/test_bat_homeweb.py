@@ -323,7 +323,6 @@ def test_bat_web_012(homeweb, quantum, credentials, env):
 # Mental Health > Anxiety > High Severity > Low Risk
 # Professional Support & Sentio iCBT
 def test_bat_web_013(homeweb, credentials):
-    pytest.skip("Skipping Scenario 1. Manually testing flow")
     assert homeweb.is_landing()
     header_anon = homeweb.header
     header_anon_buttons = header_anon.elements["buttons"]
@@ -348,6 +347,7 @@ def test_bat_web_013(homeweb, credentials):
         remaining = homeweb.get_active_services()
         assert not any(a.topic == topic for a in remaining)
 
+    pytest.skip("Skipping Scenario 1. Manually testing flow")
     # TODO: Investigate if this is expected
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8
@@ -451,11 +451,32 @@ def test_bat_web_016(homeweb, credentials, env):
     homeweb.complete_service_confirm_form(email)
     assert homeweb.wait_for_booking_digest()
 
+# TEST: Complete Pathfinder Booking
+def test_bat_web_017(homeweb, credentials):
+    assert homeweb.is_authenticated()
+    # homeweb.navigate_dashboard()
+    # assert homeweb.wait_for_dashboard()
+
+    # # 1: Test - Check Active Services
+    # appointments = homeweb.get_active_services()
+    # topics = [a.topic for a in appointments]
+    # print(topics)
+    #
+    # homeweb.continue_booking(topics[0])
+    assert homeweb.wait_for_booking_digest()
+
+    homeweb.select_provider()
+    assert homeweb.wait_for_booking_details()
+
+    homeweb.select_booking_options()
+    assert homeweb.wait_for_booking_confirm()
+
+    homeweb.confirm_booking()
 
 # TEST: Complete Pathfinder Assessment - Scenario 5
 # Legal flow
 # Financial Flow
-def test_bat_web_017(homeweb, credentials):
+def test_bat_web_018(homeweb, credentials):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -496,29 +517,6 @@ def test_bat_web_017(homeweb, credentials):
     homeweb.complete_assessment(flow)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
-
-
-# TEST: Complete Pathfinder Booking
-def test_bat_web_018(homeweb, credentials):
-    assert homeweb.is_authenticated()
-    homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
-
-    # 1: Test - Check Active Services
-    appointments = homeweb.get_active_services()
-    topics = [a.topic for a in appointments]
-    print(topics)
-
-    homeweb.continue_booking(topics[0])
-    assert homeweb.wait_for_booking_digest()
-
-    homeweb.select_provider()
-    assert homeweb.wait_for_booking_details()
-
-    homeweb.select_booking_options()
-    assert homeweb.wait_for_booking_confirm()
-
-    homeweb.confirm_booking()
 
 
 # TEST: Resource Library
