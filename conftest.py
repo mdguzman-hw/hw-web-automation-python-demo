@@ -20,11 +20,22 @@ from suites.SentioProvider import SentioProvider
 
 _env_results = {}
 _versions = {}  # {"PROD": {"Homeweb": "v3.0.17.261", ...}, "BETA": {...}}
+_pending_output = {}  # {nodeid: [messages...]}
+_all_results = []  # [(nodeid, phase, skip_reason, stdout), ...]
 
 
 def _pct(r):
     total = r["passed"] + r["failed"]
     return f"{int(r['passed'] / total * 100)}%" if total > 0 else "N/A"
+
+
+@pytest.fixture(scope="function")
+def record_output(request):
+    nodeid = request.node.nodeid
+    def _record(message):
+        _pending_output.setdefault(nodeid, []).append(message)
+        print(message)
+    return _record
 
 
 @pytest.fixture(scope="session")
@@ -51,13 +62,24 @@ def record_version():
 def pytest_runtest_logreport(report):
     if report.when == "setup" and report.skipped:
         phase = "skipped"
+        reason = report.longrepr[2] if isinstance(report.longrepr, tuple) else str(report.longrepr)
+        reason = reason.replace("Skipped: ", "")
+        _all_results.append((report.nodeid, "SKIPPED", reason, ""))
     elif report.when == "call":
         if report.passed:
             phase = "passed"
+            stdout = "\n".join(_pending_output.pop(report.nodeid, []))
+            _all_results.append((report.nodeid, "PASSED", "", stdout))
         elif report.failed:
             phase = "failed"
+            stdout = "\n".join(_pending_output.pop(report.nodeid, []))
+            longrepr = str(report.longrepr).strip() if report.longrepr else ""
+            _all_results.append((report.nodeid, "FAILED", longrepr, stdout))
         elif report.skipped:
             phase = "skipped"
+            reason = report.longrepr[2] if isinstance(report.longrepr, tuple) else str(report.longrepr)
+            reason = reason.replace("Skipped: ", "")
+            _all_results.append((report.nodeid, "SKIPPED", reason, ""))
         else:
             return
     else:
@@ -75,6 +97,7 @@ def pytest_runtest_logreport(report):
         _env_results[env] = {"passed": 0, "failed": 0, "skipped": 0}
 
     _env_results[env][phase] += 1
+
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -153,6 +176,28 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         writer.writerow(["Percentage Passed", _pct(results["PROD"]), _pct(results["BETA"]), total_pct])
 
     terminalreporter.write_line(f"\n  Report saved: {csv_path}")
+
+    if _all_results:
+        txt_path = f"reports/output_{timestamp}.txt"
+        with open(txt_path, "w") as f:
+            for nodeid, phase, detail, stdout in _all_results:
+                if phase == "SKIPPED":
+                    f.write(f"{nodeid} SKIPPED ({detail})\n")
+                elif stdout.strip():
+                    lines = stdout.strip().splitlines()
+                    f.write(f"{nodeid} {lines[0]}\n")
+                    for line in lines[1:]:
+                        f.write(f"{line}\n")
+                    f.write(f"{phase}\n")
+                    if phase == "FAILED" and detail:
+                        for line in detail.splitlines():
+                            f.write(f"  {line}\n")
+                else:
+                    f.write(f"{nodeid} {phase}\n")
+                    if phase == "FAILED" and detail:
+                        for line in detail.splitlines():
+                            f.write(f"  {line}\n")
+        terminalreporter.write_line(f"  Output saved: {os.path.abspath(txt_path)}")
 
 
 @pytest.fixture(scope="session")

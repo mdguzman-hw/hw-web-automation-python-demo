@@ -64,7 +64,7 @@ def test_smoke_homeweb_005(homeweb, credentials):
 
 
 # TEST: Pulsecheck Recommendation - Check In
-def test_smoke_homeweb_006(homeweb):
+def test_smoke_homeweb_006(homeweb, record_output):
     assert homeweb.is_authenticated()
     assert homeweb.wait_for_pulsecheck()
 
@@ -81,7 +81,7 @@ def test_smoke_homeweb_006(homeweb):
         # 3: Test - Validate latest history entry matches submitted feeling
         latest = homeweb.get_latest_pulsecheck_history()
         assert latest == homeweb.PulseCheck.LABELS[feeling]
-        print(f"{homeweb.PulseCheck.LABELS[feeling]} VALIDATED")
+        record_output(f"{homeweb.PulseCheck.LABELS[feeling]} VALIDATED")
 
         # 4: Navigate back to PulseCheck for next feeling (skip on last)
         if i < len(feelings) - 1:
@@ -135,11 +135,11 @@ def test_smoke_homeweb_008(homeweb):
 
 
 # TEST: Assessment Start
-def test_smoke_homeweb_009(homeweb):
+def test_smoke_homeweb_009(homeweb, record_output):
     assert homeweb.is_authenticated()
     assert homeweb.wait_for_assessment()
 
-    homeweb.complete_assessment()
+    homeweb.complete_assessment(logger=record_output)
     assert homeweb.is_assessment_complete()
 
 

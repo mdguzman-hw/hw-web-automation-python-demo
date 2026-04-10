@@ -93,7 +93,7 @@ def test_bat_web_005(homeweb):
 # TEST: Complete Pathfinder Assessment - Scenario 4
 # Employee at Homewood Health Inc (HHI Employee Program)
 # Resource ONLY
-def test_bat_web_006(homeweb):
+def test_bat_web_006(homeweb, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -110,7 +110,7 @@ def test_bat_web_006(homeweb):
     assert homeweb.wait_for_assessment()
 
     # 6: Test - Complete Assessment
-    homeweb.complete_assessment()
+    homeweb.complete_assessment(logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_4()
 
@@ -322,7 +322,7 @@ def test_bat_web_012(homeweb, quantum, credentials, env):
 # TEST: Complete Pathfinder Assessment - Scenario 1
 # Mental Health > Anxiety > High Severity > Low Risk
 # Professional Support & Sentio iCBT
-def test_bat_web_013(homeweb, credentials):
+def test_bat_web_013(homeweb, credentials, record_output):
     assert homeweb.is_landing()
     header_anon = homeweb.header
     header_anon_buttons = header_anon.elements["buttons"]
@@ -364,7 +364,7 @@ def test_bat_web_013(homeweb, credentials):
     # 16 total if high sev?
     # flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-    homeweb.complete_assessment(flow)
+    homeweb.complete_assessment(flow, logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_1()
 
@@ -374,7 +374,7 @@ def test_bat_web_013(homeweb, credentials):
 # Sentio iCBT ONLY
 # Same flow as BAT-WEB-012, except for this scenario, need to have started a booking already
 # Appointment tile should be visible in Dashboard for the topic (Mental Health > Anxiety)
-def test_bat_web_014(homeweb, credentials):
+def test_bat_web_014(homeweb, credentials, record_output):
     pytest.skip("Skipping Scenario 2. Manually testing flow")
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
@@ -394,7 +394,7 @@ def test_bat_web_014(homeweb, credentials):
     # 6: Test - Complete Assessment
     # flow = [0, 1, 0, 0, 1, 2, 2, 2, 2, 2, 0, 0, 0]
     # flow = [0, 0, 1, 1, 1, 1]
-    homeweb.complete_assessment()
+    homeweb.complete_assessment(logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_2()
 
@@ -402,7 +402,7 @@ def test_bat_web_014(homeweb, credentials):
 # TEST: Complete Pathfinder Assessment - Scenario 3
 # Work & career > Anger > Low Severity > Low Risk
 # Professional Support ONLY
-def test_bat_web_015(homeweb, credentials):
+def test_bat_web_015(homeweb, credentials, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -420,7 +420,7 @@ def test_bat_web_015(homeweb, credentials):
 
     # 6: Test - Complete Assessment
     flow = [2, 1, 1]
-    homeweb.complete_assessment(flow)
+    homeweb.complete_assessment(flow, logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
 
@@ -478,7 +478,7 @@ def test_bat_web_017(homeweb, credentials):
 # TEST: Complete Pathfinder Assessment - Scenario 5
 # Legal flow
 # Financial Flow
-def test_bat_web_018(homeweb, credentials):
+def test_bat_web_018(homeweb, credentials, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
     assert homeweb.wait_for_dashboard()
@@ -496,7 +496,7 @@ def test_bat_web_018(homeweb, credentials):
 
     # 6: Test - Complete Assessment - Legal > Real estate law
     flow = [3, 3]
-    homeweb.complete_assessment(flow)
+    homeweb.complete_assessment(flow, logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
 
@@ -516,7 +516,7 @@ def test_bat_web_018(homeweb, credentials):
 
     # 6: Test - Complete Assessment - Financial > Bankruptcy
     flow = [4, 4]
-    homeweb.complete_assessment(flow)
+    homeweb.complete_assessment(flow, logger=record_output)
     assert homeweb.is_assessment_complete()
     homeweb.assert_recommendation_scenario_3()
 
@@ -535,14 +535,14 @@ def test_bat_web_019(homeweb):
 
 
 # TEST: Primary Category
-def test_bat_web_020(homeweb):
+def test_bat_web_020(homeweb, record_output):
     assert homeweb.wait_for_resources()
 
     # 1: Test - Click first primary category
     categories = homeweb.get_resource_categories()
     first_category = categories[0]
     category_name = first_category.text.strip()
-    print(f"Category: {category_name}")
+    record_output(f"Category: {category_name}")
     first_category.click()
 
     # 2: Test - Category page loaded
@@ -551,7 +551,7 @@ def test_bat_web_020(homeweb):
 
 
 # TEST: Subcategory
-def test_bat_web_021(homeweb):
+def test_bat_web_021(homeweb, record_output):
     assert homeweb.wait_for_resources()
 
     # 1: Test - Get subcategories from active primary category
@@ -561,7 +561,7 @@ def test_bat_web_021(homeweb):
     # 2: Test - Click first subcategory
     first_subcategory = subcategories[0]
     subcategory_name = first_subcategory.text.strip()
-    print(f"Subcategory: {subcategory_name}")
+    record_output(f"Subcategory: {subcategory_name}")
     first_subcategory.click()
 
     # 3: Test - Subcategory page loaded
