@@ -11,8 +11,13 @@ from selenium.webdriver.common.by import By
 
 # LANDING PAGE - Homeweb Anonymouse
 # TEST: Homeweb Landing - Initial State
-def test_smoke_homeweb_003(homeweb):
-    # 1: Test - Navigate to Homeweb landing
+def test_smoke_homeweb_003(homeweb, env, record_version):
+    # 1: Record versions
+    suffix = " - Beta" if env == "beta" else ""
+    record_version(f"Homeweb{suffix}", homeweb.base_url, env)
+    record_version(f"Quantum API{suffix}", homeweb.quantum.base_url, env)
+
+    # 2: Test - Navigate to Homeweb landing
     homeweb.navigate_landing()
     assert homeweb.is_landing()
     assert homeweb.wait_for_landing()
