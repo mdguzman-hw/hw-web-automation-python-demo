@@ -344,13 +344,17 @@ class SentioClient(BasePage):
         assert self.program_status_endpoint
 
     def complete_program_survey(self):
-        # 1: Click Finish program button
+        # If survey form is already visible (e.g. navigated via href_complete), submit directly
+        survey_forms = self.driver.find_elements(By.CSS_SELECTOR, ".form-completed-survey")
+        if survey_forms and survey_forms[0].is_displayed():
+            self.click_element(By.CSS_SELECTOR, ".form-completed-survey button[type='submit']")
+            return
+
+        # Otherwise click the finish button to reveal the survey, then submit
         finish_btn = self.wait.until(expected_conditions.element_to_be_clickable(
             (By.CSS_SELECTOR, "button.btn-outline-muted")
         ))
         finish_btn.click()
-
-        # 2: Submit Form
         self.wait.until(expected_conditions.visibility_of_element_located(
             (By.CSS_SELECTOR, ".toggle-target")
         ))
