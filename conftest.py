@@ -293,6 +293,10 @@ load_dotenv()
 @pytest.fixture(scope="session")
 def credentials():
     return {
+        "hhi": {
+            "email": os.getenv("HHI_EMAIL"),
+            "password": os.getenv("HHI_PASSWORD")
+        },
         "hhi_personal": {
             "email": os.getenv("HHI_PERSONAL_EMAIL"),
             "password": os.getenv("HHI_PERSONAL_PASSWORD")
@@ -317,9 +321,13 @@ def credentials():
             "email": os.getenv("FRESH_1_EMAIL"),
             "password": os.getenv("FRESH_1_PASSWORD")
         },
-        "fresh_2": {
-            "email": os.getenv("FRESH_2_EMAIL"),
-            "password": os.getenv("FRESH_2_PASSWORD")
+        "dsgdemo_s2": {
+            "email": os.getenv("DSGDEMO_S2_EMAIL"),
+            "password": os.getenv("DSGDEMO_S2_PASSWORD")
+        },
+        "dsgdemo_s3": {
+            "email": os.getenv("DSGDEMO_S3_EMAIL"),
+            "password": os.getenv("DSGDEMO_S3_PASSWORD")
         }
     }
 
