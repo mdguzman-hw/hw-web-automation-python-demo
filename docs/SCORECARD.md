@@ -6,9 +6,9 @@
 
 | | |
 |---|---|
-| **Previous** | 7.8 / 10 |
-| **Current** | 8.1 / 10 |
-| **Last reviewed** | 2026-05-03 |
+| **Previous** | 8.1 / 10 |
+| **Current** | 8.4 / 10 |
+| **Last reviewed** | 2026-05-04 |
 
 ---
 
@@ -42,6 +42,16 @@
 | 24 | `continue_from_verify()` — dedicated method targeting "Continue" by text to avoid `btn-primary` collision with "Send code" on the verify identity page | Wrong button clicked | **Fixed** |
 | 25 | `QuantumAPI` registration methods — full suite: `wait_for_url_path`, `wait_for_org_search/results`, `search_org`, `select_org`, `wait_for_role_selection`, `select_role`, `continue_registration`, `fill_registration_details`, `fill_password_form`, `enter_email_verification_code` | Missing | **New** |
 | 26 | `openpyxl==3.1.5` added to `requirements.txt` | Missing | **New** |
+| 27 | `Homeweb.logout()` — encapsulates open-menu → sign-out → wait-for-logout → navigate-landing; `test_bat_web_013` reduced to 2 lines | Inline in every test | **Refactored** |
+| 28 | `BasePage.take_screenshot(name, logger=None)` — centralised screenshot saving with auto timestamp + date folder; `import os` and `_run_timestamp` removed from test files | Copy-pasted in each test | **Refactored** |
+| 29 | `Homeweb.navigate_sign_in()` — encapsulates ANON header click + URL assertion; raw `click_element` + `assert paths["sign_in"]` pairs removed from all callers | Repeated inline | **Refactored** |
+| 30 | `Homeweb.navigate_landing()` — domain assertion baked in; callers no longer repeat `assert homeweb.domain in current_url` | Repeated inline | **Refactored** |
+| 31 | `Homeweb.navigate_dashboard()` — `wait_for_dashboard()` baked in; all `navigate_dashboard()` + `assert wait_for_dashboard()` pairs removed across `test_bat_homeweb.py`, `test_bat_homeweb-new.py`, `test_smoke_homeweb.py`, and `Homeweb.navigate_pulsecheck` | Repeated inline across 3 files | **Refactored** |
+| 32 | `Homeweb.navigate_scn_assessment()` — encapsulates SCN tile click + `wait_for_assessment()` assertion | Inline in test | **Refactored** |
+| 33 | SCN scenario numbering corrected to match new portal (1: Resource ONLY, 2: Prof+Sentio, 3: Prof ONLY, 4: Sentio ONLY, 5: Legal, 6: Financial); all callers in both test files updated | Old 1–4 numbering inconsistent with new suite | **Fixed** |
+| 34 | `assert_recommendation_scenario_5/6` implemented — `_assert_recommendation_row()` validates 2-column row (Prof Support tile + resource list) with fallback to resource-only tile | `NotImplementedError` stubs | **Implemented** |
+| 35 | `scripts/test_scn.sh` — one-command runner for SCN suite (BAT-WEB-014–020) against beta | No dedicated runner | **New** |
+| 36 | `test_bat_homeweb-new.py` expanded from 4 to 21 active tests covering Registration, Login, Library, Kickouts, Course Consent, Logout, and all 6 SCN scenarios | 4 active tests | **Implemented** |
 
 ---
 

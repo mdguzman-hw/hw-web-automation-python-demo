@@ -169,9 +169,9 @@ Lightweight checks that confirm critical paths are functional.
 | SMOKE-023 | External redirects (authenticated) |
 | SMOKE-039 | Logout |
 
-### New Portal BAT (WIP — `test_bat_homeweb-new.py`)
+### New Portal BAT (`test_bat_homeweb-new.py`)
 
-A parallel BAT suite being built for the redesigned Homeweb portal (Beta). Currently 4 active tests (001–004) with the remaining tests commented out pending portal feature readiness.
+A parallel BAT suite for the redesigned Homeweb portal (Beta). 21 active tests covering the flows listed below.
 
 | Test ID | Description |
 |---------|-------------|
@@ -179,8 +179,38 @@ A parallel BAT suite being built for the redesigned Homeweb portal (Beta). Curre
 | BAT-WEB-002 | Verify landing page articles (dynamic + static) |
 | BAT-WEB-003 | Standard Registration — DSGDEMO (6 steps, timestamped account, writes to `registered-accounts.xlsx`) |
 | BAT-WEB-004 | Login with latest account from `registered-accounts.xlsx` |
+| BAT-WEB-005 | Navigate to a specific resource |
+| BAT-WEB-006 | Resource Library — initial state, log categories |
+| BAT-WEB-007 | Resource Library — primary category navigation |
+| BAT-WEB-008 | Resource Library — subcategory navigation |
+| BAT-WEB-009 | Resource search |
+| BAT-WEB-010 | Kickouts: Childcare, Eldercare, HRA |
+| BAT-WEB-011 | Sentio kickout via resource search |
+| BAT-WEB-012 | Course consent modal |
+| BAT-WEB-013 | Logout |
+| BAT-WEB-014 | Login — HHI account |
+| BAT-WEB-015 | SCN — Scenario 1: Resource ONLY |
+| BAT-WEB-016 | SCN — Scenario 2: Professional Support & Sentio |
+| BAT-WEB-017 | SCN — Scenario 3: Professional Support ONLY |
+| BAT-WEB-018 | SCN — Scenario 4: Sentio ONLY |
+| BAT-WEB-019 | SCN — Scenario 5: Legal Flow |
+| BAT-WEB-020 | SCN — Scenario 6: Financial Flow |
+| BAT-WEB-021 | Embedded mobile resources |
 
-Planned modules: Registration variants (MFA, Custom, Eligibility List), Smart Care Navigation, Journey, Discover, Library, Messages, Profile.
+**Module status:**
+
+| Module | Status | Notes |
+|--------|--------|-------|
+| Registration | [HOLD] | Standard/DSGDEMO done; MFA, Custom, Eligibility List, Additional Fields, Invite Code pending |
+| Login | [DONE] | DSGDEMO + HHI |
+| Dashboard | [NEXT] | S1 (onboarding TODO), S2, S3 |
+| Discover | [NEXT] | Mental Health, Wellness, Work-Life |
+| Journey | [NEXT] | Plans, Sessions, Appointments |
+| Smart Care Navigation | [DONE] | All 6 scenarios |
+| Booking | [NEXT] | — |
+| Profile | [NEXT] | — |
+| Library | [DONE] | Resource Library, Primary Category, Subcategory |
+| Messages | [DONE] | — |
 
 ---
 
