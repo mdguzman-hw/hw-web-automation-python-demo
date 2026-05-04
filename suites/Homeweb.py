@@ -65,6 +65,9 @@ class Homeweb(BasePage):
     def navigate_resources(self):
         self.click_element(By.CSS_SELECTOR, self.header.elements["buttons"]["resources"])
 
+    def navigate_library(self):
+        self.click_element(By.CSS_SELECTOR, self.header.elements["buttons"]["library"])
+
     def navigate_wellness(self):
         self.click_element(By.CSS_SELECTOR, self.header.elements["buttons"]["wellness"])
 
@@ -112,6 +115,20 @@ class Homeweb(BasePage):
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "resource-count"))
         )
         return True
+
+    def search_and_open_resource(self, search_term, endpoint=None):
+        self.search_resources(search_term)
+        self.wait_for_search_results()
+        result_titles = [
+            el.text.strip()
+            for el in self.driver.find_elements(By.CSS_SELECTOR, "a.item-resource-text .title")
+        ]
+        assert search_term in result_titles, \
+            f"EXPECTED: '{search_term}' in results | ACTUAL: {result_titles}"
+        if endpoint:
+            self.click_element(By.XPATH, f"//a[contains(@class,'item-resource-text') and contains(@href,'{endpoint}')]")
+        else:
+            self.click_element(By.XPATH, f"//a[contains(@class,'item-resource-text')][.//span[contains(@class,'title') and normalize-space()='{search_term}']]")
 
     def navigate_recommendations(self):
         self.wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "item-pathfinder-recommends-v2")))
@@ -173,6 +190,12 @@ class Homeweb(BasePage):
     def wait_for_lifestyle_transfer(self):
         return self.wait.until(lambda d: LIFESTYLE_DOMAIN in d.current_url.lower())
 
+    def handle_transfer_consent(self):
+        if "/consent" in self.driver.current_url.lower():
+            self.click_element(By.CSS_SELECTOR, "button[type='submit'].btn-primary")
+            return True
+        return False
+
     def wait_for_modal(self):
         return self.wait.until(
             expected_conditions.visibility_of_element_located((By.CLASS_NAME, "modal-content"))
@@ -227,6 +250,15 @@ class Homeweb(BasePage):
         return self.wait.until(
             lambda d: self.base_url + "/en" in d.current_url.lower()
         )
+
+    def logout(self):
+        header = self.header
+        header_buttons = header.elements["buttons"]
+        header.click_element(By.CLASS_NAME, header_buttons["menu"])
+        assert header.wait_for_account_menu(), "Menu not found"
+        header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
+        assert self.wait_for_logout()
+        self.navigate_landing()
 
     def wait_for_assessment(self):
         assessment_endpoint = "pathfinder/assessment"

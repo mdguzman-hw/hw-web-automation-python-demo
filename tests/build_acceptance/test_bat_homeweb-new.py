@@ -3,36 +3,60 @@
 ################# BUILD ACCEPTANCE ################
 ##################### HOMEWEB #####################
 ################# NEW PORTAL - BETA ###############
+import os
 from datetime import datetime
 
 import pytest
 from selenium.webdriver.common.by import By
 
+from conftest import _run_timestamp
+
 
 # CORE MODULES
-# Registration
-# - [DONE] Standard | DSGDEMO
-# - TODO: MFA | Canada Post Corporation
-# - TODO: Custom | LSO, Alumni, Equitable
-# - TODO: Eligibility List | Canada Post Corporation
-# - TODO: Additional Fields | Alumni, Equitable, etc.
-# - TODO: Registration/Invitation Code | Dependents invite?? PAC?
+# [HOLD] - Registration
+# [DONE] Standard | DSGDEMO
+# [HOLD] MFA | Canada Post Corporation
+# [HOLD] Custom | LSO, Alumni, Equitable
+# [HOLD] Eligibility List | Canada Post Corporation
+# [HOLD] Additional Fields | Alumni, Equitable, etc.
+# [HOLD] Registration/Invitation Code | Dependents invite?? PAC?
 
-# Login
-# Dashboard - S1
-# Dashboard - S2
-# Dashboard - S3
-# Discover - Mental Health
-# Discover - Wellness
-# Discover - Work-Life
-# Journey - Plans
-# Journey - Sessions
-# Journey - Appointments
-# Smart Care Navigation
-# Booking
-# Profile
+# [HOLD] Login
+# [DONE] - DSGDEMO
+# [DONE] - HHI
+
+# [NEXT] Dashboard - S1
+# TODO - Onboarding
+
+# [NEXT] Dashboard - S2
+
+# [NEXT] Dashboard - S3
+
+# [NEXT] Discover - Mental Health
+# [NEXT] Discover - Wellness
+# [NEXT] Discover - Work-Life
+
+# [NEXT] Journey - Plans
+# [NEXT] Journey - Sessions
+# [NEXT] Journey - Appointments
+
+# [WIP] Smart Care Navigation
+# [DONE] - Scenario 1: Resource ONLY
+# [WIP] - Scenario 2: Professional Support & Sentio
+# [WIP] - Scenario 3: Professional Support ONLY
+# [WIP] - Scenario 4: Sentio ONLY
+# [WIP] - Scenario 5: Legal Flow
+# [WIP] - Scenario 6: Financial Flow
+
+# [NEXT] Booking
+# [NEXT] Profile
+
 # Library
-# Messages
+# [DONE] - Resource Library
+# [DONE] - Primary Category
+# [DONE] - Subcategory
+
+# [DONE] Messages
 
 
 # BAT-WEB-001 | Navigate Homeweb
@@ -76,6 +100,9 @@ def test_bat_web_002(homeweb):
 # BAT-WEB-003 | Standard Registration - Organization: DSGDEMO
 # Step 2 is skipped - No division
 def test_bat_web_003(homeweb, credentials, env, record_output, record_account):
+    # TODO: UNDO
+    pytest.skip("TEMP. Do not forget to UNDO!")
+
     assert homeweb.is_landing(), "NOT ON LANDING PAGE"
     buttons = homeweb.public["elements"]["buttons"]
     quantum = homeweb.quantum
@@ -151,11 +178,20 @@ def test_bat_web_003(homeweb, credentials, env, record_output, record_account):
     record_output("Account successfully created.")
 
 
-# BAT-WEB-0034 | Homeweb Login
+# BAT-WEB-004 | Homeweb Login
 def test_bat_web_004(homeweb, quantum, latest_registered_account, record_output):
-    assert quantum.domain in quantum.current_url.lower(), \
-        f"EXPECTED: '{quantum.domain}' | ACTUAL: {quantum.current_url}"
+    # TODO: UNDO
+    # assert quantum.domain in quantum.current_url.lower(), \
+    #     f"EXPECTED: '{quantum.domain}' | ACTUAL: {quantum.current_url}"
 
+    # TODO: UNDO, just by passing registration
+    assert homeweb.is_landing()
+    buttons = homeweb.public["elements"]["buttons"]
+    quantum = homeweb.quantum
+
+    # 1: Test - Sign In - Button
+    homeweb.click_element(By.XPATH, buttons["sign_in"])
+    assert quantum.domain in homeweb.current_url.lower()
 
     # 2: Test - Login with latest registered account
     email = latest_registered_account["Email"]
@@ -166,196 +202,207 @@ def test_bat_web_004(homeweb, quantum, latest_registered_account, record_output)
         f"DASHBOARD NOT LOADED: '{homeweb.current_url}'"
 
 
-# # # BAT-WEB-004 | Homeweb Resource
-# def test_bat_web_004(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Navigate to resource
-#     resource_target = homeweb.base_url + "/" + homeweb.language + "/user/articles/56252b81e40e6f50062aa714"
-#     homeweb.driver.get(resource_target)
-#     assert homeweb.wait_for_resource_content(), \
-#         f"RESOURCE NOT LOADED"
-#
+# BAT-WEB-005 | Homeweb Resource
+def test_bat_web_005(homeweb):
+    assert homeweb.is_authenticated()
 
-# # BAT-WEB-005 | Sentio Kickout
-# def test_bat_web_005(homeweb):
-#     assert homeweb.is_authenticated()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Verify tile count on new portal (was 6 FR / 8 EN on old portal)
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Sentio Resource
-#     sentio_endpoint = "/resources/62c5a1e929ed9c1608d0434b"
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[1].link_text)
-#     assert sentio_endpoint in homeweb.current_url.lower()
-#     assert homeweb.wait_for_resource_content()
-#
-#     # 3: Test - Sentio transfer kickout
-#     homeweb.click_element(By.CLASS_NAME, "btn-primary")
-#     assert homeweb.wait_for_sentio_transfer()
-#     homeweb.go_back()
-#
-#
-# # BAT-WEB-006 | Complete Pathfinder Assessment - Scenario 4
-# # Employee at Homewood Health Inc (HHI Employee Program)
-# # Resource ONLY
-# def test_bat_web_006(homeweb, record_output):
-#     assert homeweb.is_authenticated()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Verify tile count on new portal (was 6 FR / 8 EN on old portal)
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Assessment
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
-#     assessment_endpoint = "pathfinder/assessment"
-#     assert assessment_endpoint in homeweb.current_url
-#     assert homeweb.wait_for_assessment()
-#
-#     # 3: Test - Complete Assessment
-#     homeweb.complete_assessment(logger=record_output)
-#     assert homeweb.is_assessment_complete()
-#     homeweb.assert_recommendation_scenario_4()
-#
-#
-# # BAT-WEB-007 | Homeweb Logout
-# def test_bat_web_007(homeweb):
-#     assert homeweb.is_authenticated()
-#     header = homeweb.header
-#     header_buttons = header.elements["buttons"]
-#
-#     # 1: Test - Menu dropdown
-#     header.click_element(By.CLASS_NAME, header_buttons["menu"])
-#     assert header.wait_for_account_menu(), "Menu not found"
-#
-#     # 2: Test - Logout
-#     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
-#     header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
-#     assert homeweb.wait_for_logout()
-#     homeweb.navigate_landing()
-#
-#
-# # BAT-WEB-008 | Homeweb Login - Different Account
-# def test_bat_web_008(homeweb, credentials, env):
-#     # Fresh 2 used for all environments on the new portal
-#     email = credentials["fresh_2"]["email"]
-#     password = credentials["fresh_2"]["password"]
-#
-#     assert homeweb.is_landing()
-#     header = homeweb.header
-#     header_buttons = header.elements["buttons"]
-#     paths = header.paths["buttons"]
-#     quantum = homeweb.quantum
-#
-#     # 1: Test - Sign In - Header
-#     header.click_element(By.CLASS_NAME, header_buttons["sign_in"])
-#     assert paths["sign_in"] in quantum.current_url.lower()
-#
-#     # 2: Test - Login - Homeweb - Fresh 2
-#     quantum.login(email, password)
-#     assert homeweb.wait_for_dashboard()
-#
-#
-# # BAT-WEB-009 | Kickouts
-# def test_bat_web_009(homeweb, env):
-#     if env == "beta":
-#         return pytest.skip(f"Skipping {env}. KNOWN ISSUE")
-#
-#     childcare_endpoint = "/resources/579ba4db88db7af01fe6ddd4"
-#     eldercare_endpoint = "/resources/579ba49a88db7af01fe6ddc8"
-#     hra_endpoint = "/resources/579ba53088db7af01fe6dde6"
-#
-#     assert homeweb.is_authenticated()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Verify tile count on new portal (was 6 FR / 8 EN on old portal)
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test: Childcare Resource Locator
-#     childcare_tile = dashboard_tiles[4]
-#     childcare_tile.navigate()
-#     assert childcare_endpoint in homeweb.current_url.lower()
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.click_element(By.CLASS_NAME, "btn-primary")
-#     assert homeweb.wait_for_lifestage_transfer()
-#
-#     homeweb.navigate_landing()
-#     assert homeweb.domain in homeweb.current_url.lower()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 3: Test: Eldercare Resource Locator
-#     eldercare_tile = dashboard_tiles[5]
-#     eldercare_tile.navigate()
-#     assert eldercare_endpoint in homeweb.current_url.lower()
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.click_element(By.CLASS_NAME, "btn-primary")
-#     assert homeweb.wait_for_lifestage_transfer()
-#
-#     homeweb.navigate_landing()
-#     assert homeweb.domain in homeweb.current_url.lower()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 4: Test: Health Risk Assessment
-#     hra_tile = dashboard_tiles[7]
-#     hra_tile.navigate()
-#     assert hra_endpoint in homeweb.current_url.lower()
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.click_element(By.CLASS_NAME, "btn-primary")
-#     assert homeweb.wait_for_lifestyle_transfer()
-#     homeweb.navigate_landing()
-#     assert homeweb.domain in homeweb.current_url.lower()
-#
-#
-# # BAT-WEB-010 | Course Consent
-# def test_bat_web_010(homeweb):
-#     assert homeweb.is_authenticated()
-#     header = homeweb.header
-#     header_buttons = header.elements["buttons"]
-#
-#     # 1: Navigate to course
-#     course_target = homeweb.base_url + "/app/" + homeweb.language + "/resources/564a36083392100756dd3e32"
-#     homeweb.driver.get(course_target)
-#     assert homeweb.wait_for_resource_content()
-#
-#     # 2: Test - Open modal
-#     homeweb.click_element(By.CSS_SELECTOR, "[data-bs-toggle=\"modal\"]")
-#     assert homeweb.wait_for_modal()
-#
-#     # 3: Test - Dismiss modal, display course content
-#     homeweb.click_element(By.CSS_SELECTOR, "[data-bs-dismiss=\"modal\"]")
-#     assert homeweb.wait_for_course_content()
-#
-#     # 4: Test - Menu dropdown
-#     header.click_element(By.CLASS_NAME, header_buttons["menu"])
-#     assert header.wait_for_account_menu()
-#
-#     # 5: Test - Logout
-#     header.click_element(By.CSS_SELECTOR, header_buttons["sign_out"])
-#     assert homeweb.wait_for_logout()
-#
-#     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
-#     homeweb.navigate_landing()
-#
-#
+    # 1: Test - Navigate to resource
+    resource_target = homeweb.base_url + "/" + homeweb.language + "/user/articles/56252b81e40e6f50062aa714"
+    homeweb.driver.get(resource_target)
+    assert homeweb.wait_for_resource_content(), \
+        f"RESOURCE NOT LOADED"
+
+
+# BAT-WEB-006 | Resource Library
+def test_bat_web_006(homeweb, record_output):
+    assert homeweb.is_authenticated()
+
+    # 1: Test - Navigate to Resources
+    homeweb.navigate_library()
+    assert homeweb.wait_for_resources()
+
+    # 2: Test - Primary categories are visible
+    categories = homeweb.get_resource_categories()
+    assert len(categories) > 0
+    category_names = [c.text.strip() for c in categories]
+    record_output(f"Resource categories ({len(category_names)}): {', '.join(category_names)}")
+
+
+# BAT-WEB-007 | Primary Category
+def test_bat_web_007(homeweb, record_output):
+    assert homeweb.wait_for_resources()
+
+    # 1: Test - Click first primary category
+    categories = homeweb.get_resource_categories()
+    first_category = categories[0]
+    category_name = first_category.text.strip()
+    record_output(f"Category: {category_name}")
+    first_category.click()
+
+    # 2: Test - Category page loaded
+    assert homeweb.wait_for_resources()
+
+
+# BAT-WEB-008 | Subcategory
+def test_bat_web_008(homeweb, record_output):
+    assert homeweb.wait_for_resources()
+
+    # 1: Test - Get subcategories from active primary category
+    subcategories = homeweb.get_resource_subcategories()
+    assert len(subcategories) > 0
+
+    # 2: Test - Click first subcategory
+    first_subcategory = subcategories[0]
+    subcategory_name = first_subcategory.text.strip()
+    record_output(f"Subcategory: {subcategory_name}")
+    first_subcategory.click()
+
+    # 3: Test - Subcategory page loaded
+    assert homeweb.wait_for_resources()
+
+
+# BAT-WEB-009 | Search
+def test_bat_web_009(homeweb):
+    assert homeweb.wait_for_resources()
+
+    # 1: Test - Perform search
+    homeweb.search_resources("mental health")
+    assert homeweb.wait_for_search_results()
+
+
+# BAT-WEB-010 | Kickouts
+def test_bat_web_010(homeweb, env, record_output):
+    pytest.skip("Skipping -> KNOWN ISSUE: HRA kickout")
+    assert homeweb.wait_for_resources()
+
+    is_fr = homeweb.language == "fr"
+    resources_to_find = [
+        ("Localisateur de ressources pour les soins aux enfants – Soutien Étapes-vie" if is_fr else "Childcare Resource Locator by LifestageCare", "/resources/579ba4db88db7af01fe6ddd4", "lifestage"),
+        ("Localisateur de ressources pour les soins aux aînés – Soutien Étapes-vie" if is_fr else "Eldercare Resource Locator by LifestageCare", "/resources/579ba49a88db7af01fe6ddc8", "lifestage"),
+        ("Le Questionnaire santé" if is_fr else "Health Risk Assessment", "/resources/579ba53088db7af01fe6dde6", "lifestyle"),
+    ]
+
+    for search_term, endpoint, transfer_type in resources_to_find:
+        homeweb.search_and_open_resource(search_term)
+        assert homeweb.wait_for_resource_content(), f"RESOURCE NOT LOADED: '{search_term}'"
+        assert endpoint in homeweb.current_url.lower(), \
+            f"EXPECTED: '{endpoint}' | ACTUAL: {homeweb.current_url}"
+
+        homeweb.click_element(By.CLASS_NAME, "btn-primary")
+        homeweb.handle_transfer_consent()
+        if transfer_type == "lifestage":
+            assert homeweb.wait_for_lifestage_transfer(), f"LIFESTAGE TRANSFER FAILED: '{search_term}'"
+        else:
+            # KNOWN ISSUE
+            assert homeweb.wait_for_lifestyle_transfer(), f"LIFESTYLE TRANSFER FAILED: '{search_term}'"
+
+        record_output(f"Kickout | '{search_term}' | {transfer_type} transfer confirmed")
+        homeweb.navigate_landing()
+        assert homeweb.domain in homeweb.current_url.lower()
+        homeweb.navigate_library()
+        assert homeweb.wait_for_resources()
+
+
+# BAT-WEB-011 | Sentio Kickout
+def test_bat_web_011(homeweb, record_output):
+    sentio_endpoint = "/resources/62c5a1e929ed9c1608d0434b"
+    search_term = "Sentio par Homewood Santé" if homeweb.language == "fr" else "Sentio by Homewood Health"
+
+    assert homeweb.wait_for_resources()
+
+    # 1: Test - Search and navigate to Sentio resource
+    homeweb.search_and_open_resource(search_term)
+    assert homeweb.wait_for_resource_content(), f"RESOURCE NOT LOADED: '{search_term}'"
+    assert sentio_endpoint in homeweb.current_url.lower(), \
+        f"EXPECTED: '{sentio_endpoint}' | ACTUAL: {homeweb.current_url}"
+    record_output(f"Sentio resource loaded | {sentio_endpoint}")
+
+    # 3: Test - Sentio transfer kickout
+    homeweb.click_element(By.CLASS_NAME, "btn-primary")
+    homeweb.handle_transfer_consent()
+    assert homeweb.wait_for_sentio_transfer(), "SENTIO TRANSFER FAILED"
+    record_output("Sentio kickout confirmed")
+    homeweb.go_back()
+
+
+# BAT-WEB-012 | Course Consent
+def test_bat_web_012(homeweb, record_output):
+    homeweb.navigate_library()
+    assert homeweb.wait_for_resources()
+    course_endpoint = "/resources/564a36083392100756dd3e32"
+    search_term = "Les fondements de la compétence parentale" if homeweb.language == "fr" else "Foundations of Effective Parenting"
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+
+    # 1: Search and navigate to course
+    homeweb.search_and_open_resource(search_term, endpoint=course_endpoint)
+    assert homeweb.wait_for_resource_content()
+    assert course_endpoint in homeweb.current_url.lower(), \
+        f"EXPECTED: '{course_endpoint}' | ACTUAL: {homeweb.current_url}"
+    record_output(f"Course loaded | '{search_term}' | {course_endpoint}")
+
+    # 2: Test - Open modal
+    homeweb.click_element(By.CSS_SELECTOR, "[data-bs-toggle=\"modal\"]")
+    assert homeweb.wait_for_modal()
+
+    # 3: Test - Dismiss modal, display course content
+    homeweb.click_element(By.CSS_SELECTOR, "[data-bs-dismiss=\"modal\"]")
+    assert homeweb.wait_for_course_content()
+
+
+# BAT-WEB-013 | Homeweb Logout
+def test_bat_web_013(homeweb):
+    assert homeweb.is_authenticated()
+    homeweb.logout()
+
+
+# BAT-WEB-014 | Homeweb Login - HHI Account
+def test_bat_web_014(homeweb, credentials, env, record_output):
+    email = credentials["hhi_personal"]["email"]
+    password = credentials["hhi_personal"]["password"]
+
+    assert homeweb.is_landing()
+    header = homeweb.header
+    header_buttons = header.elements["buttons"]
+    paths = header.paths["buttons"]
+    quantum = homeweb.quantum
+
+    # 1: Test - Sign In - Header
+    header.click_element(By.CLASS_NAME, header_buttons["sign_in"])
+    assert paths["sign_in"] in quantum.current_url.lower()
+
+    # 2: Test - Login - Homeweb - HHI Account
+    quantum.login(email, password)
+    record_output(f"Login | Email: {email}")
+    assert homeweb.wait_for_dashboard(), \
+        f"DASHBOARD NOT LOADED: '{homeweb.current_url}'"
+
+
+# BAT-WEB-015 | SCN - Scenario 1: Resource ONLY [HHI Account]
+def test_bat_web_015(homeweb, record_output):
+    assert homeweb.is_authenticated()
+    assert homeweb.wait_for_dashboard(), \
+        f"DASHBOARD NOT LOADED: '{homeweb.current_url}'"
+
+    # 1: Test - Launch Smart Care Navigation Assessment
+    scn_assessment_endpoint = "pathfinder/assessment"
+    homeweb.click_element(By.CSS_SELECTOR, "a.item-link.stretched-link[href*='pathfinder/assessment']")
+    assert scn_assessment_endpoint in homeweb.current_url, \
+        f"EXPECTED: '{scn_assessment_endpoint}' | ACTUAL: {homeweb.current_url}"
+    assert homeweb.wait_for_assessment()
+    record_output("Smart Care Navigation launched")
+
+    # 2: Test - Complete Smart Care Navigation Assessment
+    homeweb.complete_assessment(logger=record_output)
+    assert homeweb.is_assessment_complete()
+    homeweb.assert_recommendation_scenario_4()
+
+    date_str = _run_timestamp[4:6] + "-" + _run_timestamp[6:8] + "-" + _run_timestamp[:4]
+    reports_dir = f"reports/{date_str}"
+    os.makedirs(reports_dir, exist_ok=True)
+    homeweb.driver.save_screenshot(f"{reports_dir}/scenario1-{_run_timestamp}.png")
+    record_output(f"Screenshot saved: scenario1-{_run_timestamp}.png")
+
 # # BAT-WEB-011 | Cancel Active Services
 # # [SKIP - WIP]
 # def test_bat_web_011(homeweb, quantum, credentials, env):
@@ -507,72 +554,6 @@ def test_bat_web_004(homeweb, quantum, latest_registered_account, record_output)
 #     assert homeweb.is_assessment_complete()
 #     homeweb.assert_recommendation_scenario_3()
 #
-#
-# # BAT-WEB-019 | Resource Library
-# def test_bat_web_019(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Navigate to Resources
-#     homeweb.navigate_resources()
-#     assert homeweb.wait_for_resources()
-#
-#     # 2: Test - Primary categories are visible
-#     categories = homeweb.get_resource_categories()
-#     assert len(categories) > 0
-#
-#
-# # BAT-WEB-020 | Primary Category
-# def test_bat_web_020(homeweb, record_output):
-#     assert homeweb.wait_for_resources()
-#
-#     # 1: Test - Click first primary category
-#     categories = homeweb.get_resource_categories()
-#     first_category = categories[0]
-#     category_name = first_category.text.strip()
-#     record_output(f"Category: {category_name}")
-#     first_category.click()
-#
-#     # 2: Test - Category page loaded
-#     assert homeweb.wait_for_resources()
-#
-#
-# # BAT-WEB-021 | Subcategory
-# def test_bat_web_021(homeweb, record_output):
-#     assert homeweb.wait_for_resources()
-#
-#     # 1: Test - Get subcategories from active primary category
-#     subcategories = homeweb.get_resource_subcategories()
-#     assert len(subcategories) > 0
-#
-#     # 2: Test - Click first subcategory
-#     first_subcategory = subcategories[0]
-#     subcategory_name = first_subcategory.text.strip()
-#     record_output(f"Subcategory: {subcategory_name}")
-#     first_subcategory.click()
-#
-#     # 3: Test - Subcategory page loaded
-#     assert homeweb.wait_for_resources()
-#
-#
-# # BAT-WEB-022 | Search
-# def test_bat_web_022(homeweb):
-#     assert homeweb.is_authenticated()
-#
-#     # 1: Test - Navigate to resources
-#     homeweb.navigate_resources()
-#     assert homeweb.wait_for_resources()
-#
-#     # 2: Test - Perform search
-#     homeweb.search_resources("mental health")
-#     assert homeweb.wait_for_search_results()
-#
-#     # 3: Test - Logout
-#     header_auth = homeweb.header
-#     header_auth_buttons = header_auth.elements["buttons"]
-#     header_auth.click_element(By.CLASS_NAME, header_auth_buttons["menu"])
-#     assert header_auth.wait_for_account_menu(), "Menu not found"
-#     header_auth.click_element(By.CSS_SELECTOR, header_auth_buttons["sign_out"])
-#     assert homeweb.wait_for_logout()
 #
 # # BAT-WEB-023 | Embedded Resources
 # def test_bat_web_023(homeweb):

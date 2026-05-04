@@ -50,6 +50,8 @@ class HeaderHomeweb:
                 "menu": "nav-account-toggle",
                 "sign_out": "[aria-label=\"Sign out\"]",
                 "dashboard": "[aria-label=\"Dashboard\"]",
+                "library": "[aria-label=\"Library\"]",
+                "messages": "[aria-label=\"Messages\"]",
                 "resources": "[aria-label=\"Resources\"]",
                 "wellness": "[aria-label=\"Wellness\"]"
             }
@@ -64,6 +66,8 @@ class HeaderHomeweb:
                 "menu": "nav-account-toggle",
                 "sign_out": "[aria-label=\"Se déconnecter\"]",
                 "dashboard": "[aria-label=\"Tableau de bord\"]",
+                "library": "[aria-label=\"Bibliothèque\"]",
+                "messages": "[aria-label=\"Messages\"]",
                 "resources": "[aria-label=\"Ressources\"]",
                 "wellness": "[aria-label=\"Bien-être\"]"
             }
