@@ -37,13 +37,13 @@ from selenium.webdriver.common.by import By
 # [NEXT] Journey - Sessions
 # [NEXT] Journey - Appointments
 
-# [WIP] Smart Care Navigation
+# [DONE] Smart Care Navigation
 # [DONE] - Scenario 1: Resource ONLY
 # [DONE] - Scenario 2: Professional Support & Sentio
 # [DONE] - Scenario 3: Professional Support ONLY
-# [WIP] - Scenario 4: Sentio ONLY
-# [WIP] - Scenario 5: Legal Flow
-# [WIP] - Scenario 6: Financial Flow
+# [DONE] - Scenario 4: Sentio ONLY
+# [DONE] - Scenario 5: Legal Flow
+# [DONE] - Scenario 6: Financial Flow
 
 # [NEXT] Booking
 # [NEXT] Profile
@@ -392,7 +392,6 @@ def test_bat_web_015(homeweb, record_output):
 
 # BAT-WEB-016 | SCN - Scenario 2: Professional Support & Sentio [DSGDEMO]
 def test_bat_web_016(homeweb, quantum, credentials, record_output):
-
     # 1: Test - Sign In - Header
     assert homeweb.is_landing()
     homeweb.navigate_sign_in()
@@ -499,180 +498,55 @@ def test_bat_web_020(homeweb, quantum, record_output):
 
     homeweb.take_screenshot("scenario6", logger=record_output)
 
-# # BAT-WEB-011 | Cancel Active Services
-# # [SKIP - WIP]
-# def test_bat_web_011(homeweb, quantum, credentials, env):
-#     pytest.skip("Skipping Cancel Active Services -> WIP")
+    homeweb.logout()
+
+
+# BAT-WEB-021 | Embedded - Mobile Resources
+def test_bat_web_021(homeweb):
+    # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
+    homeweb.navigate_landing()
+    assert homeweb.is_landing()
+    lang_prefix = "" if homeweb.language.lower() == "en" else f"/{homeweb.language}"
+
+    resource_1_target = homeweb.base_url + lang_prefix + "/summertime-and-your-health?embedded"
+    resource_2_target = homeweb.base_url + lang_prefix + "/mental-health-benefits-of-exercise?embedded"
+    resource_3_target = homeweb.base_url + lang_prefix + "/summer-beauty-from-the-inside-out?embedded"
+
+    # 1: Test - Embedded Resource - 1
+    homeweb.driver.get(resource_1_target)
+    assert homeweb.wait_for_resource_content()
+    homeweb.go_back()
+
+    # 2: Test - Embedded Resource - 2
+    homeweb.driver.get(resource_2_target)
+    assert homeweb.wait_for_resource_content()
+    homeweb.go_back()
+
+    # 3: Test - Embedded Resource - 3
+    homeweb.driver.get(resource_3_target)
+    assert homeweb.wait_for_resource_content()
+    homeweb.go_back()
+
+# # BAT-WEB-xxx | HHI Cancel Active Services [hhi-employee@demo.com]
+# # [SKIP - Andrew request]
+# def test_bat_web_xxx(homeweb, quantum, credentials, env):
+#     pytest.skip("Skipping Cancel Active Services -> Andrew request")
 #
 #
-# # BAT-WEB-012 | Live Chat
+# # BAT-WEB-xxx | Live Chat
 # # [SKIP - MANUAL]
-# def test_bat_web_012(homeweb, quantum, credentials, env):
+# def test_bat_web_xxx(homeweb, quantum, credentials, env):
 #     pytest.skip("Skipping Live Chat -> MANUAL TEST")
 #
 #
-# # BAT-WEB-013 | Complete Pathfinder Assessment - Scenario 1
-# # Mental Health > Anxiety > High Severity > Low Risk
-# # Professional Support & Sentio iCBT
-# def test_bat_web_013(homeweb, credentials, record_output):
-#     assert homeweb.is_landing()
-#     header_anon = homeweb.header
-#     header_anon_buttons = header_anon.elements["buttons"]
-#     paths = header_anon.paths["buttons"]
-#     quantum = homeweb.quantum
-#
-#     # 1: Test - Sign In - Header
-#     header_anon.click_element(By.CLASS_NAME, header_anon_buttons["sign_in"])
-#     assert paths["sign_in"] in quantum.current_url.lower()
-#
-#     # 2: Test - Login - Homeweb - Fresh 2
-#     quantum.login(credentials["fresh_2"]["email"], credentials["fresh_2"]["password"])
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 3: Test - Check and cancel active services
-#     appointments = homeweb.get_active_services()
-#     topics = [a.topic for a in appointments]
-#
-#     for topic in topics:
-#         homeweb.end_services(topic)
-#         assert homeweb.wait_for_dashboard()
-#         remaining = homeweb.get_active_services()
-#         assert not any(a.topic == topic for a in remaining)
-#
-#     pytest.skip("Skipping Scenario 1. MANUAL TEST")
-#
-#     # 4: Test - Retrieve Dashboard Tiles
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 5: Test - Navigate Assessment
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
-#     assessment_endpoint = "pathfinder/assessment"
-#     assert assessment_endpoint in homeweb.current_url
-#     assert homeweb.wait_for_assessment()
-#
-#     # 6: Test - Complete Assessment
-#     flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-#     homeweb.complete_assessment(flow, logger=record_output)
-#     assert homeweb.is_assessment_complete()
-#     homeweb.assert_recommendation_scenario_2()
-#
-#
-# # BAT-WEB-014 | Complete Pathfinder Assessment - Scenario 2
-# # Mental Health > Anxiety > Low Severity > Low Risk
-# # Sentio iCBT ONLY
-# # [SKIP - MANUAL]
-# def test_bat_web_014(homeweb, credentials, record_output):
-#     pytest.skip("Skipping Scenario 2 -> MANUAL TEST")
-#
-#
-# # BAT-WEB-015 | Complete Pathfinder Assessment - Scenario 3
-# # Work & Career > Anger > Low Severity > Low Risk
-# # Professional Support ONLY
-# def test_bat_web_015(homeweb, credentials, record_output):
-#     assert homeweb.is_authenticated()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Verify tile count on new portal (was 6 FR / 8 EN on old portal)
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Assessment
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
-#     assessment_endpoint = "pathfinder/assessment"
-#     assert assessment_endpoint in homeweb.current_url
-#     assert homeweb.wait_for_assessment()
-#
-#     # 3: Test - Complete Assessment
-#     flow = [2, 1, 1]
-#     homeweb.complete_assessment(flow, logger=record_output)
-#     assert homeweb.is_assessment_complete()
-#     homeweb.assert_recommendation_scenario_3()
-#
-#
-# # BAT-WEB-016 | Create Pathfinder Booking
+# # BAT-WEB-xxx | Create Pathfinder Booking
 # # [SKIP - WIP]
-# def test_bat_web_016(homeweb, credentials, env):
+# def test_bat_web_xxx(homeweb, credentials, env):
 #     pytest.skip("Skipping Create Booking -> WIP")
 #
 #
-# # BAT-WEB-017 | Complete Pathfinder Booking
+# # BAT-WEB-xxx | Complete Pathfinder Booking
 # # [SKIP - WIP]
-# def test_bat_web_017(homeweb, credentials):
+# def test_bat_web_xxx(homeweb, credentials):
 #     pytest.skip("Skipping Complete Booking -> WIP")
 #
-#
-# # BAT-WEB-018 | Complete Pathfinder Assessment - Scenario 5
-# # Legal flow
-# # Financial flow
-# def test_bat_web_018(homeweb, credentials, record_output):
-#     assert homeweb.is_authenticated()
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 1: Test - Retrieve Dashboard Tiles
-#     # TODO: Verify tile count on new portal (was 6 FR / 8 EN on old portal)
-#     expected = 6 if homeweb.language == "fr" else 8
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 2: Test - Navigate Assessment - Legal > Real estate law
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
-#     assessment_endpoint = "pathfinder/assessment"
-#     assert assessment_endpoint in homeweb.current_url
-#     assert homeweb.wait_for_assessment()
-#
-#     # 3: Test - Complete Assessment - Legal > Real estate law
-#     flow = [3, 3]
-#     homeweb.complete_assessment(flow, logger=record_output)
-#     assert homeweb.is_assessment_complete()
-#     homeweb.assert_recommendation_scenario_3()
-#
-#     homeweb.navigate_dashboard()
-#     assert homeweb.wait_for_dashboard()
-#
-#     # 4: Test - Retrieve Dashboard Tiles
-#     dashboard_tiles = homeweb.get_dashboard_tiles()
-#     assert len(dashboard_tiles) == expected
-#
-#     # 5: Test - Navigate Assessment - Financial > Bankruptcy
-#     homeweb.click_element(By.LINK_TEXT, dashboard_tiles[0].link_text)
-#     assert assessment_endpoint in homeweb.current_url
-#     assert homeweb.wait_for_assessment()
-#
-#     # 6: Test - Complete Assessment - Financial > Bankruptcy
-#     flow = [4, 4]
-#     homeweb.complete_assessment(flow, logger=record_output)
-#     assert homeweb.is_assessment_complete()
-#     homeweb.assert_recommendation_scenario_3()
-#
-#
-# # BAT-WEB-023 | Embedded Resources
-# def test_bat_web_023(homeweb):
-#     # KNOWN ISSUE 1 - Workaround: Manually navigate back to landing (locale-aware)
-#     homeweb.navigate_landing()
-#     assert homeweb.is_landing()
-#     lang_prefix = "" if homeweb.language.lower() == "en" else f"/{homeweb.language}"
-#
-#     resource_1_target = homeweb.base_url + lang_prefix + "/summertime-and-your-health?embedded"
-#     resource_2_target = homeweb.base_url + lang_prefix + "/mental-health-benefits-of-exercise?embedded"
-#     resource_3_target = homeweb.base_url + lang_prefix + "/summer-beauty-from-the-inside-out?embedded"
-#
-#     # 1: Test - Embedded Resource - 1
-#     homeweb.driver.get(resource_1_target)
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.go_back()
-#
-#     # 2: Test - Embedded Resource - 2
-#     homeweb.driver.get(resource_2_target)
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.go_back()
-#
-#     # 3: Test - Embedded Resource - 3
-#     homeweb.driver.get(resource_3_target)
-#     assert homeweb.wait_for_resource_content()
-#     homeweb.go_back()
