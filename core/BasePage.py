@@ -1,5 +1,6 @@
 # Copyright © 2026 - Homewood Health Inc.
 
+import os
 import time
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
@@ -33,3 +34,13 @@ class BasePage:
 
         # 5: Click element
         clickable_element.click()
+
+    def take_screenshot(self, name, logger=None):
+        from conftest import _run_timestamp
+        date_str = _run_timestamp[4:6] + "-" + _run_timestamp[6:8] + "-" + _run_timestamp[:4]
+        reports_dir = f"reports/{date_str}"
+        os.makedirs(reports_dir, exist_ok=True)
+        filename = f"{name}-{_run_timestamp}.png"
+        self.driver.save_screenshot(f"{reports_dir}/{filename}")
+        if logger:
+            logger(f"Screenshot saved: {filename}")
