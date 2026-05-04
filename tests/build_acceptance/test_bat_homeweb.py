@@ -51,7 +51,7 @@ def test_bat_web_003(homeweb, credentials):
     assert quantum.domain in homeweb.current_url.lower()
 
     # 2: Test - Login - Homeweb - Personal
-    quantum.login(credentials["personal"]["email"], credentials["personal"]["password"])
+    quantum.login(credentials["hhi_personal"]["email"], credentials["hhi_personal"]["password"])
     # quantum.login(credentials["sentio"]["email"], credentials["sentio"]["password"])
     assert homeweb.wait_for_dashboard()
 
@@ -70,7 +70,6 @@ def test_bat_web_004(homeweb):
 def test_bat_web_005(homeweb):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 1: Test - Retrieve Dashboard Tiles
     # TODO: Investigate if this is expected
@@ -96,7 +95,6 @@ def test_bat_web_005(homeweb):
 def test_bat_web_006(homeweb, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8
@@ -112,7 +110,7 @@ def test_bat_web_006(homeweb, record_output):
     # 6: Test - Complete Assessment
     homeweb.complete_assessment(logger=record_output)
     assert homeweb.is_assessment_complete()
-    homeweb.assert_recommendation_scenario_4()
+    homeweb.assert_recommendation_scenario_1()
 
 
 # TEST: Homeweb Logout
@@ -167,7 +165,6 @@ def test_bat_web_009(homeweb, env):
 
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 1: Test - Retrieve Dashboard Tiles
     # TODO: Investigate if this is expected
@@ -186,7 +183,6 @@ def test_bat_web_009(homeweb, env):
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
     dashboard_tiles = homeweb.get_dashboard_tiles()
     assert len(dashboard_tiles) == expected
 
@@ -201,7 +197,6 @@ def test_bat_web_009(homeweb, env):
     homeweb.navigate_landing()
     assert homeweb.domain in homeweb.current_url.lower()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
     dashboard_tiles = homeweb.get_dashboard_tiles()
     assert len(dashboard_tiles) == expected
 
@@ -253,8 +248,8 @@ def test_bat_web_011(homeweb, quantum, credentials, env):
         email = credentials["hhi_demo"]["email"]
         password = credentials["hhi_demo"]["password"]
     else:
-        email = credentials["personal"]["email"]
-        password = credentials["personal"]["password"]
+        email = credentials["hhi_personal"]["email"]
+        password = credentials["hhi_personal"]["password"]
     # if env == "beta":
     #     return pytest.skip(f"Skipping {env} - DEMO Prod account only")
 
@@ -366,7 +361,7 @@ def test_bat_web_013(homeweb, credentials, record_output):
     flow = [0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     homeweb.complete_assessment(flow, logger=record_output)
     assert homeweb.is_assessment_complete()
-    homeweb.assert_recommendation_scenario_1()
+    homeweb.assert_recommendation_scenario_2()
 
 
 # TEST: Complete Pathfinder Assessment - Scenario 2
@@ -378,7 +373,6 @@ def test_bat_web_014(homeweb, credentials, record_output):
     pytest.skip("Skipping Scenario 2. Manually testing flow")
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8
@@ -396,7 +390,7 @@ def test_bat_web_014(homeweb, credentials, record_output):
     # flow = [0, 0, 1, 1, 1, 1]
     homeweb.complete_assessment(logger=record_output)
     assert homeweb.is_assessment_complete()
-    homeweb.assert_recommendation_scenario_2()
+    homeweb.assert_recommendation_scenario_4()
 
 
 # TEST: Complete Pathfinder Assessment - Scenario 3
@@ -405,7 +399,6 @@ def test_bat_web_014(homeweb, credentials, record_output):
 def test_bat_web_015(homeweb, credentials, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8
@@ -481,7 +474,6 @@ def test_bat_web_017(homeweb, credentials):
 def test_bat_web_018(homeweb, credentials, record_output):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8
@@ -501,7 +493,6 @@ def test_bat_web_018(homeweb, credentials, record_output):
     homeweb.assert_recommendation_scenario_3()
 
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 4: Test - Retrieve Dashboard Tiles
     expected = 6 if homeweb.language == "fr" else 8

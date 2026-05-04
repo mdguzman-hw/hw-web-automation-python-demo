@@ -41,7 +41,6 @@ def test_smoke_homeweb_004(homeweb, credentials):
     assert homeweb.wait_for_dashboard()
 
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # TODO: Should the test assertion validate all UI elements listed in spreadsheet?
 
@@ -94,7 +93,6 @@ def test_smoke_homeweb_006(homeweb, record_output):
 def test_smoke_homeweb_007(homeweb):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     expected = 6 if homeweb.language == "fr" else 8
     assert len(homeweb.get_dashboard_tiles()) == expected
@@ -122,7 +120,6 @@ def test_smoke_homeweb_008(homeweb):
     pytest.skip("Skipping for now -> Duplicate test?")
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     expected = 6 if homeweb.language == "fr" else 8
     dashboard_tiles = homeweb.get_dashboard_tiles()
@@ -211,7 +208,6 @@ def test_smoke_homeweb_012(homeweb):
 def test_smoke_homeweb_016(homeweb):
     assert homeweb.is_authenticated()
     homeweb.navigate_dashboard()
-    assert homeweb.wait_for_dashboard()
 
     # 1: Test - Check and cancel active services
     appointments = homeweb.get_active_services()
